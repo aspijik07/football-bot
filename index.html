@@ -68,22 +68,6 @@
             font-size: 0.85em;
             letter-spacing: 1px;
         }
-        tr.brazil {
-            background-color: rgba(34, 197, 94, 0.15) !important;
-            border-left: 5px solid #22c55e;
-        }
-        tr.argentina {
-            background-color: rgba(56, 189, 248, 0.15) !important;
-            border-left: 5px solid #38bdf8;
-        }
-        tr.libertadores {
-            background-color: rgba(234, 179, 8, 0.15) !important;
-            border-left: 5px solid #eab308;
-        }
-        tr.sudamericana {
-            background-color: rgba(168, 85, 247, 0.15) !important;
-            border-left: 5px solid #a855f7;
-        }
         .team-cell {
             display: flex;
             align-items: center;
@@ -135,68 +119,11 @@
             <h1>⚽ Football Broadcast Dashboard</h1>
             <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
-        <div class="status-badge">Total Matches Today: <strong>2</strong></div>
+        <div class="status-badge">Total Matches Today: <strong>0</strong></div>
     
-        <table>
-            <thead>
-                <tr>
-                    <th>League</th>
-                    <th>Teams & Logos</th>
-                    <th>Local Time</th>
-                    <th>Morocco Time (UTC+1)</th>
-                    <th>Broadcast Channels</th>
-                </tr>
-            </thead>
-            <tbody>
-        
-                <tr class="libertadores">
-                    <td><strong>Copa Libertadores</strong><br><small style="color:#94a3b8">South America</small></td>
-                    <td>
-                        <div class="team-cell">
-                            
-                            <div>
-                                <strong>Independiente del Valle</strong>
-                                
-                            </div>
-                        </div>
-                        <div class="team-cell" style="margin-top: 8px;">
-                            
-                            <div>
-                                <strong>Flamengo</strong>
-                                
-                            </div>
-                        </div>
-                    </td>
-                    <td>21:30 (UTC-3)</td>
-                    <td><strong style="color:#38bdf8">01:30 (UTC+1)</strong></td>
-                    <td><span class="channel-tag">ESPN</span><span class="channel-tag">DISNEY+</span></td>
-                </tr>
-            
-                <tr class="sudamericana">
-                    <td><strong>Copa Sudamericana</strong><br><small style="color:#94a3b8">South America</small></td>
-                    <td>
-                        <div class="team-cell">
-                            
-                            <div>
-                                <strong>Cienciano</strong>
-                                
-                            </div>
-                        </div>
-                        <div class="team-cell" style="margin-top: 8px;">
-                            
-                            <div>
-                                <strong>Atletico Torque</strong>
-                                
-                            </div>
-                        </div>
-                    </td>
-                    <td>21:30 (UTC-3)</td>
-                    <td><strong style="color:#38bdf8">01:30 (UTC+1)</strong></td>
-                    <td><span class="channel-tag">PARAMOUNT+</span></td>
-                </tr>
-            
-            </tbody>
-        </table>
+        <div class="no-matches">
+            🚫 No matches scheduled today for the targeted leagues.
+        </div>
         
     </div>
 
