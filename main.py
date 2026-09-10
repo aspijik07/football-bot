@@ -18,19 +18,23 @@ def get_matches():
         raise Exception(f"Failed to load Promiedos page. Status code: {response.status_code}")
     
     soup = BeautifulSoup(response.text, 'html.parser')
-    page_text = soup.get_text(separator=' ', strip=True)[:40000]
+    
+    # Clean up text extraction
+    text_content = soup.get_text(separator='\n', strip=True)[:30000]
 
     prompt = f"""
-    Extract all football matches from the following raw text.
-    Return ONLY a JSON array of objects with these exact keys:
-    - "league": string
-    - "home_team": string
-    - "away_team": string
-    - "time": string
-    - "channels": array of strings
+    You are a data extraction assistant.
+    Extract all football matches from the provided text.
+    
+    Return a valid JSON array of objects. Each object MUST have these exact keys:
+    - "league": Name of the league/tournament
+    - "home_team": Name of the home team
+    - "away_team": Name of the away team
+    - "time": Match time or status (e.g., "18:00", "Final", "30'")
+    - "channels": List of TV channels showing the match (if any, otherwise empty array [])
 
-    Source text:
-    {page_text}
+    Raw text:
+    {text_content}
     """
 
     api_key = os.getenv("GEMINI_API_KEY")
@@ -43,7 +47,6 @@ def get_matches():
     for attempt in range(max_retries):
         try:
             print(f"Calling Gemini AI (Attempt {attempt + 1}/{max_retries})...")
-            # Using updated gemini-3.6-flash model requested by API error log
             result = client.models.generate_content(
                 model='gemini-3.6-flash',
                 contents=prompt,
@@ -53,9 +56,8 @@ def get_matches():
             )
             
             raw_text = result.text.strip()
-            if raw_text.startswith("```"):
-                raw_text = raw_text.split("\n", 1)[1].rsplit("\n", 1)[0]
-                
+            print("Raw AI Response:", raw_text[:300]) # Debug log
+            
             matches_data = json.loads(raw_text)
             
             with open("matches.json", "w", encoding="utf-8") as f:
