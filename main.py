@@ -24,7 +24,7 @@ def get_matches():
     promiedos_text = fetch_site_text("https://www.promiedos.com.ar/")
     flashscore_text = fetch_site_text("https://www.flashscore.com/")
 
-    # List of allowed leagues - you can add new leagues here anytime!
+    # Target leagues list - modify or append new leagues here
     allowed_leagues = [
         "Argentina : Liga Profesional",
         "ARGENTINA : Copa Argentina",
