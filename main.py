@@ -4,12 +4,11 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-def scrape_zerozero_matches():
+def scrape_matches_for_date(date_str, label):
     matches = []
-    # URLs dyal zerozero.com.ar w ogol.com.br
     urls = [
-        "https://www.zerozero.com.ar/futebol/jogos",
-        "https://www.ogol.com.br/futebol/jogos"
+        f"https://www.zerozero.com.ar/futebol/jogos?data={date_str}",
+        f"https://www.ogol.com.br/futebol/jogos?data={date_str}"
     ]
     
     headers = {
@@ -23,17 +22,14 @@ def scrape_zerozero_matches():
                 continue
             
             soup = BeautifulSoup(response.text, 'html.parser')
-            # Parsing logic for zerozero / ogol match blocks
             game_elements = soup.select('.game_data, .match-item, tr.match, div.game')
             
             for el in game_elements:
                 try:
-                    # League & Country
                     league_el = el.find_previous(['div', 'tr'], class_=['competition_name', 'header-competition'])
                     league = league_el.get_text(strip=True) if league_el else "South America / Domestic"
                     country = "Argentina" if "ar" in url else "Brazil"
 
-                    # Teams & Logos
                     home_el = el.select_one('.hometeam, .team-home, td.home')
                     away_el = el.select_one('.awayteam, .team-away, td.away')
                     
@@ -43,7 +39,7 @@ def scrape_zerozero_matches():
                     home_team = home_el.get_text(strip=True)
                     away_team = away_el.get_text(strip=True)
 
-                    # Logos extraction (PNG / JPG links)
+                    # Logos
                     home_img = home_el.find('img')
                     away_img = away_el.find('img')
                     
@@ -59,19 +55,15 @@ def scrape_zerozero_matches():
                         if away_logo.startswith('//'):
                             away_logo = "https:" + away_logo
 
-                    # Time
                     time_el = el.select_one('.time, .match-time, td.time')
                     local_time = time_el.get_text(strip=True) if time_el else "15:00"
-                    
-                    # Calculate Morocco time (UTC+1 approximation or parsing)
-                    morocco_time = local_time  # Tqder t-zid logic dyal UTC ila bɣiti
+                    morocco_time = local_time
 
-                    # Channels
                     channels_el = el.select_one('.channels, .tv-channels')
                     channels = [c.get_text(strip=True) for c in channels_el.select('span, a')] if channels_el else ["ESPN", "Star+"]
 
-                    # Filter only targeted leagues (Libertadores, Sudamericana, Argentina, Brazil)
                     matches.append({
+                        "day_label": label,  # "Today" aw "Tomorrow"
                         "league": league,
                         "country": country,
                         "home_team": home_team,
@@ -86,11 +78,6 @@ def scrape_zerozero_matches():
                     continue
         except Exception as e:
             print(f"Error fetching {url}: {e}")
-
-    # Fallback/Sample structure if network/selectors need adjustment, ensuring JSON is never empty if needed
-    if not matches:
-        # Ila makantch result f scraping (bch matb9ach page khawya), n9dro n7toto structure base
-        pass
 
     return matches
 
@@ -154,6 +141,7 @@ def generate_html_dashboard(data):
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
         }}
         th, td {{
             padding: 15px;
@@ -166,6 +154,16 @@ def generate_html_dashboard(data):
             text-transform: uppercase;
             font-size: 0.85em;
             letter-spacing: 1px;
+        }}
+        .section-header {{
+            background-color: #1e293b !important;
+            color: #38bdf8 !important;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 1px;
+            padding: 12px !important;
+            border-top: 2px solid #38bdf8;
         }}
         .team-cell {{
             display: flex;
@@ -215,19 +213,24 @@ def generate_html_dashboard(data):
 <body>
     <div class="container">
         <div class="header-flex">
-            <h1>⚽ Football Broadcast Dashboard</h1>
+            <h1>⚽ Football Broadcast Dashboard (Today & Tomorrow)</h1>
             <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
-        <div class="status-badge">Total Matches Today: <strong>{data.get('total_matches', 0)}</strong></div>
+        <div class="status-badge">Total Matches Loaded: <strong>{data.get('total_matches', 0)}</strong></div>
     """
 
     if not matches:
         html_content += """
         <div class="no-matches">
-            🚫 No matches scheduled today for the targeted leagues.
+            🚫 No matches scheduled for today or tomorrow.
         </div>
         """
     else:
+        # Separate today and tomorrow matches
+        today_matches = [m for m in matches if m.get("day_label") == "Today"]
+        tomorrow_matches = [m.get("day_label") == "Tomorrow" for m in matches] # Wait, let's filter properly
+        tomorrow_matches_list = [m for m in matches if m.get("day_label") == "Tomorrow"]
+
         html_content += """
         <table>
             <thead>
@@ -241,48 +244,26 @@ def generate_html_dashboard(data):
             </thead>
             <tbody>
         """
-        for m in matches:
-            league = m.get("league", "")
-            country = m.get("country", "")
-            home_team = m.get("home_team", "")
-            away_team = m.get("away_team", "")
-            home_logo = m.get("home_logo", "")
-            away_logo = m.get("away_logo", "")
 
-            home_logo_html = f'<img src="{home_logo}" class="team-logo" alt="logo">' if home_logo else ''
-            home_link_html = f'<br><a href="{home_logo}" target="_blank" class="img-link">🔗 Home Image Link</a>' if home_logo else ''
-
-            away_logo_html = f'<img src="{away_logo}" class="team-logo" alt="logo">' if away_logo else ''
-            away_link_html = f'<br><a href="{away_logo}" target="_blank" class="img-link">🔗 Away Image Link</a>' if away_logo else ''
-
-            channels_html = "".join([f'<span class="channel-tag">{ch}</span>' for ch in m.get("all_unique_channels", [])])
-            if not channels_html:
-                channels_html = '<span style="color: #64748b;">No TV info</span>'
-
-            html_content += f"""
+        # Today Section
+        if today_matches:
+            html_content += """
                 <tr>
-                    <td><strong>{league}</strong><br><small style="color:#94a3b8">{country}</small></td>
-                    <td>
-                        <div class="team-cell">
-                            {home_logo_html}
-                            <div>
-                                <strong>{home_team}</strong>
-                                {home_link_html}
-                            </div>
-                        </div>
-                        <div class="team-cell" style="margin-top: 8px;">
-                            {away_logo_html}
-                            <div>
-                                <strong>{away_team}</strong>
-                                {away_link_html}
-                            </div>
-                        </div>
-                    </td>
-                    <td>{m.get("local_time")}</td>
-                    <td><strong style="color:#38bdf8">{m.get("morocco_time")}</strong></td>
-                    <td>{channels_html}</td>
+                    <td colspan="5" class="section-header">📅 TODAY'S MATCHES</td>
                 </tr>
             """
+            for m in today_matches:
+                html_content += render_match_row(m)
+
+        # Tomorrow Section (L-taht)
+        if tomorrow_matches_list:
+            html_content += """
+                <tr>
+                    <td colspan="5" class="section-header" style="border-top: 3px solid #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES</td>
+                </tr>
+            """
+            for m in tomorrow_matches_list:
+                html_content += render_match_row(m)
 
         html_content += """
             </tbody>
@@ -351,21 +332,73 @@ def generate_html_dashboard(data):
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
 
+def render_match_row(m):
+    league = m.get("league", "")
+    country = m.get("country", "")
+    home_team = m.get("home_team", "")
+    away_team = m.get("away_team", "")
+    home_logo = m.get("home_logo", "")
+    away_logo = m.get("away_logo", "")
+
+    home_logo_html = f'<img src="{home_logo}" class="team-logo" alt="logo">' if home_logo else ''
+    home_link_html = f'<br><a href="{home_logo}" target="_blank" class="img-link">🔗 Home Image Link</a>' if home_logo else ''
+
+    away_logo_html = f'<img src="{away_logo}" class="team-logo" alt="logo">' if away_logo else ''
+    away_link_html = f'<br><a href="{away_logo}" target="_blank" class="img-link">🔗 Away Image Link</a>' if away_logo else ''
+
+    channels_html = "".join([f'<span class="channel-tag">{ch}</span>' for ch in m.get("all_unique_channels", [])])
+    if not channels_html:
+        channels_html = '<span style="color: #64748b;">No TV info</span>'
+
+    return f"""
+        <tr>
+            <td><strong>{league}</strong><br><small style="color:#94a3b8">{country}</small></td>
+            <td>
+                <div class="team-cell">
+                    {home_logo_html}
+                    <div>
+                        <strong>{home_team}</strong>
+                        {home_link_html}
+                    </div>
+                </div>
+                <div class="team-cell" style="margin-top: 8px;">
+                    {away_logo_html}
+                    <div>
+                        <strong>{away_team}</strong>
+                        {away_link_html}
+                    </div>
+                </div>
+            </td>
+            <td>{m.get("local_time")}</td>
+            <td><strong style="color:#38bdf8">{m.get("morocco_time")}</strong></td>
+            <td>{channels_html}</td>
+        </tr>
+    """
+
 def main():
-    print("Scraping matches and logos from zerozero and ogol...")
-    matches = scrape_zerozero_matches()
-    
+    today = datetime.now()
+    tomorrow = today + timedelta(days=1)
+
+    today_str = today.strftime('%Y-%m-%d')
+    tomorrow_str = tomorrow.strftime('%Y-%m-%d')
+
+    print(f"Scraping matches for Today ({today_str})...")
+    today_matches = scrape_matches_for_date(today_str, "Today")
+
+    print(f"Scraping matches for Tomorrow ({tomorrow_str})...")
+    tomorrow_matches = scrape_matches_for_date(tomorrow_str, "Tomorrow")
+
+    all_matches = today_matches + tomorrow_matches
+
     data = {
-        "total_matches": len(matches),
-        "matches": matches
+        "total_matches": len(all_matches),
+        "matches": all_matches
     }
 
-    # Save to matches.json
     with open("matches.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
-    print("matches.json updated successfully!")
+    print("matches.json updated successfully with Today & Tomorrow matches!")
 
-    # Generate HTML Dashboard
     generate_html_dashboard(data)
     print("index.html dashboard generated successfully!")
 

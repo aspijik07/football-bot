@@ -55,6 +55,7 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
         }
         th, td {
             padding: 15px;
@@ -67,6 +68,16 @@
             text-transform: uppercase;
             font-size: 0.85em;
             letter-spacing: 1px;
+        }
+        .section-header {
+            background-color: #1e293b !important;
+            color: #38bdf8 !important;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 1px;
+            padding: 12px !important;
+            border-top: 2px solid #38bdf8;
         }
         .team-cell {
             display: flex;
@@ -116,13 +127,13 @@
 <body>
     <div class="container">
         <div class="header-flex">
-            <h1>⚽ Football Broadcast Dashboard</h1>
+            <h1>⚽ Football Broadcast Dashboard (Today & Tomorrow)</h1>
             <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
-        <div class="status-badge">Total Matches Today: <strong>0</strong></div>
+        <div class="status-badge">Total Matches Loaded: <strong>0</strong></div>
     
         <div class="no-matches">
-            🚫 No matches scheduled today for the targeted leagues.
+            🚫 No matches scheduled for today or tomorrow.
         </div>
         
     </div>
