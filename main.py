@@ -1,115 +1,87 @@
 import os
 import json
-import time
-from datetime import datetime, timedelta
 import requests
+from datetime import datetime, timedelta
 
-# ---------------------------------------------------------------------------
-# 1. FLASHSCORE API / SCRAPER LOGIC
-# ---------------------------------------------------------------------------
-def fetch_flashscore_matches():
-    """
-    Fetches match data directly from Flashscore endpoints.
-    Targets Brazil, Argentina, Copa Libertadores, and Copa Sudamericana.
-    """
+def convert_to_morocco_time(utc_time_str):
+    try:
+        # Converts UTC ISO time to Morocco Time (GMT+1)
+        dt = datetime.fromisoformat(utc_time_str.replace('Z', '+00:00'))
+        morocco_dt = dt + timedelta(hours=1)
+        return morocco_dt.strftime('%H:%M')
+    except Exception:
+        return utc_time_str
+
+def fetch_all_matches():
     matches = []
     
-    # Headers to mimic real browser requests to Flashscore API
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "X-Fsign": "SW90ZW50aWZpY2F0aW9u",
-        "Referer": "https://www.flashscore.com/"
-    }
-
-    # Custom mapping for target leagues
+    # Target Leagues Mapping
     TARGET_LEAGUES = {
-        "Série A": {"country": "Brazil", "type": "brazil"},
-        "Copa do Brasil": {"country": "Brazil", "type": "brazil"},
-        "Paulista": {"country": "Brazil", "type": "brazil"},
-        "Liga Profesional": {"country": "Argentina", "type": "argentina"},
-        "Copa Argentina": {"country": "Argentina", "type": "argentina"},
-        "Copa Libertadores": {"country": "South America", "type": "libertadores"},
-        "Copa Sudamericana": {"country": "South America", "type": "sudamericana"}
+        # Argentina
+        "87": {"name": "Liga Profesional", "country": "Argentina", "type": "argentina"},
+        "10240": {"name": "Copa Argentina", "country": "Argentina", "type": "argentina"},
+        # Brazil
+        "268": {"name": "Série A Betano", "country": "Brazil", "type": "brazil"},
+        "10023": {"name": "Copa do Brasil", "country": "Brazil", "type": "brazil"},
+        # South America
+        "284": {"name": "Copa Libertadores", "country": "South America", "type": "libertadores"},
+        "285": {"name": "Copa Sudamericana", "country": "South America", "type": "sudamericana"}
     }
 
-    # Fetching Today (0) and Tomorrow (1) from Flashscore feed
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    # Fetching Today and Tomorrow
     for day_offset in [0, 1]:
         day_label = "today" if day_offset == 0 else "tomorrow"
-        url = f"https://local-global.flashscore.ninja/2/x/feed/f_1_{day_offset}_3_en_1"
-        
+        date_str = (datetime.now() + timedelta(days=day_offset)).strftime('%Y%m%d')
+        url = f"https://www.fotmob.com/api/matches?date={date_str}"
+
         try:
             res = requests.get(url, headers=headers, timeout=10)
             if res.status_code != 200:
                 continue
 
-            # Parsing Flashscore custom text format (delimited by ~SA÷)
-            raw_data = res.text
-            blocks = raw_data.split('~ZA÷')
-            
-            for block in blocks[1:]:
-                lines = block.split('~')
-                league_name = ""
-                country_name = ""
+            data = res.json()
+            leagues = data.get("leagues", [])
+
+            for league in leagues:
+                league_id = str(league.get("id"))
                 
-                for line in lines:
-                    if line.startswith('ZE÷'):
-                        league_name = line.split('÷')[1]
-                    elif line.startswith('ZB÷'):
-                        country_name = line.split('÷')[1]
-
-                # Match filtering against target leagues
-                matched_target = None
-                for target_key, meta in TARGET_LEAGUES.items():
-                    if target_key.lower() in league_name.lower():
-                        matched_target = meta
-                        break
-
-                if not matched_target:
-                    continue
-
-                # Parse individual match items
-                match_items = block.split('~AA÷')
-                for match_item in match_items[1:]:
-                    m_data = {}
-                    fields = match_item.split('~')
-                    match_id = fields[0].split('÷')[0] if fields else ""
+                # Check if league matches our target list
+                if league_id in TARGET_LEAGUES:
+                    meta = TARGET_LEAGUES[league_id]
                     
-                    home_team, away_team, start_time = "", "", ""
-                    for field in fields:
-                        if field.startswith('CX÷'):
-                            home_team = field.split('÷')[1]
-                        elif field.startswith('AF÷'):
-                            away_team = field.split('÷')[1]
-                        elif field.startswith('AD÷'):
-                            timestamp = int(field.split('÷')[1])
-                            dt = datetime.fromtimestamp(timestamp)
-                            start_time = dt.strftime('%H:%M')
-
-                    if home_team and away_team:
-                        # Construct Flashscore match banner URL
-                        banner_url = f"https://www.flashscore.com/res/image/featured-match/{match_id}.jpg"
+                    for match in league.get("matches", []):
+                        home_team = match.get("home", {}).get("name")
+                        away_team = match.get("away", {}).get("name")
+                        utc_time = match.get("status", {}).get("utcTime")
                         
+                        morocco_time = convert_to_morocco_time(utc_time) if utc_time else "TBD"
+                        match_id = match.get("id")
+
+                        # Fotmob Match Banner or Logos fallback
+                        banner_url = f"https://images.fotmob.com/image_resources/logo/teamlogo/{match.get('home', {}).get('id')}.png"
+
                         matches.append({
                             "day": day_label,
-                            "league": league_name,
-                            "country": matched_target["country"],
-                            "type": matched_target["type"],
+                            "league": meta["name"],
+                            "country": meta["country"],
+                            "type": meta["type"],
                             "home_team": home_team,
                             "away_team": away_team,
-                            "local_time": f"{start_time} (Local)",
-                            "morocco_time": start_time,
+                            "local_time": morocco_time,
+                            "morocco_time": morocco_time,
                             "banner_url": banner_url,
-                            "channels": ["Flashscore Live"]
+                            "channels": ["Live Stream / Broadcast"]
                         })
+
         except Exception as e:
-            print(f"Flashscore parsing error for day {day_offset}: {e}")
+            print(f"Error fetching matches for day {day_offset}: {e}")
 
     return matches
 
-
-# ---------------------------------------------------------------------------
-# 2. HTML GENERATOR (KHALFIYYAT L-ALWAN & UI DESIGN)
-# ---------------------------------------------------------------------------
 def generate_html_dashboard(matches_data):
     today_str = datetime.now().strftime('%d/%m/%Y')
     tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%d/%m/%Y')
@@ -139,7 +111,7 @@ def generate_html_dashboard(matches_data):
         
         .section-header {{ background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1em; font-weight: bold; text-align: center; border-top: 2px solid #38bdf8; }}
         
-        /* --- KHALFIYYAT L-ROW (BACKGROUND COLORS) --- */
+        /* BACKGROUND COLORS FOR LEAGUES */
         .row-argentina {{ background-color: rgba(56, 189, 248, 0.18) !important; }}
         .badge-arg {{ background-color: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
         
@@ -155,7 +127,7 @@ def generate_html_dashboard(matches_data):
         .badge-other {{ background-color: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
         
         .match-title {{ font-weight: bold; font-size: 1em; margin-bottom: 6px; }}
-        .btn-banner {{ background-color: #0284c7; color: #fff; border: none; padding: 5px 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }}
+        .btn-banner {{ background-color: #0284c7; color: #fff; border: none; padding: 5px 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }}
         .btn-banner:hover {{ background-color: #0369a1; }}
 
         .channel-tag {{ background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }}
@@ -168,7 +140,7 @@ def generate_html_dashboard(matches_data):
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚽ Football Broadcast Dashboard (Flashscore)</h1>
+            <h1>⚽ Football Broadcast Dashboard</h1>
             <button class="btn-update" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
 
@@ -179,7 +151,7 @@ def generate_html_dashboard(matches_data):
                     <th>Match & Banner</th>
                     <th>Local Time</th>
                     <th>Morocco Time (GMT+1)</th>
-                    <th>Source</th>
+                    <th>Channels</th>
                 </tr>
             </thead>
             <tbody>
@@ -227,7 +199,7 @@ def generate_html_dashboard(matches_data):
 
 def build_rows(matches):
     if not matches:
-        return '<tr><td colspan="5" class="no-matches">🚫 No matches scheduled on Flashscore for this day.</td></tr>'
+        return '<tr><td colspan="5" class="no-matches">🚫 No matches scheduled for this day.</td></tr>'
     
     html = ""
     for m in matches:
@@ -260,7 +232,7 @@ def build_rows(matches):
             </td>
             <td>
                 <div class="match-title">{m['home_team']} <span style="color:#eab308">VS</span> {m['away_team']}</div>
-                <button class="btn-banner" onclick="openBanner('{banner_url}')">🖼️ View Match Banner (Team vs Team)</button>
+                <button class="btn-banner" onclick="openBanner('{banner_url}')">🖼️ View Match Banner</button>
             </td>
             <td><span style="color:#cbd5e1">{m['local_time']}</span></td>
             <td><strong style="color: #38bdf8; font-size: 1.05em;">{m['morocco_time']}</strong></td>
@@ -268,15 +240,8 @@ def build_rows(matches):
         </tr>"""
     return html
 
-# ---------------------------------------------------------------------------
-# 3. MAIN EXECUTION
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    print("Fetching matches exclusively from Flashscore...")
-    matches = fetch_flashscore_matches()
-    print(f"Total Flashscore matches found: {len(matches)}")
-    
+    matches = fetch_all_matches()
     output_html = generate_html_dashboard(matches)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(output_html)
-    print("index.html successfully updated!")
