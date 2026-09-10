@@ -1,5 +1,5 @@
 {
-    "total_matches": 2,
+    "total_matches": 1,
     "matches": [
         {
             "day_label": "Today",
@@ -7,23 +7,8 @@
             "country": "Argentina",
             "home_team": "Newells Old Boys",
             "away_team": "Velez Sarsfield",
-            "home_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Newell%27s_Old_Boys_logo.svg/100px-Newell%27s_Old_Boys_logo.svg.png",
-            "away_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg/100px-Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg.png",
-            "local_time": "21:00",
-            "morocco_time": "21:00",
-            "all_unique_channels": [
-                "ESPN",
-                "Star+"
-            ]
-        },
-        {
-            "day_label": "Tomorrow",
-            "league": "Liga Profesional",
-            "country": "Argentina",
-            "home_team": "Newells Old Boys",
-            "away_team": "Velez Sarsfield",
-            "home_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Newell%27s_Old_Boys_logo.svg/100px-Newell%27s_Old_Boys_logo.svg.png",
-            "away_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg/100px-Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg.png",
+            "home_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Newell%27s_Old_Boys_logo.svg/300px-Newell%27s_Old_Boys_logo.svg.png",
+            "away_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg/300px-Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg.png",
             "local_time": "21:00",
             "morocco_time": "21:00",
             "all_unique_channels": [
