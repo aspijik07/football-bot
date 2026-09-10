@@ -13,8 +13,13 @@ def convert_to_morocco_time(utc_time_str):
 
 def fetch_all_matches_hybrid():
     matches = []
+    
+    # Standard Chrome Headers bash Sofascore/Fotmob ma y-blokiwch
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.sofascore.com/"
     }
 
     keywords = ["argentina", "brazil", "brasileiro", "libertadores", "sudamericana", "paulista", "copa"]
@@ -25,10 +30,10 @@ def fetch_all_matches_hybrid():
         date_str = target_date.strftime('%Y-%m-%d')
         date_fotmob = target_date.strftime('%Y%m%d')
 
-        # SOURCE 1: Sofascore Scheduled Events API
+        # SOURCE 1: Sofascore
         try:
             sofa_url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date_str}"
-            res = requests.get(sofa_url, headers=headers, timeout=8)
+            res = requests.get(sofa_url, headers=headers, timeout=10)
             if res.status_code == 200:
                 events = res.json().get("events", [])
                 for ev in events:
@@ -44,27 +49,24 @@ def fetch_all_matches_hybrid():
                         if start_ts:
                             m_time = (datetime.fromtimestamp(start_ts) + timedelta(hours=1)).strftime('%H:%M')
 
-                        league_name = ev.get("tournament", {}).get("name", "League")
-                        country = ev.get("tournament", {}).get("category", {}).get("name", "LATAM")
-                        
                         matches.append({
                             "day": day_label,
-                            "league": league_name,
-                            "country": country,
+                            "league": ev.get("tournament", {}).get("name", "League"),
+                            "country": ev.get("tournament", {}).get("category", {}).get("name", "LATAM"),
                             "home_team": home,
                             "away_team": away,
                             "local_time": m_time,
                             "morocco_time": m_time,
                             "banner_url": f"https://api.sofascore.app/api/v1/event/{ev.get('id')}/image",
-                            "channels": ["Sofascore Feed"]
+                            "channels": ["Sofascore"]
                         })
         except Exception as e:
-            print(f"Sofascore Fetch Error: {e}")
+            print(f"Sofascore error: {e}")
 
-        # SOURCE 2: Fotmob (Dynamic Keyword Search)
+        # SOURCE 2: Fotmob Fallback
         try:
             fotmob_url = f"https://www.fotmob.com/api/matches?date={date_fotmob}"
-            res = requests.get(fotmob_url, headers=headers, timeout=8)
+            res = requests.get(fotmob_url, headers=headers, timeout=10)
             if res.status_code == 200:
                 leagues = res.json().get("leagues", [])
                 for lg in leagues:
@@ -87,12 +89,12 @@ def fetch_all_matches_hybrid():
                                 "local_time": m_time,
                                 "morocco_time": m_time,
                                 "banner_url": f"https://images.fotmob.com/image_resources/logo/teamlogo/{m.get('home', {}).get('id')}.png",
-                                "channels": ["Fotmob Broadcast"]
+                                "channels": ["Fotmob"]
                             })
         except Exception as e:
-            print(f"Fotmob Fetch Error: {e}")
+            print(f"Fotmob error: {e}")
 
-    # Deduplicate matches by home vs away
+    # Remove duplicates
     unique_matches = []
     seen = set()
     for m in matches:
