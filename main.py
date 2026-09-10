@@ -1,24 +1,3 @@
-import os
-import json
-import time
-import requests
-from bs4 import BeautifulSoup
-from google import genai
-from google.genai import types
-
-def fetch_site_text(url, timeout=12):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    }
-    try:
-        res = requests.get(url, headers=headers, timeout=timeout)
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            return soup.get_text(separator=' ', strip=True)[:25000]
-    except Exception as e:
-        print(f"Failed to fetch {url}: {e}")
-    return ""
-
 def generate_html_dashboard(data):
     matches = data.get("matches", [])
     
@@ -27,7 +6,7 @@ def generate_html_dashboard(data):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Football Matches Dashboard</title>
+    <title>Football Broadcast Dashboard</title>
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -40,10 +19,31 @@ def generate_html_dashboard(data):
             max-width: 1200px;
             margin: 0 auto;
         }}
+        .header-flex {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }}
         h1 {{
-            text-align: center;
             color: #38bdf8;
-            margin-bottom: 25px;
+            margin: 0;
+        }}
+        .btn-start {{
+            background-color: #eab308;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+            transition: all 0.2s ease;
+        }}
+        .btn-start:hover {{
+            background-color: #ca8a04;
+            transform: translateY(-2px);
         }}
         .status-badge {{
             text-align: center;
@@ -71,29 +71,21 @@ def generate_html_dashboard(data):
             font-size: 0.85em;
             letter-spacing: 1px;
         }}
-        /* Dynamic Row Colors based on League/Country */
         tr.brazil {{
-            background-color: rgba(34, 197, 94, 0.15) !important; /* Soft Green */
+            background-color: rgba(34, 197, 94, 0.15) !important;
             border-left: 5px solid #22c55e;
         }}
         tr.argentina {{
-            background-color: rgba(56, 189, 248, 0.15) !important; /* Soft Blue */
+            background-color: rgba(56, 189, 248, 0.15) !important;
             border-left: 5px solid #38bdf8;
         }}
         tr.libertadores {{
-            background-color: rgba(234, 179, 8, 0.15) !important; /* Soft Gold */
+            background-color: rgba(234, 179, 8, 0.15) !important;
             border-left: 5px solid #eab308;
         }}
         tr.sudamericana {{
-            background-color: rgba(168, 85, 247, 0.15) !important; /* Soft Purple */
+            background-color: rgba(168, 85, 247, 0.15) !important;
             border-left: 5px solid #a855f7;
-        }}
-        .badge {{
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            font-weight: bold;
-            display: inline-block;
         }}
         .channel-tag {{
             background-color: #334155;
@@ -117,7 +109,10 @@ def generate_html_dashboard(data):
 </head>
 <body>
     <div class="container">
-        <h1>⚽ Football Broadcast Dashboard</h1>
+        <div class="header-flex">
+            <h1>⚽ Football Broadcast Dashboard</h1>
+            <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
+        </div>
         <div class="status-badge">Total Matches Today: <strong>{data.get('total_matches', 0)}</strong></div>
     """
 
@@ -145,7 +140,6 @@ def generate_html_dashboard(data):
             league = m.get("league", "")
             country = m.get("country", "")
             
-            # Determine Color CSS Class
             row_class = ""
             if "Libertadores" in league:
                 row_class = "libertadores"
@@ -177,134 +171,53 @@ def generate_html_dashboard(data):
 
     html_content += """
     </div>
+
+    <script>
+        function triggerWorkflow() {
+            // Remplace token hna mni t-genereha men GitHub
+            const GITHUB_TOKEN = "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN";
+            const OWNER = "aspijik07";
+            const REPO = "football-bot";
+            const WORKFLOW_ID = "runner.yml";
+
+            const button = document.querySelector('.btn-start');
+            button.innerText = '⌛ Updating Data...';
+            button.disabled = true;
+
+            fetch(`https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ref: 'main'
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Workflow started successfully! Page will update in ~1-2 minutes.');
+                } else {
+                    alert('Failed to trigger workflow. Please check your Token permissions.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error dispatching workflow.');
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    button.innerText = '▶ START UPDATE';
+                    button.disabled = false;
+                }, 5000);
+            });
+        }
+    </script>
 </body>
 </html>
     """
     
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
-    print("Generated index.html dashboard successfully!")
-
-def get_matches():
-    sources = {
-        "promiedos": "https://www.promiedos.com.ar/",
-        "flashscore": "https://www.flashscore.com/",
-        "ogol": "https://www.ogol.com.br/jogos_dia.php",
-        "guiadetv": "https://www.guiadetv.com/",
-        "futebolnatv": "https://www.futebolnatv.com.br/"
-    }
-
-    scraped_texts = {site: fetch_site_text(url) for site, url in sources.items()}
-
-    allowed_leagues = [
-        "Liga Profesional",
-        "Copa Argentina",
-        "Copa Libertadores",
-        "Copa Sudamericana",
-        "Serie A Betano",
-        "Brasileirao"
-    ]
-
-    prompt = f"""
-    You are a professional football broadcast data aggregator.
-    Analyze the raw text from the 5 sources below for TODAY'S matches.
-
-    TARGET LEAGUES ONLY:
-    {json.dumps(allowed_leagues)}
-
-    RAW DATA SOURCES:
-    - PROMIEDOS: {scraped_texts['promiedos']}
-    - FLASHSCORE: {scraped_texts['flashscore']}
-    - OGOL: {scraped_texts['ogol']}
-    - GUIADETV: {scraped_texts['guiadetv']}
-    - FUTEBOLNATV: {scraped_texts['futebolnatv']}
-
-    INSTRUCTIONS:
-    1. Filter strictly for matches in the target leagues.
-    2. Extract TV/Streaming channels found in EACH source individually.
-    3. TIME & COUNTRY HANDLING:
-       - "country": Host country/region ("Argentina", "Brazil", or "South America").
-       - "local_time": Local time (UTC-3), e.g., "21:30 (UTC-3)".
-       - "morocco_time": Calculated Morocco time (UTC+1), strictly +4 hours ahead of UTC-3 local time.
-    4. IF NO MATCHES exist today, return an EMPTY array [].
-
-    Return ONLY a valid JSON array of match objects formatted strictly like this:
-    [
-      {{
-        "league": "Match League Name",
-        "country": "Argentina",
-        "home_team": "Home Team",
-        "away_team": "Away Team",
-        "local_time": "21:30 (UTC-3)",
-        "morocco_time": "01:30 (UTC+1)",
-        "source_channels": {{
-          "promiedos": ["ESPN"],
-          "guiadetv": ["SporTV"],
-          "futebolnatv": ["DISNEY+"],
-          "ogol": [],
-          "flashscore": []
-        }},
-        "all_unique_channels": ["ESPN", "SporTV", "DISNEY+"],
-        "matching_sources": ["promiedos", "guiadetv", "futebolnatv"]
-      }}
-    ]
-    """
-
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY is missing!")
-
-    client = genai.Client(api_key=api_key)
-
-    max_retries = 4
-    for attempt in range(1, max_retries + 1):
-        try:
-            print(f"Calling Gemini AI (Attempt {attempt}/{max_retries})...")
-            result = client.models.generate_content(
-                model='gemini-3.6-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json"
-                )
-            )
-            
-            matches_data = json.loads(result.text.strip())
-            
-            if not matches_data or len(matches_data) == 0:
-                final_output = {
-                    "status": "No matches today",
-                    "message": "There are no matches scheduled today for the targeted leagues.",
-                    "total_matches": 0,
-                    "matches": []
-                }
-            else:
-                final_output = {
-                    "status": "Success",
-                    "total_matches": len(matches_data),
-                    "matches": matches_data
-                }
-            
-            with open("matches.json", "w", encoding="utf-8") as f:
-                json.dump(final_output, f, ensure_ascii=False, indent=2)
-            
-            # Generate the visual HTML dashboard
-            generate_html_dashboard(final_output)
-            return
-
-        except Exception as e:
-            print(f"Attempt {attempt} failed with error: {e}")
-            if attempt < max_retries:
-                time.sleep(attempt * 5)
-            else:
-                error_output = {
-                    "status": "Error",
-                    "message": str(e),
-                    "matches": []
-                }
-                with open("matches.json", "w", encoding="utf-8") as f:
-                    json.dump(error_output, f, ensure_ascii=False, indent=2)
-                generate_html_dashboard(error_output)
-                raise e
-
-if __name__ == "__main__":
-    get_matches()
+    print("Generated index.html dashboard with Start button successfully!")
