@@ -7,30 +7,31 @@ from google import genai
 from google.genai import types
 
 def get_matches():
-    # 1. Fetch Promiedos TV page specifically
-    url = "https://www.promiedos.com.ar/tv"
+    # 1. Fetch Promiedos homepage
+    url = "https://www.promiedos.com.ar/"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     
-    print("Fetching TV schedule from Promiedos...")
+    print("Fetching matches from Promiedos...")
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(f"Failed to load Promiedos TV page. Status code: {response.status_code}")
+        raise Exception(f"Failed to load Promiedos page. Status code: {response.status_code}")
     
     soup = BeautifulSoup(response.text, 'html.parser')
-    page_text = soup.get_text(separator=' ', strip=True)[:30000]
+    page_text = soup.get_text(separator=' ', strip=True)[:45000]
 
-    # 2. Broader prompt to capture all available TV matches
+    # 2. Flexible Prompt to extract matches & TV channels
     prompt = f"""
-    Extract ALL football matches listed in the raw text along with their broadcast TV channels and leagues.
-    
+    Extract all football matches from the following raw text. 
+    Include the league name, home team, away team, time/status, and TV broadcasting channels (if present).
+
     Return a pure JSON array of objects with these exact keys:
-    - "league": Tournament or league name
-    - "home_team": Home team
-    - "away_team": Away team
-    - "time": Match time or status
-    - "channels": Array of TV channel names broadcasting the match (e.g. ["ESPN", "TNT Sports"])
+    - "league": Name of the tournament/league
+    - "home_team": Home team name
+    - "away_team": Away team name
+    - "time": Match time or status (e.g. '18:00', 'Finalizado', 'En vivo')
+    - "channels": Array of TV channels (e.g. ["ESPN", "TNT Sports", "TyC Sports"])
 
     Source text:
     {page_text}
