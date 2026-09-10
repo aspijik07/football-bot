@@ -5,189 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Football Broadcast Dashboard</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #38bdf8;
-            margin: 0;
-        }
-        .btn-start {
-            background-color: #eab308;
-            color: #0f172a;
-            border: none;
-            padding: 10px 20px;
-            font-size: 0.95em;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
-            transition: all 0.2s ease;
-        }
-        .btn-start:hover {
-            background-color: #ca8a04;
-            transform: translateY(-2px);
-        }
-        .status-badge {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            color: #94a3b8;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #334155;
-        }
-        th {
-            background-color: #0f172a;
-            color: #38bdf8;
-            text-transform: uppercase;
-            font-size: 0.85em;
-            letter-spacing: 1px;
-        }
-        .section-header {
-            background-color: #1e293b !important;
-            color: #38bdf8 !important;
-            font-size: 1.1em;
-            font-weight: bold;
-            text-align: center;
-            letter-spacing: 1px;
-            padding: 12px !important;
-            border-top: 2px solid #38bdf8;
-        }
-        .team-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        .team-logo {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-        }
-        .img-link {
-            font-size: 0.75em;
-            color: #38bdf8;
-            text-decoration: none;
-            background: #0f172a;
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid #334155;
-            display: inline-block;
-            margin-top: 2px;
-        }
-        .img-link:hover {
-            background: #334155;
-        }
-        .channel-tag {
-            background-color: #334155;
-            color: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            margin-right: 5px;
-            display: inline-block;
-            margin-bottom: 3px;
-        }
-        .no-matches {
-            text-align: center;
-            padding: 40px;
-            background-color: #1e293b;
-            border-radius: 10px;
-            font-size: 1.2em;
-            color: #94a3b8;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { color: #38bdf8; margin: 0; }
+        .btn-start { background-color: #eab308; color: #0f172a; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .status-badge { text-align: center; margin-bottom: 20px; font-size: 1.1em; color: #94a3b8; }
+        table { width: 100%; border-collapse: collapse; background-color: #1e293b; border-radius: 10px; overflow: hidden; margin-bottom: 30px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background-color: #0f172a; color: #38bdf8; font-size: 0.85em; }
+        .section-header { background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1.1em; font-weight: bold; text-align: center; padding: 12px !important; border-top: 2px solid #38bdf8; }
+        .team-cell { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .team-logo { width: 24px; height: 24px; object-fit: contain; }
+        .img-link { font-size: 0.75em; color: #38bdf8; text-decoration: none; background: #0f172a; padding: 2px 6px; border-radius: 4px; }
+        .channel-tag { background-color: #334155; color: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 5px; display: inline-block; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-flex">
-            <h1>⚽ Football Broadcast Dashboard (Today & Tomorrow)</h1>
+            <h1>⚽ Football Broadcast Dashboard</h1>
             <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
-        <div class="status-badge">Total Matches Loaded: <strong>0</strong></div>
+        <div class="status-badge">Total Matches Loaded: <strong>2</strong></div>
+        <table>
+            <thead>
+                <tr><th>League</th><th>Teams & Logos</th><th>Local Time</th><th>Morocco Time</th><th>Channels</th></tr>
+            </thead>
+            <tbody>
     
-        <div class="no-matches">
-            🚫 No matches scheduled for today or tomorrow.
-        </div>
+            <tr>
+                <td><strong>Liga Profesional</strong><br><small>Argentina</small></td>
+                <td>
+                    <div class="team-cell"><img src="https://img.zerozero.com.ar/img/logos/equipos/18_img.png" class="team-logo"><div><strong>Newells Old Boys</strong><br><a href="https://img.zerozero.com.ar/img/logos/equipos/18_img.png" target="_blank" class="img-link">🔗 Logo Link</a></div></div>
+                    <div class="team-cell" style="margin-top: 6px;"><img src="https://img.zerozero.com.ar/img/logos/equipos/22_img.png" class="team-logo"><div><strong>Velez Sarsfield</strong><br><a href="https://img.zerozero.com.ar/img/logos/equipos/22_img.png" target="_blank" class="img-link">🔗 Logo Link</a></div></div>
+                </td>
+                <td>21:00</td>
+                <td><strong style="color:#38bdf8">21:00</strong></td>
+                <td><span class="channel-tag">ESPN</span><span class="channel-tag">Star+</span></td>
+            </tr>
         
+            <tr>
+                <td><strong>Liga Profesional</strong><br><small>Argentina</small></td>
+                <td>
+                    <div class="team-cell"><img src="https://img.zerozero.com.ar/img/logos/equipos/18_img.png" class="team-logo"><div><strong>Newells Old Boys</strong><br><a href="https://img.zerozero.com.ar/img/logos/equipos/18_img.png" target="_blank" class="img-link">🔗 Logo Link</a></div></div>
+                    <div class="team-cell" style="margin-top: 6px;"><img src="https://img.zerozero.com.ar/img/logos/equipos/22_img.png" class="team-logo"><div><strong>Velez Sarsfield</strong><br><a href="https://img.zerozero.com.ar/img/logos/equipos/22_img.png" target="_blank" class="img-link">🔗 Logo Link</a></div></div>
+                </td>
+                <td>21:00</td>
+                <td><strong style="color:#38bdf8">21:00</strong></td>
+                <td><span class="channel-tag">ESPN</span><span class="channel-tag">Star+</span></td>
+            </tr>
+        
+            </tbody>
+        </table>
     </div>
-
     <script>
         function triggerWorkflow() {
-            let token = localStorage.getItem('github_token');
-            if (!token) {
-                token = prompt("Please enter your GitHub Personal Access Token:");
-                if (token) {
-                    localStorage.setItem('github_token', token);
-                } else {
-                    alert("Token is required to start the update.");
-                    return;
-                }
-            }
-
-            const OWNER = "aspijik07";
-            const REPO = "football-bot";
-            const WORKFLOW_ID = "runner.yml";
-
-            const button = document.querySelector('.btn-start');
-            button.innerText = '⌛ Updating Data...';
-            button.disabled = true;
-
-            fetch(`https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`, {
+            let token = localStorage.getItem('github_token') || prompt("Enter GitHub Token:");
+            if(token) localStorage.setItem('github_token', token); else return;
+            fetch('https://api.github.com/repos/aspijik07/football-bot/actions/workflows/runner.yml/dispatches', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    ref: 'main'
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Workflow started successfully! Page will update in ~1-2 minutes.');
-                } else {
-                    alert('Failed to trigger workflow. Token might be invalid. Resetting token...');
-                    localStorage.removeItem('github_token');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error dispatching workflow.');
-            })
-            .finally(() => {
-                setTimeout(() => {
-                    button.innerText = '▶ START UPDATE';
-                    button.disabled = false;
-                }, 5000);
-            });
+                headers: {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
+                body: JSON.stringify({ref: 'main'})
+            }).then(res => alert(res.ok ? 'Workflow started!' : 'Failed!'));
         }
     </script>
 </body>
