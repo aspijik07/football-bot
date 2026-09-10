@@ -7,7 +7,6 @@ from google import genai
 from google.genai import types
 
 def get_matches():
-    # 1. Fetch Promiedos homepage
     url = "https://www.promiedos.com.ar/"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -19,19 +18,16 @@ def get_matches():
         raise Exception(f"Failed to load Promiedos page. Status code: {response.status_code}")
     
     soup = BeautifulSoup(response.text, 'html.parser')
-    page_text = soup.get_text(separator=' ', strip=True)[:45000]
+    page_text = soup.get_text(separator=' ', strip=True)[:40000]
 
-    # 2. Flexible Prompt to extract matches & TV channels
     prompt = f"""
-    Extract all football matches from the following raw text. 
-    Include the league name, home team, away team, time/status, and TV broadcasting channels (if present).
-
-    Return a pure JSON array of objects with these exact keys:
-    - "league": Name of the tournament/league
-    - "home_team": Home team name
-    - "away_team": Away team name
-    - "time": Match time or status (e.g. '18:00', 'Finalizado', 'En vivo')
-    - "channels": Array of TV channels (e.g. ["ESPN", "TNT Sports", "TyC Sports"])
+    Extract all football matches from the following raw text.
+    Return ONLY a JSON array of objects with these keys:
+    - "league": string
+    - "home_team": string
+    - "away_team": string
+    - "time": string
+    - "channels": array of strings
 
     Source text:
     {page_text}
@@ -39,14 +35,14 @@ def get_matches():
 
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable is missing!")
+        raise ValueError("GEMINI_API_KEY is missing in GitHub Secrets!")
 
     client = genai.Client(api_key=api_key)
 
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            print(f"Sending request to Gemini AI (Attempt {attempt + 1}/{max_retries})...")
+            print(f"Calling Gemini AI (Attempt {attempt + 1}/{max_retries})...")
             result = client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=prompt,
@@ -55,17 +51,20 @@ def get_matches():
                 )
             )
             
-            cleaned_response = result.text.strip().replace("```json", "").replace("```", "")
-            matches_data = json.loads(cleaned_response)
+            raw_text = result.text.strip()
+            if raw_text.startswith("```"):
+                raw_text = raw_text.split("\n", 1)[1].rsplit("\n", 1)[0]
+                
+            matches_data = json.loads(raw_text)
             
             with open("matches.json", "w", encoding="utf-8") as f:
                 json.dump(matches_data, f, ensure_ascii=False, indent=2)
             
-            print(f"Successfully extracted {len(matches_data)} matches to matches.json!")
+            print(f"Saved {len(matches_data)} matches to matches.json successfully!")
             return
 
         except Exception as e:
-            print(f"Attempt {attempt + 1} failed: {e}")
+            print(f"Attempt {attempt + 1} failed with error: {e}")
             if attempt < max_retries - 1:
                 time.sleep(5)
             else:
