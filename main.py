@@ -58,25 +58,30 @@ def get_matches():
 
     INSTRUCTIONS:
     1. Filter strictly for matches in the target leagues.
-    2. Extract TV/Streaming channels found in EACH source individually for every match.
-    3. Consolidate and deduplicate channels into `all_unique_channels`.
-    4. IF NO MATCHES exist today for these specific leagues, return an EMPTY array [].
+    2. Extract TV/Streaming channels found in EACH source individually.
+    3. TIME & COUNTRY HANDLING:
+       - "country": Specify the host country/region for the match or league ("Argentina", "Brazil", or "South America").
+       - "local_time": The match time in local country time (Argentina/Brazil use UTC-3), e.g., "21:30 (Argentina / UTC-3)" or "19:00 (Brazil / UTC-3)".
+       - "morocco_time": Calculate the exact corresponding time in Morocco (UTC+1). Note: Both Argentina and Brazil (UTC-3) are exactly 4 hours behind Morocco (UTC+1). E.g., 21:30 local becomes 01:30 next day Morocco time.
+    4. IF NO MATCHES exist today for these leagues, return an EMPTY array [].
 
-    Return ONLY a valid JSON array of match objects formatted like this:
+    Return ONLY a valid JSON array of match objects formatted strictly like this:
     [
       {{
         "league": "Match League Name",
+        "country": "Argentina",
         "home_team": "Home Team",
         "away_team": "Away Team",
-        "time": "Match Time",
+        "local_time": "21:30 (Argentina / UTC-3)",
+        "morocco_time": "01:30 (UTC+1)",
         "source_channels": {{
           "promiedos": ["ESPN"],
           "guiadetv": ["SporTV"],
-          "futebolnatv": ["Premiere"],
+          "futebolnatv": ["DISNEY+"],
           "ogol": [],
           "flashscore": []
         }},
-        "all_unique_channels": ["ESPN", "SporTV", "Premiere"],
+        "all_unique_channels": ["ESPN", "SporTV", "DISNEY+"],
         "matching_sources": ["promiedos", "guiadetv", "futebolnatv"]
       }}
     ]
@@ -88,7 +93,6 @@ def get_matches():
 
     client = genai.Client(api_key=api_key)
 
-    # Robust Retry Loop for API 503 / High Demand errors
     max_retries = 4
     for attempt in range(1, max_retries + 1):
         try:
@@ -122,7 +126,7 @@ def get_matches():
             with open("matches.json", "w", encoding="utf-8") as f:
                 json.dump(final_output, f, ensure_ascii=False, indent=2)
             
-            return  # Success, exit function!
+            return
 
         except Exception as e:
             print(f"Attempt {attempt} failed with error: {e}")
@@ -131,7 +135,6 @@ def get_matches():
                 print(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                # If all attempts fail, write clean error JSON instead of crashing workflow
                 error_output = {
                     "status": "Error",
                     "message": f"Server unavailable after {max_retries} retries: {str(e)}",
