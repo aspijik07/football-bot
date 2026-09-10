@@ -43,9 +43,9 @@ def get_matches():
     for attempt in range(max_retries):
         try:
             print(f"Calling Gemini AI (Attempt {attempt + 1}/{max_retries})...")
-            # Using updated gemini model name
+            # Using stable gemini-1.5-flash model
             result = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-1.5-flash',
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json"
