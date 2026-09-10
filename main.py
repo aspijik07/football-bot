@@ -22,7 +22,7 @@ def get_matches():
 
     prompt = f"""
     Extract all football matches from the following raw text.
-    Return ONLY a JSON array of objects with these keys:
+    Return ONLY a JSON array of objects with these exact keys:
     - "league": string
     - "home_team": string
     - "away_team": string
@@ -43,6 +43,7 @@ def get_matches():
     for attempt in range(max_retries):
         try:
             print(f"Calling Gemini AI (Attempt {attempt + 1}/{max_retries})...")
+            # Using updated gemini model name
             result = client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=prompt,
