@@ -178,7 +178,17 @@ def generate_html_dashboard(data):
 
     <script>
         function triggerWorkflow() {
-            const GITHUB_TOKEN = "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN";
+            let token = localStorage.getItem('github_token');
+            if (!token) {
+                token = prompt("Please enter your GitHub Personal Access Token:");
+                if (token) {
+                    localStorage.setItem('github_token', token);
+                } else {
+                    alert("Token is required to start the update.");
+                    return;
+                }
+            }
+
             const OWNER = "aspijik07";
             const REPO = "football-bot";
             const WORKFLOW_ID = "runner.yml";
@@ -190,7 +200,7 @@ def generate_html_dashboard(data):
             fetch(`https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json'
                 },
@@ -202,7 +212,8 @@ def generate_html_dashboard(data):
                 if (response.ok) {
                     alert('Workflow started successfully! Page will update in ~1-2 minutes.');
                 } else {
-                    alert('Failed to trigger workflow. Please check your Token permissions.');
+                    alert('Failed to trigger workflow. Token might be invalid. Resetting token...');
+                    localStorage.removeItem('github_token');
                 }
             })
             .catch(error => {
