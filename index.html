@@ -5,99 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Football Broadcast Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h1 { color: #38bdf8; margin: 0; }
-        .btn-start { background-color: #eab308; color: #0f172a; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-        .status-badge { text-align: center; margin-bottom: 20px; font-size: 1.1em; color: #94a3b8; }
-        table { width: 100%; border-collapse: collapse; background-color: #1e293b; border-radius: 10px; overflow: hidden; margin-bottom: 30px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; }
-        th { background-color: #0f172a; color: #38bdf8; font-size: 0.85em; }
-        .section-header { background-color: #0f172a !important; color: #38bdf8 !important; font-size: 1.1em; font-weight: bold; text-align: center; padding: 12px !important; border-top: 3px solid #38bdf8; }
-        .team-cell { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0b1329; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { color: #38bdf8; font-size: 1.6em; margin: 0; }
+        .btn-update { background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }
         
-        /* Thumbnail style li k-ytlb click bash y-ban original size */
-        .team-logo { width: 28px; height: 28px; object-fit: contain; background: rgba(255,255,255,0.05); padding: 2px; border-radius: 4px; cursor: pointer; transition: transform 0.2s; }
-        .team-logo:hover { transform: scale(1.1); }
-
-        /* Modal Overlay bash t-ban sora original mli t-clicka */
-        #modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
-        #modal img { max-width: 80%; max-height: 80%; border-radius: 8px; box-shadow: 0 0 20px rgba(56,189,248,0.5); }
-        #modal span { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
-
-        .channel-tag { background-color: #334155; color: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 5px; display: inline-block; }
-        .no-match-row { text-align: center; color: #94a3b8; font-style: italic; padding: 20px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; background-color: #151e32; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #222f47; }
+        th { background-color: #0b1329; color: #94a3b8; font-size: 0.8em; text-transform: uppercase; }
         
-        /* Liga Argentina Light Blue Theme Badge */
-        .league-badge-arg { background-color: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; display: inline-block; }
+        .section-header { background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1em; font-weight: bold; text-align: center; border-top: 2px solid #38bdf8; }
+        
+        /* Argentina Light Blue Styling */
+        .row-argentina { background-color: rgba(186, 230, 253, 0.12) !important; }
+        .badge-arg { background-color: #bae6fd; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }
+        .badge-other { background-color: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }
+        
+        .team-box { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+        .team-logo { width: 24px; height: 24px; object-fit: contain; cursor: pointer; border-radius: 3px; background: rgba(255,255,255,0.1); padding: 2px; }
+        
+        .no-matches { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
+        .channel-tag { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }
+        
+        /* Modal for Original Image Click */
+        #img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; }
+        #img-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header-flex">
+        <div class="header">
             <h1>⚽ Football Broadcast Dashboard</h1>
-            <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
+            <button class="btn-update">▶ START UPDATE</button>
         </div>
-        <div class="status-badge">Total Matches Loaded: <strong>1</strong></div>
-        
+
         <table>
             <thead>
-                <tr><th>League</th><th>Teams & Logos</th><th>Local Time</th><th>Morocco Time</th><th>Channels</th></tr>
+                <tr>
+                    <th>League</th>
+                    <th>Teams & Logos</th>
+                    <th>Local Time</th>
+                    <th>Morocco Time (GMT+1)</th>
+                    <th>Channels</th>
+                </tr>
             </thead>
             <tbody>
-                <!-- TODAY SECTION -->
-                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES</td></tr>
-    
-        <tr>
-            <td><span class="league-badge-arg">Liga Profesional</span><br><small style="color:#0284c7">Argentina</small></td>
+                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES (4)</td></tr>
+                
+        <tr class="row-argentina">
             <td>
-                <div class="team-cell">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Newell%27s_Old_Boys_logo.svg/300px-Newell%27s_Old_Boys_logo.svg.png" class="team-logo" onclick="showOriginal('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Newell%27s_Old_Boys_logo.svg/300px-Newell%27s_Old_Boys_logo.svg.png')" alt="logo" title="Click to view original size">
-                    <div><strong>Newells Old Boys</strong></div>
+                <span class="badge-arg">Liga Profesional - Clausura</span><br>
+                <small style="color: #94a3b8">Argentina</small>
+            </td>
+            <td>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/1221.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/1221.png')" alt="logo">
+                    <strong>Newells Old Boys</strong>
                 </div>
-                <div class="team-cell" style="margin-top: 6px;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg/300px-Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg.png" class="team-logo" onclick="showOriginal('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg/300px-Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg.png')" alt="logo" title="Click to view original size">
-                    <div><strong>Velez Sarsfield</strong></div>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/18.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/18.png')" alt="logo">
+                    <strong>Velez Sarsfield</strong>
                 </div>
             </td>
-            <td>21:00</td>
-            <td><strong style="color:#38bdf8">21:00</strong></td>
+            <td><span style="color:#cbd5e1">21:00 (GMT-3)</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.05em;">01:00</strong></td>
             <td><span class="channel-tag">ESPN</span><span class="channel-tag">Star+</span></td>
         </tr>
-    
-                <!-- TOMORROW SECTION -->
-                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES</td></tr>
-    <tr><td colspan="5" class="no-match-row">🚫 No matches scheduled for tomorrow.</td></tr>
+        <tr class="row-argentina">
+            <td>
+                <span class="badge-arg">Liga Profesional - Clausura</span><br>
+                <small style="color: #94a3b8">Argentina</small>
+            </td>
+            <td>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/8118.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/8118.png')" alt="logo">
+                    <strong>Defensa y Justicia</strong>
+                </div>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/13248.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/13248.png')" alt="logo">
+                    <strong>Gimnasia Mendoza</strong>
+                </div>
+            </td>
+            <td><span style="color:#cbd5e1">23:15 (GMT-3)</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.05em;">03:15</strong></td>
+            <td><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr >
+            <td>
+                <span class="badge-other">Copa Libertadores</span><br>
+                <small style="color: #94a3b8">South America</small>
+            </td>
+            <td>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/11516.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/11516.png')" alt="logo">
+                    <strong>Ind. del Valle</strong>
+                </div>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/819.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/819.png')" alt="logo">
+                    <strong>Flamengo</strong>
+                </div>
+            </td>
+            <td><span style="color:#cbd5e1">21:30 (GMT-3)</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.05em;">01:30</strong></td>
+            <td><span class="channel-tag">ESPN 2</span><span class="channel-tag">Fox Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr >
+            <td>
+                <span class="badge-other">Copa Sudamericana</span><br>
+                <small style="color: #94a3b8">South America</small>
+            </td>
+            <td>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/3282.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/3282.png')" alt="logo">
+                    <strong>Cienciano</strong>
+                </div>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/19177.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/19177.png')" alt="logo">
+                    <strong>Montevideo City</strong>
+                </div>
+            </td>
+            <td><span style="color:#cbd5e1">21:30 (GMT-3)</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.05em;">01:30</strong></td>
+            <td><span class="channel-tag">ESPN 3</span><span class="channel-tag">Star+</span></td>
+        </tr>
+
+                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES (1)</td></tr>
+                
+        <tr class="row-argentina">
+            <td>
+                <span class="badge-arg">Liga Profesional - Clausura</span><br>
+                <small style="color: #94a3b8">Argentina</small>
+            </td>
+            <td>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/16.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/16.png')" alt="logo">
+                    <strong>River Plate</strong>
+                </div>
+                <div class="team-box">
+                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/5.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/5.png')" alt="logo">
+                    <strong>Boca Juniors</strong>
+                </div>
+            </td>
+            <td><span style="color:#cbd5e1">18:00 (GMT-3)</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.05em;">22:00</strong></td>
+            <td><span class="channel-tag">TNT Sports</span><span class="channel-tag">ESPN Premium</span></td>
+        </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Image Modal -->
-    <div id="modal" onclick="closeModal()">
-        <span onclick="closeModal()">&times;</span>
-        <img id="modal-img" src="">
+    <div id="img-modal" onclick="this.style.display='none'">
+        <img id="modal-img" src="" alt="Full Size Logo">
     </div>
 
     <script>
-        function showOriginal(url) {
+        function openImage(url) {
             document.getElementById('modal-img').src = url;
-            document.getElementById('modal').style.display = 'flex';
-        }
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        function triggerWorkflow() {
-            let token = localStorage.getItem('github_token') || prompt("Enter GitHub Token:");
-            if(token) localStorage.setItem('github_token', token); else return;
-            fetch('https://api.github.com/repos/aspijik07/football-bot/actions/workflows/runner.yml/dispatches', {
-                method: 'POST',
-                headers: {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
-                body: JSON.stringify({ref: 'main'})
-            }).then(res => alert(res.ok ? 'Workflow started!' : 'Failed!'));
+            document.getElementById('img-modal').style.display = 'flex';
         }
     </script>
 </body>
 </html>
-    
