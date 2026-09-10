@@ -3,7 +3,6 @@ import json
 import requests
 from datetime import datetime, timedelta
 
-# Helper to convert Local Time to Morocco Time (GMT+1)
 def convert_to_morocco_time(local_time_str, local_offset=-3):
     try:
         hour, minute = map(int, local_time_str.split(':'))
@@ -34,8 +33,8 @@ def generate_html_dashboard(matches_data):
         .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }}
         h1 {{ color: #38bdf8; font-size: 1.6em; margin: 0; }}
         
-        .btn-update {{ background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }}
-        .btn-update:hover {{ background-color: #facc15; }}
+        .btn-update {{ background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }}
+        .btn-update:hover {{ background-color: #facc15; transform: scale(1.02); }}
 
         table {{ width: 100%; border-collapse: separate; border-spacing: 0; background-color: #151e32; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }}
         th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #222f47; vertical-align: middle; }}
@@ -43,18 +42,35 @@ def generate_html_dashboard(matches_data):
         
         .section-header {{ background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1em; font-weight: bold; text-align: center; border-top: 2px solid #38bdf8; }}
         
-        .row-argentina {{ background-color: rgba(186, 230, 253, 0.15) !important; }}
-        .badge-arg {{ background-color: #bae6fd; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
+        /* --- KHALFIYYAT L-ALWAN (BACKGROUND COLORS) --- */
+        /* 1. Argentina (Zra9 bahet) */
+        .row-argentina {{ background-color: rgba(56, 189, 248, 0.18) !important; }}
+        .badge-arg {{ background-color: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
+        
+        /* 2. Brazil (Khḍar bahet) */
+        .row-brazil {{ background-color: rgba(34, 197, 94, 0.18) !important; }}
+        .badge-brazil {{ background-color: #22c55e; color: #052e16; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
+
+        /* 3. Copa Libertadores (Ḥmar) */
+        .row-libertadores {{ background-color: rgba(239, 68, 68, 0.22) !important; }}
+        .badge-libertadores {{ background-color: #ef4444; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
+
+        /* 4. Copa Sudamericana (Move / Violet) */
+        .row-sudamericana {{ background-color: rgba(168, 85, 247, 0.22) !important; }}
+        .badge-sudamericana {{ background-color: #a855f7; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
+
+        /* Default fallback */
         .badge-other {{ background-color: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
         
-        .match-title {{ font-weight: bold; font-size: 0.95em; margin-bottom: 5px; }}
-        .btn-view-banner {{ background-color: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.78em; cursor: pointer; }}
-        
-        .channel-tag {{ background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }}
+        .match-title {{ font-weight: bold; font-size: 1em; margin-bottom: 6px; }}
+        .btn-banner {{ background-color: #0284c7; color: #fff; border: none; padding: 5px 12px; font-size: 0.8em; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }}
+        .btn-banner:hover {{ background-color: #0369a1; }}
+
+        .channel-tag {{ background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }}
         .no-matches {{ text-align: center; color: #64748b; padding: 20px; font-style: italic; }}
 
         #img-modal {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; }}
-        #img-modal img {{ max-width: 85%; max-height: 85%; border-radius: 8px; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }}
+        #img-modal img {{ max-width: 85%; max-height: 85%; border-radius: 8px; box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); }}
     </style>
 </head>
 <body>
@@ -123,22 +139,38 @@ def build_rows(matches):
     
     html = ""
     for m in matches:
-        is_arg = "Argentina" in m.get("country", "") or "Liga Profesional" in m.get("league", "")
-        row_class = 'class="row-argentina"' if is_arg else ''
-        badge_class = 'badge-arg' if is_arg else 'badge-other'
-        
+        league = m.get("league", "")
+        country = m.get("country", "")
+
+        # Logic d l-alwan l-jddad 3la ḥasab l-botola/l-blad
+        row_class = ""
+        badge_class = "badge-other"
+
+        if "Libertadores" in league:
+            row_class = 'class="row-libertadores"'
+            badge_class = 'badge-libertadores'
+        elif "Sudamericana" in league:
+            row_class = 'class="row-sudamericana"'
+            badge_class = 'badge-sudamericana'
+        elif "Brazil" in country or "Série A" in league or "Paulista" in league or "Copa do Brasil" in league:
+            row_class = 'class="row-brazil"'
+            badge_class = 'badge-brazil'
+        elif "Argentina" in country or "Liga Profesional" in league or "Copa Argentina" in league:
+            row_class = 'class="row-argentina"'
+            badge_class = 'badge-arg'
+
         channels = "".join([f'<span class="channel-tag">{c}</span>' for c in m.get("channels", [])])
         banner_url = m.get("banner_url", "https://via.placeholder.com/600x300?text=Match+Banner")
 
         html += f"""
         <tr {row_class}>
             <td>
-                <span class="{badge_class}">{m['league']}</span><br>
-                <small style="color: #94a3b8">{m['country']}</small>
+                <span class="{badge_class}">{league}</span><br>
+                <small style="color: #cbd5e1; font-size: 0.8em;">{country}</small>
             </td>
             <td>
                 <div class="match-title">{m['home_team']} <span style="color:#eab308">VS</span> {m['away_team']}</div>
-                <button class="btn-view-banner" onclick="openBanner('{banner_url}')">🖼️ View Match Banner</button>
+                <button class="btn-banner" onclick="openBanner('{banner_url}')">🖼️ View Match Banner (Team vs Team)</button>
             </td>
             <td><span style="color:#cbd5e1">{m['local_time']}</span></td>
             <td><strong style="color: #38bdf8; font-size: 1.05em;">{m['morocco_time']}</strong></td>
@@ -147,11 +179,10 @@ def build_rows(matches):
     return html
 
 if __name__ == "__main__":
-    # Sample structured data with Brazil Serie A, Argentina, Libertadores & Sudamericana
     sample_data = [
         {
             "day": "today",
-            "league": "Liga Profesional - Clausura",
+            "league": "Liga Profesional",
             "country": "Argentina",
             "home_team": "Newells Old Boys",
             "away_team": "Velez Sarsfield",
@@ -173,6 +204,17 @@ if __name__ == "__main__":
         },
         {
             "day": "today",
+            "league": "Copa Libertadores",
+            "country": "South America",
+            "home_team": "River Plate",
+            "away_team": "Palmeiras",
+            "banner_url": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
+            "local_time": "21:30 (GMT-3)",
+            "morocco_time": convert_to_morocco_time("21:30", -3),
+            "channels": ["ESPN", "Star+"]
+        },
+        {
+            "day": "tomorrow",
             "league": "Copa Sudamericana",
             "country": "South America",
             "home_team": "Cienciano",
@@ -181,17 +223,6 @@ if __name__ == "__main__":
             "local_time": "21:30 (GMT-3)",
             "morocco_time": convert_to_morocco_time("21:30", -3),
             "channels": ["ESPN 3", "Star+"]
-        },
-        {
-            "day": "tomorrow",
-            "league": "Liga Profesional - Clausura",
-            "country": "Argentina",
-            "home_team": "River Plate",
-            "away_team": "Boca Juniors",
-            "banner_url": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
-            "local_time": "18:00 (GMT-3)",
-            "morocco_time": convert_to_morocco_time("18:00", -3),
-            "channels": ["TNT Sports", "ESPN Premium"]
         }
     ]
 
