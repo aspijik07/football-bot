@@ -1,1 +1,50 @@
-[]
+{
+  "status": "Success",
+  "total_matches": 2,
+  "matches": [
+    {
+      "league": "Copa Libertadores",
+      "home_team": "Independiente del Valle",
+      "away_team": "Flamengo",
+      "time": "21:30",
+      "source_channels": {
+        "promiedos": [],
+        "guiadetv": [],
+        "futebolnatv": [
+          "DISNEY+",
+          "ESPN"
+        ],
+        "ogol": [],
+        "flashscore": []
+      },
+      "all_unique_channels": [
+        "DISNEY+",
+        "ESPN"
+      ],
+      "matching_sources": [
+        "futebolnatv"
+      ]
+    },
+    {
+      "league": "Copa Sudamericana",
+      "home_team": "Cienciano",
+      "away_team": "Atletico Torque",
+      "time": "21:30",
+      "source_channels": {
+        "promiedos": [],
+        "guiadetv": [],
+        "futebolnatv": [
+          "PARAMOUNT+"
+        ],
+        "ogol": [],
+        "flashscore": []
+      },
+      "all_unique_channels": [
+        "PARAMOUNT+"
+      ],
+      "matching_sources": [
+        "futebolnatv"
+      ]
+    }
+  ]
+}
