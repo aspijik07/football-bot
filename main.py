@@ -1,3 +1,7 @@
+import json
+import re
+from datetime import datetime, timedelta
+
 def generate_html_dashboard(data):
     matches = data.get("matches", [])
     
@@ -174,7 +178,6 @@ def generate_html_dashboard(data):
 
     <script>
         function triggerWorkflow() {
-            // Remplace token hna mni t-genereha men GitHub
             const GITHUB_TOKEN = "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN";
             const OWNER = "aspijik07";
             const REPO = "football-bot";
@@ -221,3 +224,16 @@ def generate_html_dashboard(data):
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
     print("Generated index.html dashboard with Start button successfully!")
+
+def main():
+    try:
+        with open("matches.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"Error loading matches.json: {e}")
+        data = {"matches": [], "total_matches": 0}
+
+    generate_html_dashboard(data)
+
+if __name__ == "__main__":
+    main()

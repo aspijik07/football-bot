@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Football Matches Dashboard</title>
+    <title>Football Broadcast Dashboard</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -16,10 +16,31 @@
             max-width: 1200px;
             margin: 0 auto;
         }
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
         h1 {
-            text-align: center;
             color: #38bdf8;
-            margin-bottom: 25px;
+            margin: 0;
+        }
+        .btn-start {
+            background-color: #eab308;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-start:hover {
+            background-color: #ca8a04;
+            transform: translateY(-2px);
         }
         .status-badge {
             text-align: center;
@@ -47,29 +68,21 @@
             font-size: 0.85em;
             letter-spacing: 1px;
         }
-        /* Dynamic Row Colors based on League/Country */
         tr.brazil {
-            background-color: rgba(34, 197, 94, 0.15) !important; /* Soft Green */
+            background-color: rgba(34, 197, 94, 0.15) !important;
             border-left: 5px solid #22c55e;
         }
         tr.argentina {
-            background-color: rgba(56, 189, 248, 0.15) !important; /* Soft Blue */
+            background-color: rgba(56, 189, 248, 0.15) !important;
             border-left: 5px solid #38bdf8;
         }
         tr.libertadores {
-            background-color: rgba(234, 179, 8, 0.15) !important; /* Soft Gold */
+            background-color: rgba(234, 179, 8, 0.15) !important;
             border-left: 5px solid #eab308;
         }
         tr.sudamericana {
-            background-color: rgba(168, 85, 247, 0.15) !important; /* Soft Purple */
+            background-color: rgba(168, 85, 247, 0.15) !important;
             border-left: 5px solid #a855f7;
-        }
-        .badge {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            font-weight: bold;
-            display: inline-block;
         }
         .channel-tag {
             background-color: #334155;
@@ -93,7 +106,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚽ Football Broadcast Dashboard</h1>
+        <div class="header-flex">
+            <h1>⚽ Football Broadcast Dashboard</h1>
+            <button class="btn-start" onclick="triggerWorkflow()">▶ START UPDATE</button>
+        </div>
         <div class="status-badge">Total Matches Today: <strong>2</strong></div>
     
         <table>
@@ -128,6 +144,48 @@
         </table>
         
     </div>
+
+    <script>
+        function triggerWorkflow() {
+            const GITHUB_TOKEN = "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN";
+            const OWNER = "aspijik07";
+            const REPO = "football-bot";
+            const WORKFLOW_ID = "runner.yml";
+
+            const button = document.querySelector('.btn-start');
+            button.innerText = '⌛ Updating Data...';
+            button.disabled = true;
+
+            fetch(`https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ref: 'main'
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Workflow started successfully! Page will update in ~1-2 minutes.');
+                } else {
+                    alert('Failed to trigger workflow. Please check your Token permissions.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error dispatching workflow.');
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    button.innerText = '▶ START UPDATE';
+                    button.disabled = false;
+                }, 5000);
+            });
+        }
+    </script>
 </body>
 </html>
     
