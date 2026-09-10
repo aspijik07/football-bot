@@ -1,90 +1,25 @@
+import os
 import json
 import requests
 from datetime import datetime, timedelta
 
-def convert_time_to_morocco(local_time_str, time_zone_offset=-3):
+# Helper to convert Local Time to Morocco Time (GMT+1)
+def convert_to_morocco_time(local_time_str, local_offset=-3):
     try:
         hour, minute = map(int, local_time_str.split(':'))
-        local_time = datetime.now().replace(hour=hour, minute=minute, second=0, microsecond=0)
-        morocco_time = local_time + timedelta(hours=(1 - time_zone_offset))
-        return morocco_time.strftime('%H:%M')
+        now = datetime.now()
+        local_dt = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        morocco_dt = local_dt + timedelta(hours=(1 - local_offset))
+        return morocco_dt.strftime('%H:%M')
     except Exception:
         return local_time_str
 
-def fetch_all_matches():
-    # Direct reliable match data with Team vs Team Banner Image URLs
-    matches = [
-        # TODAY'S MATCHES
-        {
-            "day_label": "Today",
-            "league": "Liga Profesional - Clausura",
-            "country": "Argentina",
-            "home_team": "Newells Old Boys",
-            "away_team": "Velez Sarsfield",
-            "match_banner": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
-            "local_time": "21:00 (GMT-3)",
-            "morocco_time": convert_time_to_morocco("21:00", -3),
-            "channels": ["ESPN", "Star+"],
-            "is_argentina": True
-        },
-        {
-            "day_label": "Today",
-            "league": "Liga Profesional - Clausura",
-            "country": "Argentina",
-            "home_team": "Defensa y Justicia",
-            "away_team": "Gimnasia Mendoza",
-            "match_banner": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
-            "local_time": "23:15 (GMT-3)",
-            "morocco_time": convert_time_to_morocco("23:15", -3),
-            "channels": ["TyC Sports", "Star+"],
-            "is_argentina": True
-        },
-        {
-            "day_label": "Today",
-            "league": "Copa Libertadores",
-            "country": "South America",
-            "home_team": "Ind. del Valle",
-            "away_team": "Flamengo",
-            "match_banner": "https://images.fotmob.com/image_resources/logo/leaguelogo/384.png",
-            "local_time": "21:30 (GMT-3)",
-            "morocco_time": convert_time_to_morocco("21:30", -3),
-            "channels": ["ESPN 2", "Fox Sports", "Star+"],
-            "is_argentina": False
-        },
-        {
-            "day_label": "Today",
-            "league": "Copa Sudamericana",
-            "country": "South America",
-            "home_team": "Cienciano",
-            "away_team": "Montevideo City",
-            "match_banner": "https://i.ibb.co/3sX84qH/cienciano-vs-montevideo.jpg", # Team vs Team match image
-            "local_time": "21:30 (GMT-3)",
-            "morocco_time": convert_time_to_morocco("21:30", -3),
-            "channels": ["ESPN 3", "Star+"],
-            "is_argentina": False
-        },
-        # TOMORROW'S MATCHES
-        {
-            "day_label": "Tomorrow",
-            "league": "Liga Profesional - Clausura",
-            "country": "Argentina",
-            "home_team": "River Plate",
-            "away_team": "Boca Juniors",
-            "match_banner": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
-            "local_time": "18:00 (GMT-3)",
-            "morocco_time": convert_time_to_morocco("18:00", -3),
-            "channels": ["TNT Sports", "ESPN Premium"],
-            "is_argentina": True
-        }
-    ]
-    return matches
+def generate_html_dashboard(matches_data):
+    today_str = datetime.now().strftime('%d/%m/%Y')
+    tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%d/%m/%Y')
 
-def generate_dashboard(matches):
-    today_date = datetime.now().strftime('%d/%m/%Y')
-    tomorrow_date = (datetime.now() + timedelta(days=1)).strftime('%d/%m/%Y')
-
-    today_m = [m for m in matches if m["day_label"] == "Today"]
-    tomorrow_m = [m for m in matches if m["day_label"] == "Tomorrow"]
+    today_matches = [m for m in matches_data if m.get("day") == "today"]
+    tomorrow_matches = [m for m in matches_data if m.get("day") == "tomorrow"]
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -99,8 +34,8 @@ def generate_dashboard(matches):
         .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }}
         h1 {{ color: #38bdf8; font-size: 1.6em; margin: 0; }}
         
-        .btn-update {{ background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; }}
-        .btn-update:hover {{ background-color: #facc15; transform: scale(1.02); }}
+        .btn-update {{ background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }}
+        .btn-update:hover {{ background-color: #facc15; }}
 
         table {{ width: 100%; border-collapse: separate; border-spacing: 0; background-color: #151e32; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }}
         th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #222f47; vertical-align: middle; }}
@@ -108,19 +43,18 @@ def generate_dashboard(matches):
         
         .section-header {{ background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1em; font-weight: bold; text-align: center; border-top: 2px solid #38bdf8; }}
         
-        .row-argentina {{ background-color: rgba(186, 230, 253, 0.12) !important; }}
+        .row-argentina {{ background-color: rgba(186, 230, 253, 0.15) !important; }}
         .badge-arg {{ background-color: #bae6fd; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
         .badge-other {{ background-color: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }}
         
-        .match-teams {{ font-size: 1em; font-weight: bold; margin-bottom: 6px; }}
-        .btn-banner {{ background-color: #0284c7; color: #fff; border: none; padding: 4px 10px; font-size: 0.78em; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }}
-        .btn-banner:hover {{ background-color: #0369a1; }}
-
-        .no-matches {{ text-align: center; color: #64748b; padding: 20px; font-style: italic; }}
-        .channel-tag {{ background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }}
+        .match-title {{ font-weight: bold; font-size: 0.95em; margin-bottom: 5px; }}
+        .btn-view-banner {{ background-color: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.78em; cursor: pointer; }}
         
+        .channel-tag {{ background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }}
+        .no-matches {{ text-align: center; color: #64748b; padding: 20px; font-style: italic; }}
+
         #img-modal {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; }}
-        #img-modal img {{ max-width: 85%; max-height: 85%; border-radius: 8px; box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); }}
+        #img-modal img {{ max-width: 85%; max-height: 85%; border-radius: 8px; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }}
     </style>
 </head>
 <body>
@@ -141,11 +75,11 @@ def generate_dashboard(matches):
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES — {today_date} ({len(today_m)})</td></tr>
-                {render_rows(today_m)}
+                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES — {today_str} ({len(today_matches)})</td></tr>
+                {build_rows(today_matches)}
 
-                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES — {tomorrow_date} ({len(tomorrow_m)})</td></tr>
-                {render_rows(tomorrow_m)}
+                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES — {tomorrow_str} ({len(tomorrow_matches)})</td></tr>
+                {build_rows(tomorrow_matches)}
             </tbody>
         </table>
     </div>
@@ -155,7 +89,7 @@ def generate_dashboard(matches):
     </div>
 
     <script>
-        function openImage(url) {{
+        function openBanner(url) {{
             document.getElementById('modal-img').src = url;
             document.getElementById('img-modal').style.display = 'flex';
         }}
@@ -163,7 +97,6 @@ def generate_dashboard(matches):
         function triggerWorkflow() {{
             let token = localStorage.getItem('github_token') || prompt("Enter GitHub Token:");
             if (!token) return;
-            
             localStorage.setItem('github_token', token);
             
             fetch('https://api.github.com/repos/aspijik07/football-bot/actions/workflows/runner.yml/dispatches', {{
@@ -175,50 +108,93 @@ def generate_dashboard(matches):
                 }},
                 body: JSON.stringify({{ ref: 'main' }})
             }}).then(res => {{
-                if (res.ok) {{
-                    alert('✅ Update Workflow Started Successfully!');
-                }} else {{
-                    alert('❌ Error starting workflow. Check your token.');
-                }}
+                if (res.ok) alert('✅ Workflow Started!');
+                else alert('❌ Error starting workflow.');
             }}).catch(err => alert('❌ Error: ' + err));
         }}
     </script>
 </body>
 </html>"""
-    
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(html)
+    return html
 
-def render_rows(match_list):
-    if not match_list:
+def build_rows(matches):
+    if not matches:
         return '<tr><td colspan="5" class="no-matches">🚫 No matches scheduled for this day.</td></tr>'
     
-    rows = ""
-    for m in match_list:
-        is_arg = m.get("is_argentina", False) or "Argentina" in m.get("country", "") or "Liga Profesional" in m.get("league", "")
+    html = ""
+    for m in matches:
+        is_arg = "Argentina" in m.get("country", "") or "Liga Profesional" in m.get("league", "")
         row_class = 'class="row-argentina"' if is_arg else ''
         badge_class = 'badge-arg' if is_arg else 'badge-other'
         
-        channels_html = "".join([f'<span class="channel-tag">{c}</span>' for c in m.get("channels", [])])
-        banner_url = m.get("match_banner", "https://via.placeholder.com/600x300?text=Match+Banner")
+        channels = "".join([f'<span class="channel-tag">{c}</span>' for c in m.get("channels", [])])
+        banner_url = m.get("banner_url", "https://via.placeholder.com/600x300?text=Match+Banner")
 
-        rows += f"""
+        html += f"""
         <tr {row_class}>
             <td>
                 <span class="{badge_class}">{m['league']}</span><br>
                 <small style="color: #94a3b8">{m['country']}</small>
             </td>
             <td>
-                <div class="match-teams">{m['home_team']} <span style="color:#eab308">VS</span> {m['away_team']}</div>
-                <button class="btn-banner" onclick="openImage('{banner_url}')">🖼️ View Match Banner</button>
+                <div class="match-title">{m['home_team']} <span style="color:#eab308">VS</span> {m['away_team']}</div>
+                <button class="btn-view-banner" onclick="openBanner('{banner_url}')">🖼️ View Match Banner</button>
             </td>
             <td><span style="color:#cbd5e1">{m['local_time']}</span></td>
             <td><strong style="color: #38bdf8; font-size: 1.05em;">{m['morocco_time']}</strong></td>
-            <td>{channels_html}</td>
+            <td>{channels}</td>
         </tr>"""
-    return rows
+    return html
 
 if __name__ == "__main__":
-    matches = fetch_all_matches()
-    generate_dashboard(matches)
-    print("Dashboard updated with working Start Update button, formatted dates, and Team vs Team banners!")
+    # Sample structured data with Brazil Serie A, Argentina, Libertadores & Sudamericana
+    sample_data = [
+        {
+            "day": "today",
+            "league": "Liga Profesional - Clausura",
+            "country": "Argentina",
+            "home_team": "Newells Old Boys",
+            "away_team": "Velez Sarsfield",
+            "banner_url": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
+            "local_time": "21:00 (GMT-3)",
+            "morocco_time": convert_to_morocco_time("21:00", -3),
+            "channels": ["ESPN", "Star+"]
+        },
+        {
+            "day": "today",
+            "league": "Série A Betano",
+            "country": "Brazil",
+            "home_team": "Flamengo",
+            "away_team": "Palmeiras",
+            "banner_url": "https://images.fotmob.com/image_resources/logo/leaguelogo/268.png",
+            "local_time": "20:00 (GMT-3)",
+            "morocco_time": convert_to_morocco_time("20:00", -3),
+            "channels": ["Premiere", "Globo"]
+        },
+        {
+            "day": "today",
+            "league": "Copa Sudamericana",
+            "country": "South America",
+            "home_team": "Cienciano",
+            "away_team": "Montevideo City",
+            "banner_url": "https://i.ibb.co/3sX84qH/cienciano-vs-montevideo.jpg",
+            "local_time": "21:30 (GMT-3)",
+            "morocco_time": convert_to_morocco_time("21:30", -3),
+            "channels": ["ESPN 3", "Star+"]
+        },
+        {
+            "day": "tomorrow",
+            "league": "Liga Profesional - Clausura",
+            "country": "Argentina",
+            "home_team": "River Plate",
+            "away_team": "Boca Juniors",
+            "banner_url": "https://images.fotmob.com/image_resources/logo/leaguelogo/87.png",
+            "local_time": "18:00 (GMT-3)",
+            "morocco_time": convert_to_morocco_time("18:00", -3),
+            "channels": ["TNT Sports", "ESPN Premium"]
+        }
+    ]
+
+    output_html = generate_html_dashboard(sample_data)
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(output_html)
