@@ -4,9 +4,11 @@
   "matches": [
     {
       "league": "Copa Libertadores",
+      "country": "South America",
       "home_team": "Independiente del Valle",
       "away_team": "Flamengo",
-      "time": "21:30",
+      "local_time": "21:30 (South America / UTC-3)",
+      "morocco_time": "01:30 (UTC+1)",
       "source_channels": {
         "promiedos": [],
         "guiadetv": [],
@@ -27,9 +29,11 @@
     },
     {
       "league": "Copa Sudamericana",
+      "country": "South America",
       "home_team": "Cienciano",
       "away_team": "Atletico Torque",
-      "time": "21:30",
+      "local_time": "21:30 (South America / UTC-3)",
+      "morocco_time": "01:30 (UTC+1)",
       "source_channels": {
         "promiedos": [],
         "guiadetv": [],
