@@ -8,21 +8,19 @@ from google.genai import types
 
 def fetch_site_text(url, timeout=12):
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     try:
         print(f"Fetching: {url}")
         res = requests.get(url, headers=headers, timeout=timeout)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
-            # Strip tags and retrieve clean text snippet
             return soup.get_text(separator=' ', strip=True)[:25000]
     except Exception as e:
         print(f"Failed to fetch {url}: {e}")
     return ""
 
 def get_matches():
-    # Source URLs
     sources = {
         "promiedos": "https://www.promiedos.com.ar/",
         "flashscore": "https://www.flashscore.com/",
@@ -58,13 +56,13 @@ def get_matches():
     - GUIADETV: {scraped_texts['guiadetv']}
     - FUTEBOLNATV: {scraped_texts['futebolnatv']}
 
-    INSTRUCTIONS & CROSS-COMPARISON:
+    INSTRUCTIONS:
     1. Filter strictly for matches in the target leagues.
     2. Extract TV/Streaming channels found in EACH source individually for every match.
-    3. Consolidate and deduplicate channels into a combined unified list (`all_unique_channels`).
-    4. Provide a breakdown table of which source provided which channels.
+    3. Consolidate and deduplicate channels into `all_unique_channels`.
+    4. IF NO MATCHES exist today for these specific leagues, return an EMPTY array [].
 
-    Return ONLY a valid JSON array of match objects formatted strictly like this:
+    Return ONLY a valid JSON array of match objects formatted like this:
     [
       {{
         "league": "Match League Name",
@@ -72,13 +70,13 @@ def get_matches():
         "away_team": "Away Team",
         "time": "Match Time",
         "source_channels": {{
-          "promiedos": ["ESPN", "TNT Sports"],
-          "guiadetv": ["SporTV", "Premiere"],
+          "promiedos": ["ESPN"],
+          "guiadetv": ["SporTV"],
           "futebolnatv": ["Premiere"],
           "ogol": [],
           "flashscore": []
         }},
-        "all_unique_channels": ["ESPN", "TNT Sports", "SporTV", "Premiere"],
+        "all_unique_channels": ["ESPN", "SporTV", "Premiere"],
         "matching_sources": ["promiedos", "guiadetv", "futebolnatv"]
       }}
     ]
@@ -91,7 +89,7 @@ def get_matches():
     client = genai.Client(api_key=api_key)
 
     try:
-        print("Calling Gemini AI to parse and compare sources...")
+        print("Calling Gemini AI...")
         result = client.models.generate_content(
             model='gemini-3.6-flash',
             contents=prompt,
@@ -102,13 +100,36 @@ def get_matches():
         
         matches_data = json.loads(result.text.strip())
         
-        with open("matches.json", "w", encoding="utf-8") as f:
-            json.dump(matches_data, f, ensure_ascii=False, indent=2)
+        # Check if list is empty and output "No matches today" structure
+        if not matches_data or len(matches_data) == 0:
+            final_output = {
+                "status": "No matches today",
+                "message": "There are no matches scheduled today for the targeted leagues.",
+                "total_matches": 0,
+                "matches": []
+            }
+            print("No matches found today for specified leagues.")
+        else:
+            final_output = {
+                "status": "Success",
+                "total_matches": len(matches_data),
+                "matches": matches_data
+            }
+            print(f"Successfully processed {len(matches_data)} matches!")
         
-        print(f"Successfully processed {len(matches_data)} matches from all sites into matches.json!")
+        with open("matches.json", "w", encoding="utf-8") as f:
+            json.dump(final_output, f, ensure_ascii=False, indent=2)
 
     except Exception as e:
         print(f"Execution failed: {e}")
+        # Save error info to JSON if script fails
+        error_output = {
+            "status": "Error",
+            "message": f"Execution failed with error: {str(e)}",
+            "matches": []
+        }
+        with open("matches.json", "w", encoding="utf-8") as f:
+            json.dump(error_output, f, ensure_ascii=False, indent=2)
         raise e
 
 if __name__ == "__main__":
