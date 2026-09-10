@@ -91,6 +91,31 @@ def generate_html_dashboard(data):
             background-color: rgba(168, 85, 247, 0.15) !important;
             border-left: 5px solid #a855f7;
         }}
+        .team-cell {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }}
+        .team-logo {{
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }}
+        .img-link {{
+            font-size: 0.75em;
+            color: #38bdf8;
+            text-decoration: none;
+            background: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            display: inline-block;
+            margin-top: 2px;
+        }}
+        .img-link:hover {{
+            background: #334155;
+        }}
         .channel-tag {{
             background-color: #334155;
             color: #f1f5f9;
@@ -132,7 +157,7 @@ def generate_html_dashboard(data):
             <thead>
                 <tr>
                     <th>League</th>
-                    <th>Teams</th>
+                    <th>Teams & Logos</th>
                     <th>Local Time</th>
                     <th>Morocco Time (UTC+1)</th>
                     <th>Broadcast Channels</th>
@@ -154,6 +179,17 @@ def generate_html_dashboard(data):
             elif "Brazil" in country or "Serie A" in league or "Brasileirao" in league:
                 row_class = "brazil"
 
+            home_team = m.get("home_team", "")
+            away_team = m.get("away_team", "")
+            home_logo = m.get("home_logo", "")
+            away_logo = m.get("away_logo", "")
+
+            home_logo_html = f'<img src="{home_logo}" class="team-logo" alt="logo">' if home_logo else ''
+            home_link_html = f'<br><a href="{home_logo}" target="_blank" class="img-link">🔗 Home Image Link</a>' if home_logo else ''
+
+            away_logo_html = f'<img src="{away_logo}" class="team-logo" alt="logo">' if away_logo else ''
+            away_link_html = f'<br><a href="{away_logo}" target="_blank" class="img-link">🔗 Away Image Link</a>' if away_logo else ''
+
             channels_html = "".join([f'<span class="channel-tag">{ch}</span>' for ch in m.get("all_unique_channels", [])])
             if not channels_html:
                 channels_html = '<span style="color: #64748b;">No TV info</span>'
@@ -161,7 +197,22 @@ def generate_html_dashboard(data):
             html_content += f"""
                 <tr class="{row_class}">
                     <td><strong>{league}</strong><br><small style="color:#94a3b8">{country}</small></td>
-                    <td><strong>{m.get("home_team")}</strong> vs <strong>{m.get("away_team")}</strong></td>
+                    <td>
+                        <div class="team-cell">
+                            {home_logo_html}
+                            <div>
+                                <strong>{home_team}</strong>
+                                {home_link_html}
+                            </div>
+                        </div>
+                        <div class="team-cell" style="margin-top: 8px;">
+                            {away_logo_html}
+                            <div>
+                                <strong>{away_team}</strong>
+                                {away_link_html}
+                            </div>
+                        </div>
+                    </td>
                     <td>{m.get("local_time")}</td>
                     <td><strong style="color:#38bdf8">{m.get("morocco_time")}</strong></td>
                     <td>{channels_html}</td>
@@ -234,7 +285,7 @@ def generate_html_dashboard(data):
     
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
-    print("Generated index.html dashboard with Start button successfully!")
+    print("Generated index.html dashboard with team logos and direct image links successfully!")
 
 def main():
     try:
