@@ -3,55 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>Football Broadcast Dashboard</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0b1329; color: #f8fafc; margin: 0; padding: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h1 { color: #38bdf8; font-size: 1.6em; margin: 0; }
-        .btn-update { background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }
         
+        .btn-update { background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .btn-update:hover { background-color: #facc15; }
+
         table { width: 100%; border-collapse: separate; border-spacing: 0; background-color: #151e32; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #222f47; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #222f47; vertical-align: middle; }
         th { background-color: #0b1329; color: #94a3b8; font-size: 0.8em; text-transform: uppercase; }
         
         .section-header { background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1em; font-weight: bold; text-align: center; border-top: 2px solid #38bdf8; }
         
-        /* Argentina Light Blue Styling */
-        .row-argentina { background-color: rgba(186, 230, 253, 0.12) !important; }
+        .row-argentina { background-color: rgba(186, 230, 253, 0.15) !important; }
         .badge-arg { background-color: #bae6fd; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }
         .badge-other { background-color: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }
         
-        .team-box { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
-        .team-logo { width: 24px; height: 24px; object-fit: contain; cursor: pointer; border-radius: 3px; background: rgba(255,255,255,0.1); padding: 2px; }
+        .match-title { font-weight: bold; font-size: 0.95em; margin-bottom: 5px; }
+        .btn-view-banner { background-color: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.78em; cursor: pointer; }
         
-        .no-matches { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
         .channel-tag { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }
-        
-        /* Modal for Original Image Click */
+        .no-matches { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
+
         #img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; }
-        #img-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+        #img-modal img { max-width: 85%; max-height: 85%; border-radius: 8px; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>⚽ Football Broadcast Dashboard</h1>
-            <button class="btn-update">▶ START UPDATE</button>
+            <button class="btn-update" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th>League</th>
-                    <th>Teams & Logos</th>
+                    <th>Match & Banner</th>
                     <th>Local Time</th>
                     <th>Morocco Time (GMT+1)</th>
                     <th>Channels</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES (4)</td></tr>
+                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES — 10/09/2026 (3)</td></tr>
                 
         <tr class="row-argentina">
             <td>
@@ -59,56 +60,25 @@
                 <small style="color: #94a3b8">Argentina</small>
             </td>
             <td>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/1221.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/1221.png')" alt="logo">
-                    <strong>Newells Old Boys</strong>
-                </div>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/18.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/18.png')" alt="logo">
-                    <strong>Velez Sarsfield</strong>
-                </div>
+                <div class="match-title">Newells Old Boys <span style="color:#eab308">VS</span> Velez Sarsfield</div>
+                <button class="btn-view-banner" onclick="openBanner('https://images.fotmob.com/image_resources/logo/leaguelogo/87.png')">🖼️ View Match Banner</button>
             </td>
             <td><span style="color:#cbd5e1">21:00 (GMT-3)</span></td>
             <td><strong style="color: #38bdf8; font-size: 1.05em;">01:00</strong></td>
             <td><span class="channel-tag">ESPN</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr class="row-argentina">
-            <td>
-                <span class="badge-arg">Liga Profesional - Clausura</span><br>
-                <small style="color: #94a3b8">Argentina</small>
-            </td>
-            <td>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/8118.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/8118.png')" alt="logo">
-                    <strong>Defensa y Justicia</strong>
-                </div>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/13248.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/13248.png')" alt="logo">
-                    <strong>Gimnasia Mendoza</strong>
-                </div>
-            </td>
-            <td><span style="color:#cbd5e1">23:15 (GMT-3)</span></td>
-            <td><strong style="color: #38bdf8; font-size: 1.05em;">03:15</strong></td>
-            <td><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
-        </tr>
         <tr >
             <td>
-                <span class="badge-other">Copa Libertadores</span><br>
-                <small style="color: #94a3b8">South America</small>
+                <span class="badge-other">Série A Betano</span><br>
+                <small style="color: #94a3b8">Brazil</small>
             </td>
             <td>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/11516.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/11516.png')" alt="logo">
-                    <strong>Ind. del Valle</strong>
-                </div>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/819.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/819.png')" alt="logo">
-                    <strong>Flamengo</strong>
-                </div>
+                <div class="match-title">Flamengo <span style="color:#eab308">VS</span> Palmeiras</div>
+                <button class="btn-view-banner" onclick="openBanner('https://images.fotmob.com/image_resources/logo/leaguelogo/268.png')">🖼️ View Match Banner</button>
             </td>
-            <td><span style="color:#cbd5e1">21:30 (GMT-3)</span></td>
-            <td><strong style="color: #38bdf8; font-size: 1.05em;">01:30</strong></td>
-            <td><span class="channel-tag">ESPN 2</span><span class="channel-tag">Fox Sports</span><span class="channel-tag">Star+</span></td>
+            <td><span style="color:#cbd5e1">20:00 (GMT-3)</span></td>
+            <td><strong style="color: #38bdf8; font-size: 1.05em;">00:00</strong></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span></td>
         </tr>
         <tr >
             <td>
@@ -116,21 +86,15 @@
                 <small style="color: #94a3b8">South America</small>
             </td>
             <td>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/3282.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/3282.png')" alt="logo">
-                    <strong>Cienciano</strong>
-                </div>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/19177.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/19177.png')" alt="logo">
-                    <strong>Montevideo City</strong>
-                </div>
+                <div class="match-title">Cienciano <span style="color:#eab308">VS</span> Montevideo City</div>
+                <button class="btn-view-banner" onclick="openBanner('https://i.ibb.co/3sX84qH/cienciano-vs-montevideo.jpg')">🖼️ View Match Banner</button>
             </td>
             <td><span style="color:#cbd5e1">21:30 (GMT-3)</span></td>
             <td><strong style="color: #38bdf8; font-size: 1.05em;">01:30</strong></td>
             <td><span class="channel-tag">ESPN 3</span><span class="channel-tag">Star+</span></td>
         </tr>
 
-                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES (1)</td></tr>
+                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES — 11/09/2026 (1)</td></tr>
                 
         <tr class="row-argentina">
             <td>
@@ -138,14 +102,8 @@
                 <small style="color: #94a3b8">Argentina</small>
             </td>
             <td>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/16.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/16.png')" alt="logo">
-                    <strong>River Plate</strong>
-                </div>
-                <div class="team-box">
-                    <img src="https://a.espncdn.com/i/teamlogos/soccer/500/5.png" class="team-logo" onclick="openImage('https://a.espncdn.com/i/teamlogos/soccer/500/5.png')" alt="logo">
-                    <strong>Boca Juniors</strong>
-                </div>
+                <div class="match-title">River Plate <span style="color:#eab308">VS</span> Boca Juniors</div>
+                <button class="btn-view-banner" onclick="openBanner('https://images.fotmob.com/image_resources/logo/leaguelogo/87.png')">🖼️ View Match Banner</button>
             </td>
             <td><span style="color:#cbd5e1">18:00 (GMT-3)</span></td>
             <td><strong style="color: #38bdf8; font-size: 1.05em;">22:00</strong></td>
@@ -156,13 +114,32 @@
     </div>
 
     <div id="img-modal" onclick="this.style.display='none'">
-        <img id="modal-img" src="" alt="Full Size Logo">
+        <img id="modal-img" src="" alt="Match Banner">
     </div>
 
     <script>
-        function openImage(url) {
+        function openBanner(url) {
             document.getElementById('modal-img').src = url;
             document.getElementById('img-modal').style.display = 'flex';
+        }
+
+        function triggerWorkflow() {
+            let token = localStorage.getItem('github_token') || prompt("Enter GitHub Token:");
+            if (!token) return;
+            localStorage.setItem('github_token', token);
+            
+            fetch('https://api.github.com/repos/aspijik07/football-bot/actions/workflows/runner.yml/dispatches', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ref: 'main' })
+            }).then(res => {
+                if (res.ok) alert('✅ Workflow Started!');
+                else alert('❌ Error starting workflow.');
+            }).catch(err => alert('❌ Error: ' + err));
         }
     </script>
 </body>
