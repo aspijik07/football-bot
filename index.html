@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Football Matches Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 25px;
+        }
+        .status-badge {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #94a3b8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background-color: #0f172a;
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+        /* Dynamic Row Colors based on League/Country */
+        tr.brazil {
+            background-color: rgba(34, 197, 94, 0.15) !important; /* Soft Green */
+            border-left: 5px solid #22c55e;
+        }
+        tr.argentina {
+            background-color: rgba(56, 189, 248, 0.15) !important; /* Soft Blue */
+            border-left: 5px solid #38bdf8;
+        }
+        tr.libertadores {
+            background-color: rgba(234, 179, 8, 0.15) !important; /* Soft Gold */
+            border-left: 5px solid #eab308;
+        }
+        tr.sudamericana {
+            background-color: rgba(168, 85, 247, 0.15) !important; /* Soft Purple */
+            border-left: 5px solid #a855f7;
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .channel-tag {
+            background-color: #334155;
+            color: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .no-matches {
+            text-align: center;
+            padding: 40px;
+            background-color: #1e293b;
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚽ Football Broadcast Dashboard</h1>
+        <div class="status-badge">Total Matches Today: <strong>2</strong></div>
+    
+        <table>
+            <thead>
+                <tr>
+                    <th>League</th>
+                    <th>Teams</th>
+                    <th>Local Time</th>
+                    <th>Morocco Time (UTC+1)</th>
+                    <th>Broadcast Channels</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                <tr class="libertadores">
+                    <td><strong>Copa Libertadores</strong><br><small style="color:#94a3b8">South America</small></td>
+                    <td><strong>Independiente del Valle</strong> vs <strong>Flamengo</strong></td>
+                    <td>21:30 (UTC-3)</td>
+                    <td><strong style="color:#38bdf8">01:30 (UTC+1)</strong></td>
+                    <td><span class="channel-tag">ESPN</span><span class="channel-tag">DISNEY+</span></td>
+                </tr>
+            
+                <tr class="sudamericana">
+                    <td><strong>Copa Sudamericana</strong><br><small style="color:#94a3b8">South America</small></td>
+                    <td><strong>Cienciano</strong> vs <strong>Atletico Torque</strong></td>
+                    <td>21:30 (UTC-3)</td>
+                    <td><strong style="color:#38bdf8">01:30 (UTC+1)</strong></td>
+                    <td><span class="channel-tag">PARAMOUNT+</span></td>
+                </tr>
+            
+            </tbody>
+        </table>
+        
+    </div>
+</body>
+</html>
+    

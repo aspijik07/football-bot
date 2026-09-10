@@ -7,21 +7,21 @@
       "country": "South America",
       "home_team": "Independiente del Valle",
       "away_team": "Flamengo",
-      "local_time": "21:30 (South America / UTC-3)",
+      "local_time": "21:30 (UTC-3)",
       "morocco_time": "01:30 (UTC+1)",
       "source_channels": {
         "promiedos": [],
         "guiadetv": [],
         "futebolnatv": [
-          "DISNEY+",
-          "ESPN"
+          "ESPN",
+          "DISNEY+"
         ],
         "ogol": [],
         "flashscore": []
       },
       "all_unique_channels": [
-        "DISNEY+",
-        "ESPN"
+        "ESPN",
+        "DISNEY+"
       ],
       "matching_sources": [
         "futebolnatv"
@@ -32,7 +32,7 @@
       "country": "South America",
       "home_team": "Cienciano",
       "away_team": "Atletico Torque",
-      "local_time": "21:30 (South America / UTC-3)",
+      "local_time": "21:30 (UTC-3)",
       "morocco_time": "01:30 (UTC+1)",
       "source_channels": {
         "promiedos": [],
