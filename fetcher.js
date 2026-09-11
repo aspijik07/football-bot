@@ -84,6 +84,9 @@ export function isTargetMatch(leagueName, countryName) {
   const cc = (countryName || '').toLowerCase();
   const full = `${cc} ${lg}`;
 
+  // Explicitly exclude Copa Paulista
+  if (lg.includes('copa paulista') || full.includes('copa paulista')) return false;
+
   if (lg.includes('libertadores') || full.includes('libertadores')) return true;
   if (lg.includes('sudamericana') || full.includes('sudamericana')) return true;
   if (lg.includes('copa argentina') || full.includes('copa argentina')) return true;

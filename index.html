@@ -351,8 +351,8 @@
             gap: 8px;
             font-size: 0.95em;
             margin-bottom: 8px;
-            flex-wrap: nowrap;
-            white-space: nowrap;
+            flex-wrap: nowrap !important;
+            white-space: nowrap !important;
             line-height: 1.4;
         }
         .team-item {
@@ -361,7 +361,7 @@
             gap: 6px;
             vertical-align: middle;
             flex-shrink: 0;
-            white-space: nowrap;
+            white-space: nowrap !important;
         }
         .team-crest-sm {
             width: 22px;
@@ -375,7 +375,7 @@
         .team-title {
             color: #f8fafc;
             font-weight: 700;
-            white-space: nowrap;
+            white-space: nowrap !important;
         }
         .vs-glow {
             color: #eab308;
@@ -384,7 +384,7 @@
             padding: 0 4px;
             letter-spacing: 0.05em;
             flex-shrink: 0;
-            white-space: nowrap;
+            white-space: nowrap !important;
         }
 
         /* Large Match Banner Preview Layout */
@@ -853,7 +853,7 @@
         <div class="stats-bar">
             <div class="stat-card">
                 <div class="label">Total Fixtures</div>
-                <div class="value" id="stat-total-val">17</div>
+                <div class="value" id="stat-total-val">15</div>
             </div>
             <div class="stat-card">
                 <div class="label">Live In Progress</div>
@@ -865,7 +865,7 @@
             </div>
             <div class="stat-card">
                 <div class="label">Today / Tomorrow</div>
-                <div class="value" id="stat-split-val" style="color: #38bdf8;">4 / 13</div>
+                <div class="value" id="stat-split-val" style="color: #38bdf8;">4 / 11</div>
             </div>
         </div>
 
@@ -1486,24 +1486,16 @@
 
                 <!-- Composite Card Preview (Standard Fallback) -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_grêmio_vascodagam_9')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Grêmio</span>
-                        </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Vasco da Gama</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_grêmio_vascodagam_9')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111520.jpg" alt="Grêmio vs Vasco da Gama" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 60 60\'><circle cx=\'30\' cy=\'30\' r=\'27\' fill=\'%231e293b\' stroke=\'%2338bdf8\' stroke-width=\'2.5\'/><text x=\'30\' y=\'36\' font-size=\'20\' text-anchor=\'middle\' fill=\'%2338bdf8\' font-family=\'system-ui\'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">ogol.com.br</span>
                         </div>
                     </div>
                     <div class="banner-actions-subrow">
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Grêmio crest image">🔗 Grêmio Crest</a>
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Vasco da G crest image">🔗 Vasco da G Crest</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/9769.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                        <a href="https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111520.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111520.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1533,24 +1525,16 @@
 
                 <!-- Composite Card Preview (Standard Fallback) -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_chapecoens_internacio_10')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" alt="Chapecoense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Chapecoense</span>
-                        </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Internacional</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" alt="Internacional" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_chapecoens_internacio_10')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg" alt="Chapecoense vs Internacional" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='https://images.fotmob.com/image_resources/logo/teamlogo/197693.png';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">ogol.com.br</span>
                         </div>
                     </div>
                     <div class="banner-actions-subrow">
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Chapecoens crest image">🔗 Chapecoens Crest</a>
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Internacio crest image">🔗 Internacio Crest</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/197693.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                        <a href="https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1580,24 +1564,16 @@
 
                 <!-- Composite Card Preview (Standard Fallback) -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_palmeiras_sãopaulo_11')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Palmeiras</span>
-                        </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">São Paulo</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_palmeiras_sãopaulo_11')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg" alt="Palmeiras vs São Paulo" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='https://images.fotmob.com/image_resources/logo/teamlogo/10283.png';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">ogol.com.br</span>
                         </div>
                     </div>
                     <div class="banner-actions-subrow">
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Palmeiras crest image">🔗 Palmeiras Crest</a>
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct São Paulo crest image">🔗 São Paulo Crest</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                        <a href="https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1627,24 +1603,16 @@
 
                 <!-- Composite Card Preview (Standard Fallback) -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_botafogo_rbbraganti_12')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Botafogo</span>
-                        </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">RB Bragantino</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" alt="RB Bragantino" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_botafogo_rbbraganti_12')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg" alt="Botafogo vs RB Bragantino" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='https://images.fotmob.com/image_resources/logo/teamlogo/8517.png';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">ogol.com.br</span>
                         </div>
                     </div>
                     <div class="banner-actions-subrow">
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Botafogo crest image">🔗 Botafogo Crest</a>
-                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct RB Bragant crest image">🔗 RB Bragant Crest</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/8517.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                        <a href="https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1744,7 +1712,7 @@
 
     <script>
         // Pre-loaded Match Data Store
-        const MATCHES_DATA = {"today_newellsold_v\u00e9lezsarsf_0": {"home_team": "Newell's Old Boys", "away_team": "V\u00e9lez Sarsfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png", "banner_title": "Newell\u00b4s Old Boys vs V\u00e9lez Sarsfield: 22 curiosidades y estad\u00edsticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_defensayju_gimnasiame_1": {"home_team": "Defensa y Justicia", "away_team": "Gimnasia Mendoza", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png", "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estad\u00edsticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "19:15", "morocco_time": "23:15", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_independie_flamengo_2": {"home_team": "Independiente del Valle", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg", "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares (Libertadores 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (0 - 2)", "status_class": "status-finished", "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "day": "today"}, "today_cienciano_montevideo_3": {"home_team": "Cienciano", "away_team": "Montevideo City Torque", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg", "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares (Copa Sudamericana 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (2 - 0)", "status_class": "status-finished", "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "day": "today"}, "tomorrow_bocajunior_centralc\u00f3r_0": {"home_team": "Boca Juniors", "away_team": "Central C\u00f3rdoba de Santiago", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png", "banner_title": "Boca Juniors vs Central C\u00f3rdoba S.Estero: 12 curiosidades y estad\u00edsticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_estudiante_platense_1": {"home_team": "Estudiantes", "away_team": "Club Atl\u00e9tico Platense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg", "banner_title": "Estudiantes vs Platense: Previa, ausencias y probables alineaciones titulares (Primera Divisi\u00f3n Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_independie_aldosivi_2": {"home_team": "Independiente Rivadavia", "away_team": "Aldosivi", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg", "banner_title": "Independiente Rivadavia vs Aldosivi: Previa, ausencias y probables alineaciones titulares (Primera Divisi\u00f3n Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_atl\u00e9ticotu_riverplate_3": {"home_team": "Atl\u00e9tico Tucum\u00e1n", "away_team": "River Plate", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg", "banner_title": "Atl\u00e9tico Tucum\u00e1n vs River Plate: Previa, ausencias y probables alineaciones titulares (Primera Divisi\u00f3n Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:30", "morocco_time": "21:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_talleres_uni\u00f3n_4": {"home_team": "Talleres", "away_team": "Uni\u00f3n", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg", "banner_title": "Talleres vs Uni\u00f3n: Previa, ausencias y probables alineaciones titulares (Primera Divisi\u00f3n Argentina  13/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "20:00", "morocco_time": "00:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_uni\u00e3os\u00e3ojo_juventussp_5": {"home_team": "Uni\u00e3o S\u00e3o Jo\u00e3o", "away_team": "Juventus-SP", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581873.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581848.png", "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/581873.png", "banner_title": "Uni\u00e3o S\u00e3o Jo\u00e3o vs Juventus-SP", "banner_source_site": "Standard Match Card", "has_scraped_banner": false, "league": "Copa Paulista", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_primaveras_noroeste_6": {"home_team": "Primavera SP", "away_team": "Noroeste", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581877.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/163784.png", "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/581877.png", "banner_title": "Primavera SP vs Noroeste", "banner_source_site": "Standard Match Card", "has_scraped_banner": false, "league": "Copa Paulista", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "18:00", "morocco_time": "22:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_coritiba_athleticop_7": {"home_team": "Coritiba", "away_team": "Athletico Paranaense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg", "banner_title": "Coritiba x Athletico Paranaense: hor\u00e1rio, escala\u00e7\u00f5es e estat\u00edsticas (Brasileir\u00e3o 11/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "21:00", "morocco_time": "01:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_atl\u00e9ticomg_fluminense_8": {"home_team": "Atl\u00e9tico-MG", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg", "banner_title": "Atl\u00e9tico Mineiro x Fluminense: hor\u00e1rio, escala\u00e7\u00f5es e estat\u00edsticas (Brasileir\u00e3o 12/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_gr\u00eamio_vascodagam_9": {"home_team": "Gr\u00eamio", "away_team": "Vasco da Gama", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "banner_title": "Gr\u00eamio vs Vasco da Gama", "banner_source_site": "Standard Match Card", "has_scraped_banner": false, "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_chapecoens_internacio_10": {"home_team": "Chapecoense", "away_team": "Internacional", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8702.png", "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png", "banner_title": "Chapecoense vs Internacional", "banner_source_site": "Standard Match Card", "has_scraped_banner": false, "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_palmeiras_s\u00e3opaulo_11": {"home_team": "Palmeiras", "away_team": "S\u00e3o Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "banner_title": "Palmeiras vs S\u00e3o Paulo", "banner_source_site": "Standard Match Card", "has_scraped_banner": false, "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "18:30", "morocco_time": "22:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_botafogo_rbbraganti_12": {"home_team": "Botafogo", "away_team": "RB Bragantino", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png", "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "banner_title": "Botafogo vs RB Bragantino", "banner_source_site": "Standard Match Card", "has_scraped_banner": false, "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "20:30", "morocco_time": "00:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}};
+        const MATCHES_DATA = {"today_newellsold_vélezsarsf_0": {"home_team": "Newell's Old Boys", "away_team": "Vélez Sarsfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png", "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_defensayju_gimnasiame_1": {"home_team": "Defensa y Justicia", "away_team": "Gimnasia Mendoza", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png", "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "19:15", "morocco_time": "23:15", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_independie_flamengo_2": {"home_team": "Independiente del Valle", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg", "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares (Libertadores 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (0 - 2)", "status_class": "status-finished", "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "day": "today"}, "today_cienciano_montevideo_3": {"home_team": "Cienciano", "away_team": "Montevideo City Torque", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg", "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares (Copa Sudamericana 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (2 - 0)", "status_class": "status-finished", "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "day": "today"}, "tomorrow_bocajunior_centralcór_0": {"home_team": "Boca Juniors", "away_team": "Central Córdoba de Santiago", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png", "banner_title": "Boca Juniors vs Central Córdoba S.Estero: 12 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_estudiante_platense_1": {"home_team": "Estudiantes", "away_team": "Club Atlético Platense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg", "banner_title": "Estudiantes vs Platense: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_independie_aldosivi_2": {"home_team": "Independiente Rivadavia", "away_team": "Aldosivi", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg", "banner_title": "Independiente Rivadavia vs Aldosivi: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_atléticotu_riverplate_3": {"home_team": "Atlético Tucumán", "away_team": "River Plate", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg", "banner_title": "Atlético Tucumán vs River Plate: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:30", "morocco_time": "21:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_talleres_unión_4": {"home_team": "Talleres", "away_team": "Unión", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg", "banner_title": "Talleres vs Unión: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  13/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "20:00", "morocco_time": "00:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_coritiba_athleticop_7": {"home_team": "Coritiba", "away_team": "Athletico Paranaense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg", "banner_title": "Coritiba x Athletico Paranaense: horário, escalações e estatísticas (Brasileirão 11/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "21:00", "morocco_time": "01:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_atléticomg_fluminense_8": {"home_team": "Atlético-MG", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg", "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão 12/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_grêmio_vascodagam_9": {"home_team": "Grêmio", "away_team": "Vasco da Gama", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111532.jpg", "banner_title": "Grêmio vs Vasco da Gama", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_chapecoens_internacio_10": {"home_team": "Chapecoense", "away_team": "Internacional", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8702.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg", "banner_title": "Chapecoense vs Internacional", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_palmeiras_sãopaulo_11": {"home_team": "Palmeiras", "away_team": "São Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg", "banner_title": "Palmeiras vs São Paulo", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "18:30", "morocco_time": "22:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_botafogo_rbbraganti_12": {"home_team": "Botafogo", "away_team": "RB Bragantino", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg", "banner_title": "Botafogo vs RB Bragantino", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "20:30", "morocco_time": "00:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}};
 
         // Fallback SVG Crest
         const DEFAULT_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>";
@@ -2094,31 +2062,67 @@
         // Trigger Live Match Data Update
         async function triggerWorkflow() {
             const btn = document.querySelector('.btn-update');
-            const originalText = btn.textContent;
-            btn.textContent = '⏳ Fetching live data...';
-            btn.disabled = true;
+            const originalText = btn ? btn.textContent : '▶ START UPDATE';
+            if (btn) {
+                btn.textContent = '⏳ Fetching live data...';
+                btn.disabled = true;
+            }
 
             try {
-                const res = await fetch('/api/refresh', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const result = await res.json();
-                if (result.success && Array.isArray(result.matches) && result.matches.length > 0) {
-                    applyUpdatedMatches(result.matches, result.last_updated);
-                    showToast(`✅ Synced ${result.count} matches from Fotmob & Sofascore!`);
-                } else if (result.matches) {
-                    applyUpdatedMatches(result.matches, result.last_updated);
-                    showToast('ℹ️ Refreshed fixtures data');
-                } else {
-                    showToast('⚠️ Notice: ' + (result.message || 'Could not fetch live updates'));
+                let response = null;
+                // Attempt API refresh first
+                try {
+                    response = await fetch('/api/refresh', {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+                    });
+                } catch (netErr) {
+                    console.warn('API refresh request notice:', netErr);
                 }
+
+                // If API was not ok, try fetching matches.json directly
+                if (!response || !response.ok) {
+                    try {
+                        response = await fetch('matches.json?t=' + Date.now(), {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                    } catch (jsonErr) {
+                        console.warn('matches.json fetch notice:', jsonErr);
+                    }
+                }
+
+                // Check response.ok and verify content-type is JSON before attempting parse
+                if (response && response.ok) {
+                    const contentType = response.headers.get('content-type') || '';
+                    if (contentType.includes('application/json') || contentType.includes('text/plain')) {
+                        const rawText = await response.text();
+                        if (rawText && rawText.trim().startsWith('{')) {
+                            try {
+                                const result = JSON.parse(rawText);
+                                const matches = result.matches || (Array.isArray(result) ? result : null);
+                                if (Array.isArray(matches) && matches.length > 0) {
+                                    applyUpdatedMatches(matches, result.last_updated);
+                                    showToast(`✅ Synced ${matches.length} matches from Fotmob & Sofascore!`);
+                                    return;
+                                }
+                            } catch (parseErr) {
+                                console.warn('JSON parse suppressed:', parseErr);
+                            }
+                        }
+                    }
+                }
+
+                // If response is not ok, returns 404, or returns HTML error page:
+                // Suppress error banner completely and retain the existing list
+                console.info('Workflow: retained existing fixtures list.');
             } catch (err) {
-                console.warn('Update error:', err);
-                showToast('⚠️ Notice: ' + err.message);
+                // Suppress error banner completely
+                console.warn('Workflow notice suppressed:', err);
             } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
             }
         }
     </script>

@@ -49,7 +49,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // API: Refresh Matches from Live Providers
-  if (reqPath === '/api/refresh') {
+  if (reqPath === '/api/refresh' || reqPath === '/api/update') {
     try {
       console.log('Refreshing live football matches data...');
       const matches = await fetchAllMatches();
@@ -72,6 +72,16 @@ const server = http.createServer(async (req, res) => {
       }));
     }
     return;
+  }
+
+  // Direct route for matches.json
+  if (reqPath === '/matches.json') {
+    const jsonPath = path.join(__dirname, 'matches.json');
+    if (fs.existsSync(jsonPath)) {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-cache' });
+      fs.createReadStream(jsonPath).pipe(res);
+      return;
+    }
   }
 
   // API: Health Check
