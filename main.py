@@ -11,10 +11,23 @@ def convert_to_morocco_time(utc_time_str):
     except Exception:
         return "TBD"
 
+def get_league_color(league_name, country_name):
+    full_name = f"{country_name} {league_name}".lower()
+    
+    if "libertadores" in full_name:
+        return "badge-libertadores"  # Sfar
+    elif "sudamericana" in full_name:
+        return "badge-sudamericana"  # Move
+    elif "argentina" in full_name or "clausura" in full_name or "apertura" in full_name:
+        return "badge-argentina"     # Zraq fateh
+    elif "brazil" in full_name or "brasileiro" in full_name or "paulista" in full_name:
+        return "badge-brazil"        # Khdar bahet
+    
+    return "badge-default"
+
 def fetch_specific_leagues():
     matches = []
     
-    # Real Chrome Browser Headers bash Sofascore ma-y-blokish
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
@@ -22,7 +35,6 @@ def fetch_specific_leagues():
         "Referer": "https://www.sofascore.com/"
     }
 
-    # Keywords for filtering
     KEYWORDS = ["argentina", "liga profesional", "copa argentina", "clausura", "apertura", "brasileiro", "serie a", "paulista", "libertadores", "sudamericana"]
 
     for day_offset in [0, 1]:
@@ -119,7 +131,15 @@ def generate_html(matches_data):
         th, td {{ padding: 12px; text-align: left; border-bottom: 1px solid #222f47; }}
         th {{ background: #0b1329; color: #94a3b8; font-size: 0.8em; }}
         .section-hdr {{ background: #1e293b; color: #38bdf8; font-weight: bold; text-align: center; }}
-        .badge {{ background: #38bdf8; color: #000; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }}
+        
+        /* League Badges Colors */
+        .badge {{ padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.85em; display: inline-block; color: #000; }}
+        .badge-argentina {{ background: #38bdf8; color: #000; }}   /* Zraq fateh */
+        .badge-brazil {{ background: #4ade80; color: #000; }}      /* Khdar bahet */
+        .badge-libertadores {{ background: #facc15; color: #000; }} /* Sfar */
+        .badge-sudamericana {{ background: #c084fc; color: #000; }}  /* Move */
+        .badge-default {{ background: #94a3b8; color: #000; }}
+
         .btn-update {{ background: #eab308; border: none; padding: 10px 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }}
         .btn-banner {{ background: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }}
         #modal {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }}
@@ -171,9 +191,10 @@ def render_rows(matches):
         return '<tr><td colspan="4" style="text-align:center; color:#64748b; padding:15px;">🚫 No matches scheduled for these leagues today.</td></tr>'
     html = ""
     for m in matches:
+        badge_class = get_league_color(m['league'], m['country'])
         html += f"""
         <tr>
-            <td><span class="badge">{m['league']}</span><br><small style="color:#94a3b8">{m['country']}</small></td>
+            <td><span class="badge {badge_class}">{m['league']}</span><br><small style="color:#94a3b8">{m['country']}</small></td>
             <td><strong>{m['home_team']} VS {m['away_team']}</strong><br><button class="btn-banner" onclick="showBanner('{m['banner_url']}')">🖼️ Banner</button></td>
             <td><strong style="color:#38bdf8">{m['morocco_time']}</strong></td>
             <td><small>{m['source']}</small></td>
