@@ -1,6 +1,6 @@
 {
     "total_matches": 17,
-    "last_updated": "2026-09-11T12:46:38.504761+00:00",
+    "last_updated": "2026-09-11T13:17:49.549999+00:00",
     "matches": [
         {
             "day_label": "Today",
@@ -13,8 +13,8 @@
             "local_time": "17:00",
             "morocco_time": "21:00",
             "status": "SCHEDULED",
-            "banner_url": "https://www.zerozero.com.ar/img/noticias/546/imgS620I1198546T20260909210147.jpg",
-            "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  11/09)",
+            "banner_url": "https://www.zerozero.com.ar/img/noticias/548/imgS620I1199548T20260911141701.png",
+            "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
             "all_unique_channels": [
@@ -35,8 +35,8 @@
             "local_time": "19:15",
             "morocco_time": "23:15",
             "status": "SCHEDULED",
-            "banner_url": "https://www.zerozero.com.ar/img/noticias/600/imgS620I1198600T20260910000528.jpg",
-            "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  11/09)",
+            "banner_url": "https://www.zerozero.com.ar/img/noticias/549/imgS620I1199549T20260911141703.png",
+            "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
             "all_unique_channels": [
@@ -57,8 +57,8 @@
             "local_time": "21:30",
             "morocco_time": "01:30",
             "status": "FINISHED (0 - 2)",
-            "banner_url": "https://www.zerozero.com.ar/img/noticias/247/imgS620I1199247T20260911094552.jpg",
-            "banner_title": "Flamengo se impuso al Independiente del Valle",
+            "banner_url": "https://www.zerozero.com.ar/img/noticias/504/imgS620I1197504T20260909013042.jpg",
+            "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares (Libertadores 11/09)",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
             "all_unique_channels": [
@@ -79,8 +79,8 @@
             "local_time": "21:30",
             "morocco_time": "01:30",
             "status": "FINISHED (2 - 0)",
-            "banner_url": "https://www.zerozero.com.ar/img/noticias/270/imgS620I1199270T20260911094958.jpg",
-            "banner_title": "Cienciano derrotó Montevideo City",
+            "banner_url": "https://www.zerozero.com.ar/img/noticias/522/imgS620I1197522T20260909013519.jpg",
+            "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares (Copa Sudamericana 11/09)",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
             "all_unique_channels": [
@@ -101,8 +101,8 @@
             "local_time": "21:30",
             "morocco_time": "01:30",
             "status": "SCHEDULED",
-            "banner_url": "https://www.zerozero.com.ar/img/noticias/688/imgS620I1198688T20260910013954.jpg",
-            "banner_title": "Boca Juniors vs Central Córdoba S.Estero: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)",
+            "banner_url": "https://www.zerozero.com.ar/img/noticias/550/imgS620I1199550T20260911141705.png",
+            "banner_title": "Boca Juniors vs Central Córdoba S.Estero: 12 curiosidades y estadísticas antes del partido",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
             "all_unique_channels": [
@@ -213,7 +213,7 @@
             "status": "SCHEDULED",
             "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/581873.png",
             "banner_title": "União São João vs Juventus-SP",
-            "banner_source_site": "fallback",
+            "banner_source_site": "Standard Match Card",
             "has_scraped_banner": false,
             "all_unique_channels": [
                 "Premiere",
@@ -235,7 +235,7 @@
             "status": "SCHEDULED",
             "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/581877.png",
             "banner_title": "Primavera SP vs Noroeste",
-            "banner_source_site": "fallback",
+            "banner_source_site": "Standard Match Card",
             "has_scraped_banner": false,
             "all_unique_channels": [
                 "Premiere",
@@ -301,7 +301,7 @@
             "status": "SCHEDULED",
             "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png",
             "banner_title": "Grêmio vs Vasco da Gama",
-            "banner_source_site": "fallback",
+            "banner_source_site": "Standard Match Card",
             "has_scraped_banner": false,
             "all_unique_channels": [
                 "Premiere",
@@ -323,7 +323,7 @@
             "status": "SCHEDULED",
             "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png",
             "banner_title": "Chapecoense vs Internacional",
-            "banner_source_site": "fallback",
+            "banner_source_site": "Standard Match Card",
             "has_scraped_banner": false,
             "all_unique_channels": [
                 "Premiere",
@@ -345,7 +345,7 @@
             "status": "SCHEDULED",
             "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png",
             "banner_title": "Palmeiras vs São Paulo",
-            "banner_source_site": "fallback",
+            "banner_source_site": "Standard Match Card",
             "has_scraped_banner": false,
             "all_unique_channels": [
                 "Premiere",
@@ -367,7 +367,7 @@
             "status": "SCHEDULED",
             "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png",
             "banner_title": "Botafogo vs RB Bragantino",
-            "banner_source_site": "fallback",
+            "banner_source_site": "Standard Match Card",
             "has_scraped_banner": false,
             "all_unique_channels": [
                 "Premiere",
