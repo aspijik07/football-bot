@@ -16,7 +16,7 @@
             line-height: 1.5;
         }
         .container {
-            max-width: 1140px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         .header {
@@ -45,7 +45,23 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-toggle-sidebar {
+            background: #1e293b;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            padding: 9px 15px;
+            font-weight: 600;
+            font-size: 0.88em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-toggle-sidebar:hover {
+            background: #334155;
+            color: #7dd3fc;
         }
         .btn-update {
             background: #eab308;
@@ -92,6 +108,134 @@
             margin-top: 4px;
         }
 
+        /* Layout with Left Sidebar */
+        .dashboard-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* Left Sidebar Styling */
+        .sidebar {
+            width: 270px;
+            min-width: 270px;
+            background: #151e32;
+            border: 1px solid #222f47;
+            border-radius: 10px;
+            padding: 16px;
+            position: sticky;
+            top: 16px;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            transition: all 0.2s ease;
+        }
+        .sidebar.collapsed {
+            display: none;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #222f47;
+        }
+        .sidebar-title {
+            font-size: 0.85em;
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+        .sidebar-active-pill {
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            font-weight: 700;
+            border: 1px solid #334155;
+        }
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .btn-filter-action {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            font-size: 0.75em;
+            font-weight: 600;
+            padding: 6px 4px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-filter-action:hover {
+            background: #334155;
+            color: #ffffff;
+            border-color: #475569;
+        }
+        .sidebar-leagues-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .sidebar-league-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+            gap: 8px;
+        }
+        .sidebar-league-item:hover {
+            background: #1a2744;
+            border-color: #334155;
+        }
+        .sidebar-league-item input[type="checkbox"] {
+            accent-color: #38bdf8;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+        .sidebar-badge-chip {
+            font-size: 0.76em !important;
+            padding: 2px 7px !important;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .league-count-tag {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.72em;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
         /* Table */
         .table-responsive {
             width: 100%;
@@ -106,7 +250,7 @@
             text-align: left;
         }
         th, td {
-            padding: 14px 14px;
+            padding: 12px 14px;
             border-bottom: 1px solid #222f47;
             vertical-align: middle;
         }
@@ -136,7 +280,7 @@
             border-top-color: #38bdf8;
         }
 
-        /* Badges League Colors */
+        /* Badges League Colors - Distinct Brazilian Light/Soft Green */
         .badge {
             padding: 4px 9px;
             border-radius: 4px;
@@ -146,10 +290,10 @@
             text-decoration: none;
             white-space: nowrap;
         }
-        .badge-argentina { background: #7dd3fc; color: #0284c7; }     /* Light Blue */
-        .badge-brazil { background: #334155; color: #cbd5e1; }        /* Dark Slate */
-        .badge-libertadores { background: #fef08a; color: #a16207; }  /* Yellow */
-        .badge-sudamericana { background: #e9d5ff; color: #7e22ce; }   /* Purple */
+        .badge-argentina { background: #7dd3fc; color: #0284c7; border: 1px solid #38bdf8; }     /* Light Blue */
+        .badge-brazil { background: #bbf7d0; color: #14532d; border: 1px solid #86efac; }        /* Light/Soft Green for ALL Brazilian competitions */
+        .badge-libertadores { background: #fef08a; color: #a16207; border: 1px solid #facc15; }  /* Yellow */
+        .badge-sudamericana { background: #e9d5ff; color: #7e22ce; border: 1px solid #d8b4fe; }   /* Purple */
         .badge-default { background: #334155; color: #cbd5e1; }
 
         /* Status Colors */
@@ -191,20 +335,136 @@
             100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        .btn-banner {
-            background: #0284c7;
-            color: #ffffff;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 6px;
-            font-size: 0.78em;
-            font-weight: 600;
-            transition: background 0.15s ease;
+        /* Dual-Team Match Column & Thumbnail Preview */
+        .match-headline {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95em;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
         }
-        .btn-banner:hover {
-            background: #0369a1;
+        .team-title {
+            color: #f8fafc;
+            font-weight: 700;
+        }
+        .vs-glow {
+            color: #eab308;
+            font-weight: 800;
+            font-size: 0.85em;
+            padding: 0 2px;
+        }
+
+        /* Composite Dual-Team Card Thumbnail */
+        .dual-thumb-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            max-width: 320px;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .dual-thumb-card:hover {
+            border-color: #38bdf8;
+            background: linear-gradient(135deg, #131e38 0%, #25334d 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.15);
+        }
+        .thumb-team-side {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .thumb-team-side:last-child {
+            justify-content: flex-end;
+            text-align: right;
+        }
+        .thumb-logo-img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        .thumb-team-label {
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #cbd5e1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 85px;
+        }
+        .thumb-center-vs {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 8px;
+            flex-shrink: 0;
+        }
+        .thumb-vs-text {
+            font-size: 0.7em;
+            font-weight: 800;
+            color: #eab308;
+            letter-spacing: 0.05em;
+        }
+        .thumb-view-badge {
+            font-size: 0.65em;
+            color: #38bdf8;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Direct Source URL Links */
+        .banner-source-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .direct-img-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: #0f172a;
+            color: #38bdf8;
+            border: 1px solid #1e293b;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.72em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .direct-img-chip:hover {
+            background: #1e293b;
+            color: #7dd3fc;
+            border-color: #38bdf8;
+        }
+        .btn-copy-crest {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.72em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .btn-copy-crest:hover {
+            background: #334155;
+            color: #ffffff;
         }
 
         .channel-tag {
@@ -220,56 +480,174 @@
             white-space: nowrap;
         }
 
-        /* Modal */
+        /* Modal Styles */
         #modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.88);
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            padding: 20px;
+            padding: 16px;
+            backdrop-filter: blur(4px);
         }
         .modal-card {
             background: #151e32;
             border: 1px solid #334155;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 24px;
-            max-width: 440px;
+            max-width: 580px;
             width: 100%;
-            text-align: center;
             position: relative;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 35px -5px rgba(0, 0, 0, 0.7);
         }
         .modal-close {
             position: absolute;
-            top: 10px;
-            right: 12px;
+            top: 12px;
+            right: 14px;
             background: transparent;
             border: none;
             color: #94a3b8;
             font-size: 1.4em;
             cursor: pointer;
-            padding: 4px;
+            padding: 4px 8px;
             line-height: 1;
+            border-radius: 4px;
         }
         .modal-close:hover {
             color: #ffffff;
+            background: #1e293b;
         }
-        #modal-img {
-            max-width: 180px;
-            max-height: 180px;
+
+        /* Modal Composite Banner Card */
+        .modal-banner-stage {
+            background: radial-gradient(circle at center, #1e293b 0%, #0b1329 100%);
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px 16px;
+            margin-top: 14px;
+            text-align: center;
+        }
+        .modal-match-meta {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .modal-vs-stage {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .modal-team-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+        .modal-crest-img {
+            width: 100px;
+            height: 100px;
             object-fit: contain;
-            margin: 12px auto;
-            display: block;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            margin-bottom: 8px;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
         }
-        #modal-title {
-            font-size: 1.1em;
+        .modal-team-title {
+            font-size: 1.05em;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.3;
+        }
+        .modal-center-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .modal-big-vs {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: #eab308;
+            text-shadow: 0 0 12px rgba(234, 179, 8, 0.5);
+        }
+        .modal-time-tag {
+            font-size: 0.85em;
             font-weight: 700;
             color: #38bdf8;
+            background: #0f172a;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #1e293b;
+        }
+
+        /* Modal Direct Image URL Section */
+        .modal-url-box {
+            background: #0f172a;
+            border: 1px solid #222f47;
+            border-radius: 8px;
+            padding: 12px;
             margin-top: 14px;
+            text-align: left;
+        }
+        .modal-url-heading {
+            font-size: 0.76em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .url-entry {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .url-entry:last-child {
+            margin-bottom: 0;
+        }
+        .url-entry input {
+            flex: 1;
+            background: #151e32;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 0.78em;
+            font-family: monospace;
+            outline: none;
+        }
+        .btn-modal-action {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.76em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.15s ease;
+        }
+        .btn-modal-action:hover {
+            background: #0369a1;
+        }
+        .btn-modal-copy {
+            background: #334155;
+        }
+        .btn-modal-copy:hover {
+            background: #475569;
         }
 
         .footer {
@@ -278,321 +656,999 @@
             color: #64748b;
             font-size: 0.8em;
         }
+
+        /* Toast notification */
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background-color: #0284c7;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px 16px;
+            position: fixed;
+            z-index: 2000;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: opacity 0.25s, visibility 0.25s;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 960px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                min-width: 100%;
+                position: static;
+                max-height: none;
+            }
+            .dual-thumb-card {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <div class="title-group">
                 <h1>⚽ Football Broadcast Dashboard</h1>
                 <p>Live South American & Continental Coverage — Fotmob & Sofascore Synced</p>
             </div>
             <div class="header-actions">
+                <button class="btn-toggle-sidebar" onclick="toggleSidebar()">☰ League Filters (<span id="btn-active-count">5</span>)</button>
                 <button class="btn-update" onclick="triggerWorkflow()">▶ START UPDATE</button>
             </div>
         </div>
 
+        <!-- Metrics Bar -->
         <div class="stats-bar">
             <div class="stat-card">
                 <div class="label">Total Fixtures</div>
-                <div class="value">17</div>
+                <div class="value" id="stat-total-val">17</div>
             </div>
             <div class="stat-card">
                 <div class="label">Live In Progress</div>
-                <div class="value" style="color: #ef4444;">0</div>
+                <div class="value" id="stat-live-val" style="color: #ef4444;">0</div>
             </div>
             <div class="stat-card">
                 <div class="label">Starting Soon</div>
-                <div class="value" style="color: #f97316;">0</div>
+                <div class="value" id="stat-soon-val" style="color: #f97316;">0</div>
             </div>
             <div class="stat-card">
                 <div class="label">Today / Tomorrow</div>
-                <div class="value" style="color: #38bdf8;">4 / 13</div>
+                <div class="value" id="stat-split-val" style="color: #38bdf8;">4 / 13</div>
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 18%;">LEAGUE</th>
-                        <th style="width: 28%;">MATCH & BANNER</th>
-                        <th style="width: 14%;">LOCAL TIME</th>
-                        <th style="width: 16%;">MOROCCO TIME (GMT+1)</th>
-                        <th style="width: 12%;">STATUS</th>
-                        <th style="width: 12%;">CHANNELS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — 11/09/2026 (4)</td></tr>
+        <!-- Layout with Sidebar & Main Table -->
+        <div class="dashboard-layout">
+            <!-- Left Sidebar: League Filters -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">
+                        <span>🏆</span> LEAGUE FILTERS
+                    </h3>
+                    <span class="sidebar-active-pill" id="sidebar-active-pill">5 active</span>
+                </div>
+                <div class="sidebar-actions">
+                    <button type="button" class="btn-filter-action" onclick="selectAllLeagues(true)">✓ Select All</button>
+                    <button type="button" class="btn-filter-action" onclick="selectAllLeagues(false)">✕ Clear All</button>
+                </div>
+                <div class="sidebar-leagues-list" id="sidebar-leagues-list">
                     
-        <tr>
+        <label class="sidebar-league-item" for="filter-Liga Profesional Clausura">
+            <input type="checkbox" id="filter-Liga Profesional Clausura" class="league-checkbox" value="Liga Profesional Clausura" checked onchange="filterLeagues()">
+            <span class="badge badge-argentina sidebar-badge-chip">Liga Profesional Clausura</span>
+            <span class="league-count-tag">7</span>
+        </label>
+        <label class="sidebar-league-item" for="filter-Copa Libertadores">
+            <input type="checkbox" id="filter-Copa Libertadores" class="league-checkbox" value="Copa Libertadores" checked onchange="filterLeagues()">
+            <span class="badge badge-libertadores sidebar-badge-chip">Copa Libertadores</span>
+            <span class="league-count-tag">1</span>
+        </label>
+        <label class="sidebar-league-item" for="filter-Copa Sudamericana">
+            <input type="checkbox" id="filter-Copa Sudamericana" class="league-checkbox" value="Copa Sudamericana" checked onchange="filterLeagues()">
+            <span class="badge badge-sudamericana sidebar-badge-chip">Copa Sudamericana</span>
+            <span class="league-count-tag">1</span>
+        </label>
+        <label class="sidebar-league-item" for="filter-Copa Paulista">
+            <input type="checkbox" id="filter-Copa Paulista" class="league-checkbox" value="Copa Paulista" checked onchange="filterLeagues()">
+            <span class="badge badge-brazil sidebar-badge-chip">Copa Paulista</span>
+            <span class="league-count-tag">2</span>
+        </label>
+        <label class="sidebar-league-item" for="filter-Série A">
+            <input type="checkbox" id="filter-Série A" class="league-checkbox" value="Série A" checked onchange="filterLeagues()">
+            <span class="badge badge-brazil sidebar-badge-chip">Série A</span>
+            <span class="league-count-tag">6</span>
+        </label>
+                </div>
+            </aside>
+
+            <!-- Main Table Content -->
+            <main class="main-content">
+                <div class="table-responsive">
+                    <table id="matches-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 17%;">LEAGUE</th>
+                                <th style="width: 32%;">MATCH & BANNER</th>
+                                <th style="width: 13%;">LOCAL TIME</th>
+                                <th style="width: 14%;">MOROCCO TIME (GMT+1)</th>
+                                <th style="width: 12%;">STATUS</th>
+                                <th style="width: 12%;">CHANNELS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Today Section Header -->
+                            <tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — 11/09/2026 (<span id="hdr-today-count">4</span>)</td></tr>
+                            <tr id="empty-today-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for today.</td></tr>
+                            
+        <tr data-league="Liga Profesional Clausura" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_newellsold_vélezsarsf_0">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Newell's Old Boys <span style="color:#eab308; margin: 0 4px;">VS</span> Vélez Sarsfield</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10201.png', 'Newell\'s Old Boys VS Vélez Sarsfield')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Newell's Old Boys</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Vélez Sarsfield</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('today_newellsold_vélezsarsf_0')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10201.png" alt="Newell's Old Boys" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Newell's Old Boys">Newell's Old Boys</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10079.png" alt="Vélez Sarsfield" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Vélez Sarsfield">Vélez Sarsfield</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10201.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Newell's Old Boys crest image">🔗 Newell's Old Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10079.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Vélez Sarsfield crest image">🔗 Vélez Sarsfi Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10201.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Liga Profesional Clausura" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_defensayju_gimnasiame_1">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Defensa y Justicia <span style="color:#eab308; margin: 0 4px;">VS</span> Gimnasia Mendoza</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/161730.png', 'Defensa y Justicia VS Gimnasia Mendoza')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Defensa y Justicia</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Gimnasia Mendoza</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('today_defensayju_gimnasiame_1')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161730.png" alt="Defensa y Justicia" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Defensa y Justicia">Defensa y Justicia</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/568727.png" alt="Gimnasia Mendoza" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Gimnasia Mendoza">Gimnasia Mendoza</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/161730.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Defensa y Justicia crest image">🔗 Defensa y Ju Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/568727.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Gimnasia Mendoza crest image">🔗 Gimnasia Men Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/161730.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">19:15 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">23:15</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Copa Libertadores" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_independie_flamengo_2">
             <td>
                 <span class="badge badge-libertadores">Copa Libertadores</span><br>
                 <small style="color:#94a3b8; font-weight:500;">South America</small>
             </td>
             <td>
-                <strong>Independiente del Valle <span style="color:#eab308; margin: 0 4px;">VS</span> Flamengo</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/192875.png', 'Independiente del Valle VS Flamengo')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Independiente del Valle</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Flamengo</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('today_independie_flamengo_2')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/192875.png" alt="Independiente del Valle" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Independiente del Valle">Independiente del Valle</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9770.png" alt="Flamengo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Flamengo">Flamengo</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/192875.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Independiente del Valle crest image">🔗 Independient Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9770.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Flamengo crest image">🔗 Flamengo Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/192875.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
             <td><span class="status-badge status-finished">FINISHED (0 - 2)</span></td>
             <td><span class="channel-tag">ESPN</span><span class="channel-tag">Fox Sports</span><span class="channel-tag">Star+</span><span class="channel-tag">Globo</span></td>
         </tr>
-        <tr>
+        <tr data-league="Copa Sudamericana" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_cienciano_montevideo_3">
             <td>
                 <span class="badge badge-sudamericana">Copa Sudamericana</span><br>
                 <small style="color:#94a3b8; font-weight:500;">South America</small>
             </td>
             <td>
-                <strong>Cienciano <span style="color:#eab308; margin: 0 4px;">VS</span> Montevideo City Torque</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/1845.png', 'Cienciano VS Montevideo City Torque')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Cienciano</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Montevideo City Torque</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('today_cienciano_montevideo_3')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/1845.png" alt="Cienciano" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Cienciano">Cienciano</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/395613.png" alt="Montevideo City Torque" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Montevideo City Torque">Montevideo City Torque</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/1845.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Cienciano crest image">🔗 Cienciano Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/395613.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Montevideo City Torque crest image">🔗 Montevideo C Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/1845.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
             <td><span class="status-badge status-finished">FINISHED (2 - 0)</span></td>
             <td><span class="channel-tag">ESPN 3</span><span class="channel-tag">Star+</span><span class="channel-tag">DSports</span><span class="channel-tag">Paramount+</span></td>
         </tr>
-                    <tr><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — 12/09/2026 (13)</td></tr>
-                    
-        <tr>
+
+                            <!-- Tomorrow Section Header -->
+                            <tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — 12/09/2026 (<span id="hdr-tomorrow-count">13</span>)</td></tr>
+                            <tr id="empty-tomorrow-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>
+                            
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_bocajunior_centralcór_0">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Boca Juniors <span style="color:#eab308; margin: 0 4px;">VS</span> Central Córdoba de Santiago</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10077.png', 'Boca Juniors VS Central Córdoba de Santiago')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Boca Juniors</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Central Córdoba de Santiago</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_bocajunior_centralcór_0')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10077.png" alt="Boca Juniors" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Boca Juniors">Boca Juniors</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/213596.png" alt="Central Córdoba de Santiago" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Central Córdoba de Santiago">Central Córdoba de Santiago</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10077.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Boca Juniors crest image">🔗 Boca Juniors Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/213596.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Central Córdoba de Santiago crest image">🔗 Central Córd Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10077.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_estudiante_platense_1">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Estudiantes <span style="color:#eab308; margin: 0 4px;">VS</span> Club Atlético Platense</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10094.png', 'Estudiantes VS Club Atlético Platense')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Estudiantes</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Club Atlético Platense</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_estudiante_platense_1')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10094.png" alt="Estudiantes" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Estudiantes">Estudiantes</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10089.png" alt="Club Atlético Platense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Club Atlético Platense">Club Atlético Platense</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10094.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Estudiantes crest image">🔗 Estudiantes Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10089.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Club Atlético Platense crest image">🔗 Club Atlétic Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10094.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">14:45 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_independie_aldosivi_2">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Independiente Rivadavia <span style="color:#eab308; margin: 0 4px;">VS</span> Aldosivi</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/161729.png', 'Independiente Rivadavia VS Aldosivi')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Independiente Rivadavia</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Aldosivi</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_independie_aldosivi_2')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161729.png" alt="Independiente Rivadavia" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Independiente Rivadavia">Independiente Rivadavia</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161728.png" alt="Aldosivi" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Aldosivi">Aldosivi</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/161729.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Independiente Rivadavia crest image">🔗 Independient Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/161728.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Aldosivi crest image">🔗 Aldosivi Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/161729.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">14:45 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_atléticotu_riverplate_3">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Atlético Tucumán <span style="color:#eab308; margin: 0 4px;">VS</span> River Plate</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/161727.png', 'Atlético Tucumán VS River Plate')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Atlético Tucumán</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">River Plate</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_atléticotu_riverplate_3')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161727.png" alt="Atlético Tucumán" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Atlético Tucumán">Atlético Tucumán</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10076.png" alt="River Plate" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="River Plate">River Plate</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/161727.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Atlético Tucumán crest image">🔗 Atlético Tuc Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10076.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct River Plate crest image">🔗 River Plate Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/161727.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:30</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_talleres_unión_4">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <strong>Talleres <span style="color:#eab308; margin: 0 4px;">VS</span> Unión</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10101.png', 'Talleres VS Unión')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Talleres</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Unión</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_talleres_unión_4')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10101.png" alt="Talleres" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Talleres">Talleres</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10096.png" alt="Unión" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Unión">Unión</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10101.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Talleres crest image">🔗 Talleres Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10096.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Unión crest image">🔗 Unión Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10101.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">20:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">00:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-        <tr>
+        <tr data-league="Copa Paulista" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_uniãosãojo_juventussp_5">
             <td>
                 <span class="badge badge-brazil">Copa Paulista</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>União São João <span style="color:#eab308; margin: 0 4px;">VS</span> Juventus-SP</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/581873.png', 'União São João VS Juventus-SP')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">União São João</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Juventus-SP</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_uniãosãojo_juventussp_5')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581873.png" alt="União São João" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="União São João">União São João</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581848.png" alt="Juventus-SP" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Juventus-SP">Juventus-SP</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581873.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct União São João crest image">🔗 União São Jo Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581848.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Juventus-SP crest image">🔗 Juventus-SP Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/581873.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Copa Paulista" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_primaveras_noroeste_6">
             <td>
                 <span class="badge badge-brazil">Copa Paulista</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Primavera SP <span style="color:#eab308; margin: 0 4px;">VS</span> Noroeste</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/581877.png', 'Primavera SP VS Noroeste')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Primavera SP</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Noroeste</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_primaveras_noroeste_6')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581877.png" alt="Primavera SP" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Primavera SP">Primavera SP</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/163784.png" alt="Noroeste" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Noroeste">Noroeste</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581877.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Primavera SP crest image">🔗 Primavera SP Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/163784.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Noroeste crest image">🔗 Noroeste Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/581877.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">18:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">22:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_coritiba_athleticop_7">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Coritiba <span style="color:#eab308; margin: 0 4px;">VS</span> Athletico Paranaense</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/9767.png', 'Coritiba VS Athletico Paranaense')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Coritiba</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Athletico Paranaense</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_coritiba_athleticop_7')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9767.png" alt="Coritiba" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Coritiba">Coritiba</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10273.png" alt="Athletico Paranaense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Athletico Paranaense">Athletico Paranaense</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9767.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Coritiba crest image">🔗 Coritiba Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10273.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Athletico Paranaense crest image">🔗 Athletico Pa Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/9767.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_atléticomg_fluminense_8">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Atlético-MG <span style="color:#eab308; margin: 0 4px;">VS</span> Fluminense</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10272.png', 'Atlético-MG VS Fluminense')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Atlético-MG</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Fluminense</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_atléticomg_fluminense_8')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Atlético-MG">Atlético-MG</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9863.png" alt="Fluminense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Fluminense">Fluminense</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Atlético-MG crest image">🔗 Atlético-MG Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9863.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Fluminense crest image">🔗 Fluminense Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10272.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">16:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_grêmio_vascodagam_9">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Grêmio <span style="color:#eab308; margin: 0 4px;">VS</span> Vasco da Gama</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/9769.png', 'Grêmio VS Vasco da Gama')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Grêmio</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Vasco da Gama</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_grêmio_vascodagam_9')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Grêmio">Grêmio</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Vasco da Gama">Vasco da Gama</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Grêmio crest image">🔗 Grêmio Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Vasco da Gama crest image">🔗 Vasco da Gam Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/9769.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">16:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_chapecoens_internacio_10">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Chapecoense <span style="color:#eab308; margin: 0 4px;">VS</span> Internacional</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/197693.png', 'Chapecoense VS Internacional')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Chapecoense</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">Internacional</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_chapecoens_internacio_10')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" alt="Chapecoense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Chapecoense">Chapecoense</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" alt="Internacional" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Internacional">Internacional</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Chapecoense crest image">🔗 Chapecoense Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Internacional crest image">🔗 Internaciona Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/197693.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_palmeiras_sãopaulo_11">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Palmeiras <span style="color:#eab308; margin: 0 4px;">VS</span> São Paulo</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', 'Palmeiras VS São Paulo')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Palmeiras</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">São Paulo</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_palmeiras_sãopaulo_11')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Palmeiras">Palmeiras</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="São Paulo">São Paulo</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Palmeiras crest image">🔗 Palmeiras Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct São Paulo crest image">🔗 São Paulo Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">18:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">22:30</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-        <tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_botafogo_rbbraganti_12">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <strong>Botafogo <span style="color:#eab308; margin: 0 4px;">VS</span> RB Bragantino</strong>
-                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/8517.png', 'Botafogo VS RB Bragantino')">🖼️ View Match Banner</button>
+                <!-- Match Headline -->
+                <div class="match-headline">
+                    <strong class="team-title">Botafogo</strong>
+                    <span class="vs-glow">VS</span>
+                    <strong class="team-title">RB Bragantino</strong>
+                </div>
+
+                <!-- Composite Dual-Team Thumbnail Preview Card -->
+                <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_botafogo_rbbraganti_12')" title="Click to view full composite Team A vs Team B match banner">
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="Botafogo">Botafogo</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">👁️ Banner</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" alt="RB Bragantino" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <span class="thumb-team-label" title="RB Bragantino">RB Bragantino</span>
+                    </div>
+                </div>
+
+                <!-- Direct Source URL Links -->
+                <div class="banner-source-row">
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Botafogo crest image">🔗 Botafogo Crest</a>
+                    <a href="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct RB Bragantino crest image">🔗 RB Bragantin Crest</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/8517.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">20:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">00:30</strong></td>
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
         </tr>
-                </tbody>
-            </table>
-        </div>
+                        </tbody>
+                    </table>
+                </div>
 
-        <div class="footer">
-            Last Updated: 2026-09-11 11:54:12 GMT+1 • Auto-generated via GitHub Actions Runner
+                <div class="footer">
+                    Last Updated: 2026-09-11 12:06:41 GMT+1 • Auto-generated via GitHub Actions Runner
+                </div>
+            </main>
         </div>
     </div>
 
-    <!-- Match Banner Modal -->
+    <!-- Match Banner Modal with Composite Team A vs Team B Display -->
     <div id="modal" onclick="closeBanner(event)">
         <div class="modal-card" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">✕</button>
-            <div id="modal-title">Match Banner</div>
-            <img id="modal-img" alt="Match Logo / Banner">
-            <p style="color: #94a3b8; font-size: 0.8em; margin: 8px 0 0 0;">Official Club Crest & Broadcast Identity</p>
+            <button class="modal-close" onclick="document.getElementById('modal').style.display='none'" title="Close">✕</button>
+
+            <!-- Match Banner Composite Stage -->
+            <div class="modal-banner-stage">
+                <div class="modal-match-meta">
+                    <span id="modal-league-badge" class="badge badge-default">League</span>
+                    <span id="modal-country-tag" style="color:#94a3b8; font-size:0.8em; font-weight:600;">Country</span>
+                    <span id="modal-status-badge" class="status-badge status-scheduled">SCHEDULED</span>
+                </div>
+
+                <div class="modal-vs-stage">
+                    <!-- Home Team -->
+                    <div class="modal-team-block">
+                        <img id="modal-home-img" class="modal-crest-img" alt="Home Crest">
+                        <div id="modal-home-title" class="modal-team-title">Home Team</div>
+                    </div>
+
+                    <!-- Center VS & Time -->
+                    <div class="modal-center-divider">
+                        <div class="modal-big-vs">VS</div>
+                        <div id="modal-time-tag" class="modal-time-tag">21:00 GMT+1</div>
+                    </div>
+
+                    <!-- Away Team -->
+                    <div class="modal-team-block">
+                        <img id="modal-away-img" class="modal-crest-img" alt="Away Crest">
+                        <div id="modal-away-title" class="modal-team-title">Away Team</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direct Image URLs Section -->
+            <div class="modal-url-box">
+                <div class="modal-url-heading">Direct Image Source URLs (Clickable & Copyable)</div>
+                
+                <div class="url-entry" id="box-home-url">
+                    <input type="text" id="modal-home-url-input" readonly>
+                    <a id="modal-home-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open Image</a>
+                    <button type="button" class="btn-modal-action btn-modal-copy" onclick="copyFromInput('modal-home-url-input')">📋 Copy</button>
+                </div>
+
+                <div class="url-entry" id="box-away-url" style="margin-top:6px;">
+                    <input type="text" id="modal-away-url-input" readonly>
+                    <a id="modal-away-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open Image</a>
+                    <button type="button" class="btn-modal-action btn-modal-copy" onclick="copyFromInput('modal-away-url-input')">📋 Copy</button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Toast Notification for Copy Feedback -->
+    <div id="toast">Copied to clipboard!</div>
+
     <script>
-        function showBanner(url, matchTitle) {
-            if (!url) {
-                alert('No banner graphic available for this fixture.');
-                return;
+        // Pre-loaded Match Data Store
+        const MATCHES_DATA = {"today_newellsold_v\u00e9lezsarsf_0": {"home_team": "Newell's Old Boys", "away_team": "V\u00e9lez Sarsfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_defensayju_gimnasiame_1": {"home_team": "Defensa y Justicia", "away_team": "Gimnasia Mendoza", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "19:15", "morocco_time": "23:15", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_independie_flamengo_2": {"home_team": "Independiente del Valle", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (0 - 2)", "status_class": "status-finished", "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "day": "today"}, "today_cienciano_montevideo_3": {"home_team": "Cienciano", "away_team": "Montevideo City Torque", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (2 - 0)", "status_class": "status-finished", "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "day": "today"}, "tomorrow_bocajunior_centralc\u00f3r_0": {"home_team": "Boca Juniors", "away_team": "Central C\u00f3rdoba de Santiago", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_estudiante_platense_1": {"home_team": "Estudiantes", "away_team": "Club Atl\u00e9tico Platense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_independie_aldosivi_2": {"home_team": "Independiente Rivadavia", "away_team": "Aldosivi", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_atl\u00e9ticotu_riverplate_3": {"home_team": "Atl\u00e9tico Tucum\u00e1n", "away_team": "River Plate", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:30", "morocco_time": "21:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_talleres_uni\u00f3n_4": {"home_team": "Talleres", "away_team": "Uni\u00f3n", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "20:00", "morocco_time": "00:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_uni\u00e3os\u00e3ojo_juventussp_5": {"home_team": "Uni\u00e3o S\u00e3o Jo\u00e3o", "away_team": "Juventus-SP", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581873.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581848.png", "league": "Copa Paulista", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_primaveras_noroeste_6": {"home_team": "Primavera SP", "away_team": "Noroeste", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581877.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/163784.png", "league": "Copa Paulista", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "18:00", "morocco_time": "22:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_coritiba_athleticop_7": {"home_team": "Coritiba", "away_team": "Athletico Paranaense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "21:00", "morocco_time": "01:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_atl\u00e9ticomg_fluminense_8": {"home_team": "Atl\u00e9tico-MG", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_gr\u00eamio_vascodagam_9": {"home_team": "Gr\u00eamio", "away_team": "Vasco da Gama", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_chapecoens_internacio_10": {"home_team": "Chapecoense", "away_team": "Internacional", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8702.png", "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_palmeiras_s\u00e3opaulo_11": {"home_team": "Palmeiras", "away_team": "S\u00e3o Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "18:30", "morocco_time": "22:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}, "tomorrow_botafogo_rbbraganti_12": {"home_team": "Botafogo", "away_team": "RB Bragantino", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png", "league": "S\u00e9rie A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "20:30", "morocco_time": "00:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "Caz\u00e9TV"], "day": "tomorrow"}};
+
+        // Fallback SVG Crest
+        const DEFAULT_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>";
+
+        // Toast feedback
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'show';
+            setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 2200);
+        }
+
+        // Copy direct URL to clipboard
+        function copyDirectUrl(url, btnElement, event) {
+            if (event) event.stopPropagation();
+            if (!url) return;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('📋 Image URL copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy image URL:', url);
+            });
+        }
+
+        function copyFromInput(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input || !input.value) return;
+            input.select();
+            navigator.clipboard.writeText(input.value).then(() => {
+                showToast('📋 Image URL copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy URL:', input.value);
+            });
+        }
+
+        // Open Composite Match Banner Modal
+        function openMatchBanner(matchId) {
+            const m = MATCHES_DATA[matchId];
+            if (!m) return;
+
+            document.getElementById('modal-league-badge').className = 'badge ' + (m.badge_class || 'badge-default');
+            document.getElementById('modal-league-badge').textContent = m.league;
+            document.getElementById('modal-country-tag').textContent = m.country;
+
+            document.getElementById('modal-status-badge').className = 'status-badge ' + (m.status_class || 'status-scheduled');
+            document.getElementById('modal-status-badge').textContent = m.status_text;
+
+            document.getElementById('modal-home-title').textContent = m.home_team;
+            document.getElementById('modal-away-title').textContent = m.away_team;
+
+            const homeImg = document.getElementById('modal-home-img');
+            homeImg.src = m.home_logo || DEFAULT_CREST;
+            homeImg.onerror = function() { this.src = DEFAULT_CREST; };
+
+            const awayImg = document.getElementById('modal-away-img');
+            awayImg.src = m.away_logo || DEFAULT_CREST;
+            awayImg.onerror = function() { this.src = DEFAULT_CREST; };
+
+            document.getElementById('modal-time-tag').textContent = m.morocco_time + ' GMT+1 (' + m.local_time + ' GMT-3)';
+
+            // Set up direct image URLs
+            const homeUrl = m.home_logo || '';
+            const awayUrl = m.away_logo || '';
+
+            const boxHome = document.getElementById('box-home-url');
+            if (homeUrl && homeUrl !== DEFAULT_CREST) {
+                boxHome.style.display = 'flex';
+                document.getElementById('modal-home-url-input').value = homeUrl;
+                document.getElementById('modal-home-url-btn').href = homeUrl;
+            } else {
+                boxHome.style.display = 'none';
             }
-            document.getElementById('modal-img').src = url;
-            document.getElementById('modal-title').textContent = matchTitle || 'Match Banner';
+
+            const boxAway = document.getElementById('box-away-url');
+            if (awayUrl && awayUrl !== DEFAULT_CREST) {
+                boxAway.style.display = 'flex';
+                document.getElementById('modal-away-url-input').value = awayUrl;
+                document.getElementById('modal-away-url-btn').href = awayUrl;
+            } else {
+                boxAway.style.display = 'none';
+            }
+
             document.getElementById('modal').style.display = 'flex';
         }
 
@@ -602,6 +1658,85 @@
             }
         }
 
+        // Sidebar League Filters
+        function filterLeagues() {
+            const checkedBoxes = Array.from(document.querySelectorAll('.league-checkbox:checked'));
+            const checkedLeagues = new Set(checkedBoxes.map(cb => cb.value));
+
+            // Update active pill
+            const activePill = document.getElementById('sidebar-active-pill');
+            const btnActiveCount = document.getElementById('btn-active-count');
+            if (activePill) activePill.textContent = checkedLeagues.size + ' active';
+            if (btnActiveCount) btnActiveCount.textContent = checkedLeagues.size;
+
+            let totalVisible = 0;
+            let liveVisible = 0;
+            let soonVisible = 0;
+            let todayVisible = 0;
+            let tomorrowVisible = 0;
+
+            document.querySelectorAll('tr[data-league]').forEach(row => {
+                const lg = row.getAttribute('data-league');
+                const day = row.getAttribute('data-day');
+                const isLive = row.getAttribute('data-is-live') === 'true';
+                const isSoon = row.getAttribute('data-is-soon') === 'true';
+
+                if (checkedLeagues.has(lg)) {
+                    row.style.display = '';
+                    totalVisible++;
+                    if (day === 'today') todayVisible++;
+                    if (day === 'tomorrow') tomorrowVisible++;
+                    if (isLive) liveVisible++;
+                    if (isSoon) soonVisible++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Section headers and empty rows
+            const hdrToday = document.getElementById('hdr-today');
+            const hdrTomorrow = document.getElementById('hdr-tomorrow');
+            const emptyToday = document.getElementById('empty-today-row');
+            const emptyTomorrow = document.getElementById('empty-tomorrow-row');
+
+            const hdrTodayCount = document.getElementById('hdr-today-count');
+            const hdrTomorrowCount = document.getElementById('hdr-tomorrow-count');
+            if (hdrTodayCount) hdrTodayCount.textContent = todayVisible;
+            if (hdrTomorrowCount) hdrTomorrowCount.textContent = tomorrowVisible;
+
+            if (hdrToday) hdrToday.style.display = (todayVisible > 0 || checkedLeagues.size === 0) ? '' : 'none';
+            if (emptyToday) emptyToday.style.display = (todayVisible === 0 && checkedLeagues.size > 0) ? '' : 'none';
+
+            if (hdrTomorrow) hdrTomorrow.style.display = (tomorrowVisible > 0 || checkedLeagues.size === 0) ? '' : 'none';
+            if (emptyTomorrow) emptyTomorrow.style.display = (tomorrowVisible === 0 && checkedLeagues.size > 0) ? '' : 'none';
+
+            // Metrics bar dynamic updates
+            const statTotal = document.getElementById('stat-total-val');
+            const statLive = document.getElementById('stat-live-val');
+            const statSoon = document.getElementById('stat-soon-val');
+            const statSplit = document.getElementById('stat-split-val');
+
+            if (statTotal) statTotal.textContent = totalVisible;
+            if (statLive) statLive.textContent = liveVisible;
+            if (statSoon) statSoon.textContent = soonVisible;
+            if (statSplit) statSplit.textContent = todayVisible + ' / ' + tomorrowVisible;
+        }
+
+        function selectAllLeagues(selectAll) {
+            document.querySelectorAll('.league-checkbox').forEach(cb => {
+                cb.checked = selectAll;
+            });
+            filterLeagues();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        // Trigger GitHub Actions Workflow
         function triggerWorkflow() {
             let token = localStorage.getItem('github_token') || prompt("Enter GitHub Personal Access Token (requires repo/workflow scope):");
             if (!token) return;
