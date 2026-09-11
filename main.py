@@ -1,27 +1,50 @@
 import os
 import json
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
-def convert_to_morocco_time(utc_time_str):
+def convert_to_morocco_dt(utc_time_str):
     try:
         dt = datetime.fromisoformat(utc_time_str.replace('Z', '+00:00'))
-        morocco_dt = dt + timedelta(hours=1)
-        return morocco_dt.strftime('%H:%M')
+        # UTC+1 for Morocco
+        return dt.astimezone(timezone(timedelta(hours=1)))
     except Exception:
-        return "TBD"
+        return None
+
+def calculate_status(match_dt, started=False, finished=False, cancelled=False):
+    if cancelled:
+        return "CANCELLED", "status-cancelled"
+    if finished:
+        return "FINISHED", "status-finished"
+    if started:
+        return "LIVE 🔴", "status-live"
+    
+    if not match_dt:
+        return "SCHEDULED", "status-scheduled"
+    
+    # Check current time in Morocco (UTC+1)
+    now_morocco = datetime.now(timezone(timedelta(hours=1)))
+    time_diff_seconds = (match_dt - now_morocco).total_seconds()
+
+    if time_diff_seconds <= 0:
+        return "LIVE 🔴", "status-live"
+    elif 0 < time_diff_seconds <= 3600:  # Qel mn sa3a (3600s)
+        mins = int(time_diff_seconds // 60)
+        return f"SOON ({mins}m)", "status-soon"
+    else:
+        return "SCHEDULED", "status-scheduled"
 
 def get_league_color(league_name, country_name):
     full_name = f"{country_name} {league_name}".lower()
     
     if "libertadores" in full_name:
-        return "badge-libertadores"  # Sfar
+        return "badge-libertadores"
     elif "sudamericana" in full_name:
-        return "badge-sudamericana"  # Move
+        return "badge-sudamericana"
     elif any(k in full_name for k in ["argentina", "clausura", "apertura", "liga profesional"]):
-        return "badge-argentina"     # Zraq fateh
+        return "badge-argentina"
     elif any(k in full_name for k in ["brazil", "brasileiro", "paulista", "série a", "serie a"]):
-        return "badge-brazil"        # Khdar bahet
+        return "badge-brazil"
     
     return "badge-default"
 
@@ -41,7 +64,6 @@ def fetch_all_matches():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "en-US,en;q=0.9",
-        "Origin": "https://www.fotmob.com",
         "Referer": "https://www.fotmob.com/"
     }
 
@@ -51,7 +73,7 @@ def fetch_all_matches():
         date_str = target_date.strftime('%Y-%m-%d')
         date_fotmob = target_date.strftime('%Y%m%d')
 
-        # 1. Fotmob API (Very Stable)
+        # 1. Fotmob API
         try:
             fotmob_url = f"https://www.fotmob.com/api/matches?date={date_fotmob}"
             res = requests.get(fotmob_url, headers=headers, timeout=10)
@@ -63,8 +85,16 @@ def fetch_all_matches():
                     
                     if is_target_match(lg_name, lg_ccode):
                         for m in lg.get("matches", []):
-                            utc_time = m.get("status", {}).get("utcTime")
-                            m_time = convert_to_morocco_time(utc_time) if utc_time else "TBD"
+                            status_obj = m.get("status", {})
+                            utc_time = status_obj.get("utcTime")
+                            match_dt = convert_to_morocco_dt(utc_time) if utc_time else None
+                            m_time = match_dt.strftime('%H:%M') if match_dt else "TBD"
+
+                            started = status_obj.get("started", False)
+                            finished = status_obj.get("finished", False)
+                            cancelled = status_obj.get("cancelled", False)
+
+                            status_text, status_class = calculate_status(match_dt, started, finished, cancelled)
                             home_id = m.get('home', {}).get('id')
 
                             matches.append({
@@ -74,6 +104,8 @@ def fetch_all_matches():
                                 "home_team": m.get("home", {}).get("name"),
                                 "away_team": m.get("away", {}).get("name"),
                                 "morocco_time": m_time,
+                                "status_text": status_text,
+                                "status_class": status_class,
                                 "banner_url": f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else "",
                                 "source": "Fotmob"
                             })
@@ -96,7 +128,15 @@ def fetch_all_matches():
                     
                     if is_target_match(tournament, category):
                         start_ts = ev.get("startTimestamp")
-                        m_time = (datetime.fromtimestamp(start_ts) + timedelta(hours=1)).strftime('%H:%M') if start_ts else "TBD"
+                        match_dt = datetime.fromtimestamp(start_ts, tz=timezone(timedelta(hours=1))) if start_ts else None
+                        m_time = match_dt.strftime('%H:%M') if match_dt else "TBD"
+
+                        status_type = ev.get("status", {}).get("type", "").lower()
+                        started = status_type == "inprogress"
+                        finished = status_type == "finished"
+                        cancelled = status_type in ["canceled", "postponed"]
+
+                        status_text, status_class = calculate_status(match_dt, started, finished, cancelled)
 
                         matches.append({
                             "day": day_label,
@@ -105,6 +145,8 @@ def fetch_all_matches():
                             "home_team": ev.get("homeTeam", {}).get("name"),
                             "away_team": ev.get("awayTeam", {}).get("name"),
                             "morocco_time": m_time,
+                            "status_text": status_text,
+                            "status_class": status_class,
                             "banner_url": f"https://api.sofascore.app/api/v1/event/{ev.get('id')}/image",
                             "source": "Sofascore"
                         })
@@ -151,8 +193,22 @@ def generate_html(matches_data):
         .badge-sudamericana {{ background: #c084fc; color: #000; }}  /* Move */
         .badge-default {{ background: #94a3b8; color: #000; }}
 
+        /* Status Colors */
+        .status-badge {{ padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 0.75em; display: inline-block; text-transform: uppercase; }}
+        .status-live {{ background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }}
+        .status-soon {{ background: #f97316; color: #fff; }}
+        .status-finished {{ background: #22c55e; color: #fff; }}
+        .status-scheduled {{ background: #3b82f6; color: #fff; }}
+        .status-cancelled {{ background: #64748b; color: #fff; }}
+
+        @keyframes pulse {{
+            0% {{ opacity: 1; }}
+            50% {{ opacity: 0.5; }}
+            100% {{ opacity: 1; }}
+        }}
+
         .btn-update {{ background: #eab308; border: none; padding: 10px 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }}
-        .btn-banner {{ background: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }}
+        .btn-banner {{ background: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-top: 4px; }}
         #modal {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }}
         #modal img {{ max-width: 80%; max-height: 80%; border-radius: 8px; }}
     </style>
@@ -168,14 +224,15 @@ def generate_html(matches_data):
                 <tr>
                     <th>LEAGUE</th>
                     <th>MATCH & BANNER</th>
-                    <th>MOROCCO TIME (GMT+1)</th>
+                    <th>MOROCCO TIME</th>
+                    <th>STATUS</th>
                     <th>SOURCE</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="4" class="section-hdr">📅 TODAY'S MATCHES — {today_str} ({len(today_m)})</td></tr>
+                <tr><td colspan="5" class="section-hdr">📅 TODAY'S MATCHES — {today_str} ({len(today_m)})</td></tr>
                 {render_rows(today_m)}
-                <tr><td colspan="4" class="section-hdr" style="color:#eab308">📅 TOMORROW'S MATCHES — {tomorrow_str} ({len(tomorrow_m)})</td></tr>
+                <tr><td colspan="5" class="section-hdr" style="color:#eab308">📅 TOMORROW'S MATCHES — {tomorrow_str} ({len(tomorrow_m)})</td></tr>
                 {render_rows(tomorrow_m)}
             </tbody>
         </table>
@@ -203,7 +260,7 @@ def generate_html(matches_data):
 
 def render_rows(matches):
     if not matches:
-        return '<tr><td colspan="4" style="text-align:center; color:#64748b; padding:15px;">🚫 No matches scheduled for these leagues today.</td></tr>'
+        return '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:15px;">🚫 No matches scheduled for these leagues today.</td></tr>'
     html = ""
     for m in matches:
         badge_class = get_league_color(m['league'], m['country'])
@@ -213,6 +270,7 @@ def render_rows(matches):
             <td><span class="badge {badge_class}">{m['league']}</span><br><small style="color:#94a3b8">{m['country']}</small></td>
             <td><strong>{m['home_team']} VS {m['away_team']}</strong><br>{banner_btn}</td>
             <td><strong style="color:#38bdf8">{m['morocco_time']}</strong></td>
+            <td><span class="status-badge {m['status_class']}">{m['status_text']}</span></td>
             <td><small>{m['source']}</small></td>
         </tr>"""
     return html
