@@ -99,8 +99,8 @@ def calculate_status(match_dt, started=False, finished=False, cancelled=False, s
 def get_league_badge_info(league_name, country_name):
     """
     Maps each competition to its required exact badge class:
-      - Argentina: Light Blue badge (`badge-argentina`)
-      - Brazil: Light/Soft Green badge (`badge-brazil`) for ANY Brazilian league or cup
+      - Argentina / Copa Argentina: Light Blue badge (`badge-argentina`)
+      - Brazil / Copa do Brasil: Light/Soft Green badge (`badge-brazil`) for ANY Brazilian league or cup
       - Copa Libertadores: Yellow badge (`badge-libertadores`)
       - Copa Sudamericana: Purple badge (`badge-sudamericana`)
     """
@@ -112,7 +112,11 @@ def get_league_badge_info(league_name, country_name):
         return "badge-libertadores", "Copa Libertadores", "South America"
     elif "sudamericana" in lg or "sudamericana" in full:
         return "badge-sudamericana", "Copa Sudamericana", "South America"
-    elif any(k in full for k in ["argentina", "arg", "clausura", "apertura", "liga profesional", "copa argentina"]):
+    elif "copa do brasil" in lg or "copa brasil" in lg or "copa do brasil" in full:
+        return "badge-brazil", "Copa do Brasil", "Brazil"
+    elif "copa argentina" in lg or "copa argentina" in full:
+        return "badge-argentina", "Copa Argentina", "Argentina"
+    elif any(k in full for k in ["argentina", "arg", "clausura", "apertura", "liga profesional"]):
         return "badge-argentina", league_name, "Argentina"
     elif (
         any(k in cc for k in ["bra", "brazil", "brasil"])
@@ -143,13 +147,17 @@ def is_target_match(league_name, country_name):
         return True
     if "sudamericana" in lg or "sudamericana" in full:
         return True
+    if "copa argentina" in lg or "copa argentina" in full:
+        return True
+    if "copa do brasil" in lg or "copa brasil" in lg or "copa do brasil" in full:
+        return True
 
     if "arg" in cc or "argentina" in full:
         if any(k in lg for k in ["liga profesional", "copa argentina", "clausura", "apertura", "supercopa", "trofeo de campeones", "copa de la liga"]):
             return True
 
     if "bra" in cc or "brazil" in full or "brasil" in full:
-        if any(k in lg for k in ["série a", "serie a", "brasileir", "paulista", "paulistão", "copa do brasil", "copa paulista"]):
+        if any(k in lg for k in ["série a", "serie a", "brasileir", "paulista", "paulistão", "copa do brasil", "copa paulista", "carioca"]):
             return True
 
     return False
@@ -167,7 +175,7 @@ def get_channels_for_match(league_name, country_name):
         return ["ESPN 3", "Star+", "DSports", "Paramount+"]
     elif "argentina" in full or "arg" in cc or "liga profesional" in lg or "copa argentina" in lg:
         return ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-    elif "brazil" in full or "bra" in cc or "série a" in lg or "serie a" in lg or "paulista" in lg:
+    elif "brazil" in full or "brasil" in full or "bra" in cc or "série a" in lg or "serie a" in lg or "paulista" in lg or "copa do brasil" in lg or "copa paulista" in lg:
         return ["Premiere", "Globo", "SporTV", "CazéTV"]
     return ["TNT Sports", "ESPN Premium"]
 
@@ -327,6 +335,30 @@ def fetch_sofascore_matches(target_date, day_label):
 NEWS_FEED_CACHE = {}
 
 
+def rewrite_cdn_image_url(url):
+    """
+    When scraping image banner URLs from zerozero.com.ar or ogol.com.br,
+    automatically replace the base domain https://www.zerozero.com.ar or
+    https://www.ogol.com.br in the image source URL with https://cdn-img.staticzz.com.
+    Example:
+      Convert: https://www.zerozero.com.ar/img/noticias/546/imgS620I1198546T20260909210147.jpg
+      To:      https://cdn-img.staticzz.com/img/noticias/546/imgS620I1198546T20260909210147.jpg
+    """
+    if not url:
+        return url
+    for base in [
+        "https://www.zerozero.com.ar", "http://www.zerozero.com.ar",
+        "https://zerozero.com.ar", "http://zerozero.com.ar",
+        "https://www.ogol.com.br", "http://www.ogol.com.br",
+        "https://ogol.com.br", "http://ogol.com.br",
+        "https://www.zerozero.pt", "http://www.zerozero.pt",
+        "https://zerozero.pt", "http://zerozero.pt"
+    ]:
+        if url.startswith(base):
+            return "https://cdn-img.staticzz.com" + url[len(base):]
+    return url
+
+
 def fetch_domain_news(domain):
     """
     Fetches and parses preview news articles from zerozero.com.ar or ogol.com.br.
@@ -374,7 +406,8 @@ def fetch_domain_news(domain):
             link_match = re.search(r"<link>(.*?)</link>", it)
             if t_match and img_match:
                 title_clean = t_match.group(1).replace("<![CDATA[", "").replace("]]>", "").strip()
-                img_url = img_match.group(1).strip()
+                raw_img_url = img_match.group(1).strip()
+                img_url = rewrite_cdn_image_url(raw_img_url)
                 link = link_match.group(1).strip() if link_match else ""
                 items.append({
                     "title": title_clean,
@@ -511,7 +544,7 @@ def enrich_matches_with_banners(matches):
                 break
 
         if matched_banner:
-            m["banner_url"] = matched_banner
+            m["banner_url"] = rewrite_cdn_image_url(matched_banner)
             m["banner_title"] = matched_title
             m["banner_source_site"] = matched_source
             m["has_scraped_banner"] = True
@@ -569,6 +602,7 @@ def fetch_all_matches():
                         league = item.get("league", "Liga Profesional")
                         country = item.get("country", "Argentina")
                         badge_class, _, _ = get_league_badge_info(league, country)
+                        raw_banner = item.get("banner_url") or item.get("home_logo", "")
                         unique_matches.append({
                             "day": day,
                             "league": league,
@@ -583,7 +617,7 @@ def fetch_all_matches():
                             "status_text": item.get("status", "SCHEDULED"),
                             "status_class": "status-scheduled",
                             "channels": item.get("all_unique_channels", ["TNT Sports", "ESPN Premium"]),
-                            "banner_url": item.get("banner_url") or item.get("home_logo", ""),
+                            "banner_url": rewrite_cdn_image_url(raw_banner),
                             "has_scraped_banner": item.get("has_scraped_banner", False),
                             "source": "cache"
                         })
@@ -748,6 +782,25 @@ def generate_html(matches_data):
                 "country": m.get("country", "")
             }
         leagues_dict[lg]["count"] += 1
+
+    # Ensure explicit domestic cups Copa Argentina and Copa do Brasil are always present in the sidebar filter options
+    if "Copa Argentina" not in leagues_dict:
+        leagues_dict["Copa Argentina"] = {
+            "count": sum(1 for m in matches_data if "copa argentina" in m.get("league", "").lower()),
+            "badge_class": "badge-argentina",
+            "country": "Argentina"
+        }
+    else:
+        leagues_dict["Copa Argentina"]["badge_class"] = "badge-argentina"
+
+    if "Copa do Brasil" not in leagues_dict:
+        leagues_dict["Copa do Brasil"] = {
+            "count": sum(1 for m in matches_data if "copa do brasil" in m.get("league", "").lower() or "copa brasil" in m.get("league", "").lower()),
+            "badge_class": "badge-brazil",
+            "country": "Brazil"
+        }
+    else:
+        leagues_dict["Copa do Brasil"]["badge_class"] = "badge-brazil"
 
     sidebar_leagues_html = ""
     for lg, info in leagues_dict.items():
