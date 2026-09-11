@@ -96,7 +96,7 @@ export function isTargetMatch(leagueName, countryName) {
   }
 
   if (cc.includes('bra') || full.includes('brazil') || full.includes('brasil')) {
-    if (['série a', 'serie a', 'brasileir', 'paulista', 'paulistão', 'copa do brasil', 'copa paulista', 'carioca'].some(k => lg.includes(k))) {
+    if (['série a', 'serie a', 'brasileir', 'paulistão', 'copa do brasil', 'carioca'].some(k => lg.includes(k))) {
       return true;
     }
   }
