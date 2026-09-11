@@ -14,23 +14,16 @@ def convert_to_morocco_time(utc_time_str):
 def fetch_specific_leagues():
     matches = []
     
-    # Real Browser Headers bash n-fawto 403 Forbidden
+    # Real Chrome Browser Headers bash Sofascore ma-y-blokish
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
         "Referer": "https://www.sofascore.com/"
     }
 
-    # Strict target leagues list
-    TARGET_LEAGUES = [
-        "liga profesional", 
-        "copa argentina", 
-        "brasileiro", 
-        "serie a", 
-        "paulista", 
-        "copa libertadores", 
-        "copa sudamericana"
-    ]
+    # Keywords for filtering
+    KEYWORDS = ["argentina", "liga profesional", "copa argentina", "clausura", "apertura", "brasileiro", "serie a", "paulista", "libertadores", "sudamericana"]
 
     for day_offset in [0, 1]:
         day_label = "today" if day_offset == 0 else "tomorrow"
@@ -38,19 +31,18 @@ def fetch_specific_leagues():
         date_str = target_date.strftime('%Y-%m-%d')
         date_fotmob = target_date.strftime('%Y%m%d')
 
-        # 1. Fetch from Sofascore
+        # 1. Sofascore Fetch
         try:
             sofa_url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date_str}"
-            res = requests.get(sofa_url, headers=headers, timeout=10)
+            res = requests.get(sofa_url, headers=headers, timeout=12)
             if res.status_code == 200:
                 events = res.json().get("events", [])
                 for ev in events:
                     tournament = ev.get("tournament", {}).get("name", "").lower()
                     category = ev.get("tournament", {}).get("category", {}).get("name", "").lower()
-                    full_league_name = f"{category} {tournament}"
+                    combined_info = f"{category} {tournament}"
                     
-                    # Exact Match Filter
-                    if any(target in full_league_name for target in TARGET_LEAGUES):
+                    if any(k in combined_info for k in KEYWORDS):
                         start_ts = ev.get("startTimestamp")
                         m_time = (datetime.fromtimestamp(start_ts) + timedelta(hours=1)).strftime('%H:%M') if start_ts else "TBD"
 
@@ -62,20 +54,23 @@ def fetch_specific_leagues():
                             "away_team": ev.get("awayTeam", {}).get("name"),
                             "morocco_time": m_time,
                             "banner_url": f"https://api.sofascore.app/api/v1/event/{ev.get('id')}/image",
-                            "source": "Sofascore API"
+                            "source": "Sofascore"
                         })
         except Exception as e:
-            print(f"Sofascore Error: {e}")
+            print(f"Sofascore error: {e}")
 
-        # 2. Fetch from Fotmob (Fallback)
+        # 2. Fotmob Fallback Fetch
         try:
             fotmob_url = f"https://www.fotmob.com/api/matches?date={date_fotmob}"
-            res = requests.get(fotmob_url, headers=headers, timeout=10)
+            res = requests.get(fotmob_url, headers=headers, timeout=12)
             if res.status_code == 200:
                 leagues = res.json().get("leagues", [])
                 for lg in leagues:
                     lg_name = lg.get("name", "").lower()
-                    if any(target in lg_name for target in TARGET_LEAGUES):
+                    lg_ccode = lg.get("ccode", "").lower()
+                    combined_lg = f"{lg_ccode} {lg_name}"
+                    
+                    if any(k in combined_lg for k in KEYWORDS):
                         for m in lg.get("matches", []):
                             utc_time = m.get("status", {}).get("utcTime")
                             m_time = convert_to_morocco_time(utc_time) if utc_time else "TBD"
@@ -88,12 +83,12 @@ def fetch_specific_leagues():
                                 "away_team": m.get("away", {}).get("name"),
                                 "morocco_time": m_time,
                                 "banner_url": f"https://images.fotmob.com/image_resources/logo/teamlogo/{m.get('home', {}).get('id')}.png",
-                                "source": "Fotmob API"
+                                "source": "Fotmob"
                             })
         except Exception as e:
-            print(f"Fotmob Error: {e}")
+            print(f"Fotmob error: {e}")
 
-    # Remove Duplicates
+    # Deduplication
     unique_matches = []
     seen = set()
     for m in matches:
