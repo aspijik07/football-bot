@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, timezone
 def convert_to_morocco_dt(utc_time_str):
     try:
         dt = datetime.fromisoformat(utc_time_str.replace('Z', '+00:00'))
-        # UTC+1 for Morocco
         return dt.astimezone(timezone(timedelta(hours=1)))
     except Exception:
         return None
@@ -22,13 +21,12 @@ def calculate_status(match_dt, started=False, finished=False, cancelled=False):
     if not match_dt:
         return "SCHEDULED", "status-scheduled"
     
-    # Check current time in Morocco (UTC+1)
     now_morocco = datetime.now(timezone(timedelta(hours=1)))
     time_diff_seconds = (match_dt - now_morocco).total_seconds()
 
     if time_diff_seconds <= 0:
         return "LIVE 🔴", "status-live"
-    elif 0 < time_diff_seconds <= 3600:  # Qel mn sa3a (3600s)
+    elif 0 < time_diff_seconds <= 3600:
         mins = int(time_diff_seconds // 60)
         return f"SOON ({mins}m)", "status-soon"
     else:
@@ -38,13 +36,13 @@ def get_league_color(league_name, country_name):
     full_name = f"{country_name} {league_name}".lower()
     
     if "libertadores" in full_name:
-        return "badge-libertadores"
+        return "badge-libertadores"  # Sfar
     elif "sudamericana" in full_name:
-        return "badge-sudamericana"
+        return "badge-sudamericana"   # Move
     elif any(k in full_name for k in ["argentina", "clausura", "apertura", "liga profesional"]):
-        return "badge-argentina"
+        return "badge-argentina"      # Zraq fateh
     elif any(k in full_name for k in ["brazil", "brasileiro", "paulista", "série a", "serie a"]):
-        return "badge-brazil"
+        return "badge-brazil"         # Khdar bahet
     
     return "badge-default"
 
@@ -67,16 +65,19 @@ def fetch_all_matches():
         "Referer": "https://www.fotmob.com/"
     }
 
+    # Fetching today and tomorrow using Morocco Time base
+    now_morocco = datetime.now(timezone(timedelta(hours=1)))
+    
     for day_offset in [0, 1]:
         day_label = "today" if day_offset == 0 else "tomorrow"
-        target_date = datetime.now() + timedelta(days=day_offset)
+        target_date = now_morocco + timedelta(days=day_offset)
         date_str = target_date.strftime('%Y-%m-%d')
         date_fotmob = target_date.strftime('%Y%m%d')
 
         # 1. Fotmob API
         try:
             fotmob_url = f"https://www.fotmob.com/api/matches?date={date_fotmob}"
-            res = requests.get(fotmob_url, headers=headers, timeout=10)
+            res = requests.get(fotmob_url, headers=headers, timeout=12)
             if res.status_code == 200:
                 leagues = res.json().get("leagues", [])
                 for lg in leagues:
@@ -119,7 +120,7 @@ def fetch_all_matches():
                 "Referer": "https://www.sofascore.com/"
             }
             sofa_url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date_str}"
-            res = requests.get(sofa_url, headers=sofa_headers, timeout=10)
+            res = requests.get(sofa_url, headers=sofa_headers, timeout=12)
             if res.status_code == 200:
                 events = res.json().get("events", [])
                 for ev in events:
@@ -165,8 +166,9 @@ def fetch_all_matches():
     return unique_matches
 
 def generate_html(matches_data):
-    today_str = datetime.now().strftime('%d/%m/%Y')
-    tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%d/%m/%Y')
+    now_morocco = datetime.now(timezone(timedelta(hours=1)))
+    today_str = now_morocco.strftime('%d/%m/%Y')
+    tomorrow_str = (now_morocco + timedelta(days=1)).strftime('%d/%m/%Y')
 
     today_m = [m for m in matches_data if m["day"] == "today"]
     tomorrow_m = [m for m in matches_data if m["day"] == "tomorrow"]
