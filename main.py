@@ -412,15 +412,53 @@ def extract_team_tokens(team_name):
     return tokens, clean
 
 
-def match_teams_in_title(home_team, away_team, article_title):
-    title_clean = clean_name_for_matching(article_title)
+PREVIEW_KEYWORDS = [
+    "previa", "preview", "alineacion", "alineaciones", "escalac", "escalações", "escalacoes",
+    "horario", "horário", "estatistica", "estatísticas", "estadistica", "estadísticas",
+    "onde assistir", "donde ver", "dónde ver", "palpite", "pronostico", "pronóstico",
+    "prognostico", "prognóstico", "guia", "tudo sobre", "como chegam", "provaveis", "probables"
+]
+
+POST_MATCH_KEYWORDS = [
+    "se impuso", "derroto", "derrotó", "bateu", "bate a", "bate o", "venceu", "vencio",
+    "venció", "goleo", "goleó", "goleia", "goleou", "empata", "empate", "empatou",
+    "supero", "superó", "resiste", "elimina", "classifica", "classificou", "lesion",
+    "lesión", "lesao", "lesão", "reforco", "reforço", "fichaje", "renova", "renovação",
+    "anuncia", "anunciado", "mercado da bola", "entrevista", "veja como acompanhamos",
+    "festeja", "lamenta", "desfalque", "polêmica", "polemica"
+]
+
+
+def is_composite_match_banner_article(title, home_team, away_team):
+    """
+    Validates that an article is an official match preview graphic containing
+    both team crests / VS graphic, and rejects post-match player photos,
+    transfer rumors, or individual player news.
+    """
+    clean_t = clean_name_for_matching(title)
+
+    # 1. Must contain match separator (vs, x, v)
+    spaced = f" {clean_t} "
+    if not (" vs " in spaced or " x " in spaced or " v " in spaced):
+        return False
+
+    # 2. Must NOT contain post-match or individual player keywords
+    for bad in POST_MATCH_KEYWORDS:
+        if bad in clean_t:
+            return False
+
+    # 3. Both teams must be matched
     h_tokens, h_clean = extract_team_tokens(home_team)
     a_tokens, a_clean = extract_team_tokens(away_team)
 
-    home_found = (h_clean in title_clean) or (any(t in title_clean for t in h_tokens) if h_tokens else False)
-    away_found = (a_clean in title_clean) or (any(t in title_clean for t in a_tokens) if a_tokens else False)
+    home_found = (h_clean in clean_t) or (any(t in clean_t for t in h_tokens) if h_tokens else False)
+    away_found = (a_clean in clean_t) or (any(t in clean_t for t in a_tokens) if a_tokens else False)
 
-    return home_found and away_found
+    if not (home_found and away_found):
+        return False
+
+    # 4. Must contain preview keyword to ensure it is a composite preview graphic
+    return any(kw in clean_t for kw in PREVIEW_KEYWORDS)
 
 
 def enrich_matches_with_banners(matches):
@@ -429,7 +467,10 @@ def enrich_matches_with_banners(matches):
       - zerozero.com.ar (for Argentina matches: Liga Profesional, Copa Argentina)
       - ogol.com.br (for Brazil matches: Série A, Paulista, Copa do Brasil)
       - both zerozero and ogol (for Copa Libertadores & Copa Sudamericana)
-    Gracefully falls back to standard match graphic/logo if no preview banner is found.
+    Ensures extracted images are composite match banners (containing both team crests/VS graphic),
+    and strictly rejects single player photos.
+    Priority 2 (Fallback): If no official match banner graphic is found on primary sites,
+    gracefully marks the match for the standard match card layout with both team logos displayed side-by-side.
     """
     try:
         zz_articles = fetch_domain_news("zerozero.com.ar")
@@ -463,7 +504,7 @@ def enrich_matches_with_banners(matches):
         matched_source = None
 
         for art in search_pool:
-            if match_teams_in_title(home_team, away_team, art["title"]):
+            if is_composite_match_banner_article(art["title"], home_team, away_team):
                 matched_banner = art["image_url"]
                 matched_title = art["title"]
                 matched_source = art["source"]
@@ -475,10 +516,10 @@ def enrich_matches_with_banners(matches):
             m["banner_source_site"] = matched_source
             m["has_scraped_banner"] = True
         else:
-            # Fallback gracefully to standard match logo
+            # Priority 2 Fallback: standard match card layout with both logos clearly displayed side-by-side
             m["banner_url"] = m.get("home_logo", "") or DEFAULT_SVG_CREST
             m["banner_title"] = f"{home_team} vs {away_team}"
-            m["banner_source_site"] = "fallback"
+            m["banner_source_site"] = "Standard Match Card"
             m["has_scraped_banner"] = False
 
 
@@ -560,63 +601,53 @@ DEFAULT_SVG_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/
 
 def render_banner_cell_content(m, match_id, home_team, away_team, home_logo, away_logo, home_url_btn, away_url_btn, copy_btn):
     """
-    Renders either:
-    1. A clickable 16:9 thumbnail of the scraped match preview banner from zerozero/ogol
-       with direct URL link & copy button below it.
-    2. Or a graceful fallback composite dual-team card with both club logos.
+    Renders compact banner action controls:
+    1. For scraped composite 16:9 match preview banner from zerozero/ogol:
+       Renders a clean, small "🖼️ View Match Banner" button with source domain tag under match title,
+       plus "🔗 Banner URL" and "📋 Copy URL" quick action buttons below it, keeping table rows compact.
+    2. Priority 2 Fallback:
+       Compact "🖼️ View Match Banner" button with "Standard Card" tag,
+       plus direct crest URL links and copy button below it.
     """
     if m.get("has_scraped_banner") and m.get("banner_url"):
         banner_url = m["banner_url"]
         source_site = m.get("banner_source_site", "news")
-        url_display = (banner_url[:42] + "...") if len(banner_url) > 45 else banner_url
 
         return f"""
-        <!-- Clickable 16:9 Scraped Match Banner Thumbnail -->
-        <div class="scraped-banner-card" onclick="openMatchBanner('{match_id}')" title="Click to open full 16:9 preview banner modal">
-            <div class="scraped-banner-wrapper">
-                <img src="{banner_url}" alt="{home_team} vs {away_team}" class="scraped-banner-img" loading="lazy" onerror="this.onerror=null;this.closest('.scraped-banner-card').style.display='none';">
-                <div class="banner-badge-overlay">
-                    <span class="banner-source-tag">📰 {source_site}</span>
-                    <span class="banner-preview-tag">🔍 Full Banner</span>
-                </div>
+        <!-- Compact Banner Button Controls -->
+        <div class="banner-compact-controls">
+            <div class="banner-btn-row">
+                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('{match_id}')" title="Click to open full 16:9 match preview banner in modal">
+                    <span>🖼️ View Match Banner</span>
+                    <span class="banner-source-pill">{source_site}</span>
+                </button>
             </div>
-        </div>
-
-        <!-- Direct text link below the image showing direct image source URL -->
-        <div class="banner-url-direct-row">
-            <span class="direct-url-label">Direct Banner URL:</span>
-            <a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-banner-text-link" title="Open direct banner image in new tab">{url_display}</a>
-            <button type="button" class="btn-copy-banner-url" onclick="copyDirectUrl('{banner_url}', this, event)" title="Copy direct image URL to clipboard">📋 Copy URL</button>
+            <div class="banner-actions-subrow">
+                <a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('{banner_url}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+            </div>
         </div>"""
 
-    # Graceful Fallback: Composite Dual-Team Card
+    # Priority 2 Fallback: Standard Match Card Layout
     return f"""
-    <!-- Fallback Composite Dual-Team Thumbnail Preview Card -->
-    <div class="dual-thumb-card" onclick="openMatchBanner('{match_id}')" title="Click to view match banner modal">
-        <div class="thumb-team-side">
-            <img src="{home_logo}" alt="{home_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
-            <span class="thumb-team-label" title="{home_team}">{home_team}</span>
+    <!-- Compact Banner Button Controls (Standard Fallback) -->
+    <div class="banner-compact-controls">
+        <div class="banner-btn-row">
+            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('{match_id}')" title="Click to view match card in modal">
+                <span>🖼️ View Match Banner</span>
+                <span class="banner-source-pill">Standard Card</span>
+            </button>
         </div>
-        <div class="thumb-center-vs">
-            <span class="thumb-vs-text">VS</span>
-            <span class="thumb-view-badge">👁️ Banner</span>
+        <div class="banner-actions-subrow">
+            {home_url_btn}
+            {away_url_btn}
+            {copy_btn}
         </div>
-        <div class="thumb-team-side">
-            <img src="{away_logo}" alt="{away_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
-            <span class="thumb-team-label" title="{away_team}">{away_team}</span>
-        </div>
-    </div>
-
-    <!-- Direct Source URL Links -->
-    <div class="banner-source-row">
-        {home_url_btn}
-        {away_url_btn}
-        {copy_btn}
     </div>"""
 
 
 def render_rows(matches):
-    """Renders table rows for a list of matches with composite dual-team thumbnails and direct source URLs."""
+    """Renders table rows for a list of matches with small team crest logos and compact banner controls."""
     if not matches:
         return '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:22px; font-style:italic;">🚫 No matches scheduled for these leagues.</td></tr>'
 
@@ -664,14 +695,20 @@ def render_rows(matches):
                 <small style="color:#94a3b8; font-weight:500;">{m['country']}</small>
             </td>
             <td>
-                <!-- Match Headline -->
+                <!-- Match Headline with Team Crest Logos -->
                 <div class="match-headline">
-                    <strong class="team-title">{home_team}</strong>
+                    <span class="team-item">
+                        <img src="{home_logo}" alt="{home_team}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
+                        <strong class="team-title">{home_team}</strong>
+                    </span>
                     <span class="vs-glow">VS</span>
-                    <strong class="team-title">{away_team}</strong>
+                    <span class="team-item">
+                        <strong class="team-title">{away_team}</strong>
+                        <img src="{away_logo}" alt="{away_team}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
+                    </span>
                 </div>
 
-                <!-- Match Banner Column (Scraped 16:9 Banner or Composite Dual-Team Card) -->
+                <!-- Match Banner Column (Compact Banner Buttons) -->
                 {render_banner_cell_content(m, match_id, home_team, away_team, home_logo, away_logo, home_url_btn, away_url_btn, copy_btn)}
             </td>
             <td style="color:#cbd5e1; font-weight:500;">{m['local_time']} <small style="color:#64748b;">(GMT-3)</small></td>
@@ -1004,7 +1041,11 @@ def generate_html(matches_data):
         th, td {{
             padding: 12px 14px;
             border-bottom: 1px solid #222f47;
+            border-right: 1px solid #222f47;
             vertical-align: middle;
+        }}
+        th:last-child, td:last-child {{
+            border-right: none;
         }}
         th {{
             background: #0d172e;
@@ -1026,6 +1067,7 @@ def generate_html(matches_data):
             letter-spacing: 0.03em;
             padding: 12px;
             border-top: 2px solid #eab308;
+            border-right: none !important;
         }}
         .section-hdr.tomorrow {{
             color: #38bdf8 !important;
@@ -1087,14 +1129,30 @@ def generate_html(matches_data):
             100% {{ opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }}
         }}
 
-        /* Dual-Team Match Column & Thumbnail Preview */
+        /* Dual-Team Match Column & Crest Logos */
         .match-headline {{
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             font-size: 0.95em;
             margin-bottom: 6px;
             flex-wrap: wrap;
+            line-height: 1.4;
+        }}
+        .team-item {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            vertical-align: middle;
+        }}
+        .team-crest-sm {{
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            vertical-align: middle;
+            display: inline-block;
+            flex-shrink: 0;
+            filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
         }}
         .team-title {{
             color: #f8fafc;
@@ -1104,109 +1162,63 @@ def generate_html(matches_data):
             color: #eab308;
             font-weight: 800;
             font-size: 0.85em;
-            padding: 0 2px;
+            padding: 0 4px;
+            letter-spacing: 0.05em;
         }}
 
-        /* 16:9 Scraped Match Preview Banner Card */
-        .scraped-banner-card {{
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #334155;
-            background: #0f172a;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            max-width: 320px;
-            margin-bottom: 6px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }}
-        .scraped-banner-card:hover {{
-            border-color: #38bdf8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(56, 189, 248, 0.25);
-        }}
-        .scraped-banner-wrapper {{
-            position: relative;
-            width: 100%;
-        }}
-        .scraped-banner-img {{
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.25s ease;
-        }}
-        .scraped-banner-card:hover .scraped-banner-img {{
-            transform: scale(1.03);
-        }}
-        .banner-badge-overlay {{
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 5px 8px;
-            background: linear-gradient(to top, rgba(11, 19, 41, 0.95) 0%, rgba(11, 19, 41, 0.5) 60%, transparent 100%);
+        /* Compact Banner Action Buttons */
+        .banner-compact-controls {{
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
         }}
-        .banner-source-tag {{
-            font-size: 0.68em;
-            font-weight: 700;
-            color: #f1f5f9;
-            background: rgba(30, 41, 59, 0.85);
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }}
-        .banner-preview-tag {{
-            font-size: 0.68em;
-            font-weight: 700;
-            color: #38bdf8;
-            background: rgba(14, 116, 144, 0.4);
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid rgba(56, 189, 248, 0.35);
-        }}
-
-        /* Direct Banner URL Text Row below Thumbnail */
-        .banner-url-direct-row {{
+        .banner-btn-row {{
             display: flex;
             align-items: center;
             gap: 6px;
             flex-wrap: wrap;
-            max-width: 320px;
-            margin-top: 4px;
         }}
-        .direct-url-label {{
-            font-size: 0.7em;
-            font-weight: 700;
-            color: #94a3b8;
+        .banner-actions-subrow {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
         }}
-        .direct-banner-text-link {{
-            font-size: 0.72em;
-            font-family: monospace;
-            color: #38bdf8;
-            text-decoration: none;
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            padding: 2px 6px;
-            border-radius: 4px;
-            max-width: 170px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: inline-block;
-            vertical-align: middle;
-        }}
-        .direct-banner-text-link:hover {{
-            color: #7dd3fc;
-            border-color: #38bdf8;
-            text-decoration: underline;
-        }}
-        .btn-copy-banner-url {{
+        .btn-compact-banner {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             background: #1e293b;
-            color: #cbd5e1;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.74em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }}
+        .btn-compact-banner:hover {{
+            background: #0f172a;
+            border-color: #38bdf8;
+            color: #7dd3fc;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+            transform: translateY(-1px);
+        }}
+        .banner-source-pill {{
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 700;
+        }}
+        .btn-compact-banner-mini {{
+            background: #1e293b;
+            color: #38bdf8;
             border: 1px solid #334155;
             padding: 2px 7px;
             border-radius: 4px;
@@ -1215,11 +1227,14 @@ def generate_html(matches_data):
             cursor: pointer;
             transition: all 0.15s ease;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }}
-        .btn-copy-banner-url:hover {{
+        .btn-compact-banner-mini:hover {{
             background: #334155;
-            color: #ffffff;
             border-color: #38bdf8;
+            color: #7dd3fc;
         }}
 
         /* Composite Dual-Team Card Thumbnail */

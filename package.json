@@ -1,0 +1,13 @@
+{
+  "name": "football-broadcast-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "mkdir -p dist && cp index.html matches.json dist/",
+    "start": "node server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
