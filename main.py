@@ -26,7 +26,7 @@ def calculate_status(match_dt, started=False, finished=False, cancelled=False):
 
     if time_diff_seconds <= 0:
         return "LIVE 🔴", "status-live"
-    elif 0 < time_diff_seconds <= 3600:
+    elif 0 < time_diff_seconds <= 3600:  # 9al mn sa3a
         mins = int(time_diff_seconds // 60)
         return f"SOON ({mins}m)", "status-soon"
     else:
@@ -36,13 +36,13 @@ def get_league_color(league_name, country_name):
     full_name = f"{country_name} {league_name}".lower()
     
     if "libertadores" in full_name:
-        return "badge-libertadores"  # Sfar
+        return "badge-libertadores"
     elif "sudamericana" in full_name:
-        return "badge-sudamericana"   # Move
+        return "badge-sudamericana"
     elif any(k in full_name for k in ["argentina", "clausura", "apertura", "liga profesional"]):
-        return "badge-argentina"      # Zraq fateh
+        return "badge-argentina"
     elif any(k in full_name for k in ["brazil", "brasileiro", "paulista", "série a", "serie a"]):
-        return "badge-brazil"         # Khdar bahet
+        return "badge-brazil"
     
     return "badge-default"
 
@@ -65,7 +65,6 @@ def fetch_all_matches():
         "Referer": "https://www.fotmob.com/"
     }
 
-    # Fetching today and tomorrow using Morocco Time base
     now_morocco = datetime.now(timezone(timedelta(hours=1)))
     
     for day_offset in [0, 1]:
@@ -77,7 +76,7 @@ def fetch_all_matches():
         # 1. Fotmob API
         try:
             fotmob_url = f"https://www.fotmob.com/api/matches?date={date_fotmob}"
-            res = requests.get(fotmob_url, headers=headers, timeout=12)
+            res = requests.get(fotmob_url, headers=headers, timeout=10)
             if res.status_code == 200:
                 leagues = res.json().get("leagues", [])
                 for lg in leagues:
@@ -89,7 +88,9 @@ def fetch_all_matches():
                             status_obj = m.get("status", {})
                             utc_time = status_obj.get("utcTime")
                             match_dt = convert_to_morocco_dt(utc_time) if utc_time else None
+                            
                             m_time = match_dt.strftime('%H:%M') if match_dt else "TBD"
+                            local_time = (match_dt - timedelta(hours=4)).strftime('%H:%M') if match_dt else "TBD"
 
                             started = status_obj.get("started", False)
                             finished = status_obj.get("finished", False)
@@ -104,55 +105,15 @@ def fetch_all_matches():
                                 "country": lg_ccode if lg_ccode else "LATAM",
                                 "home_team": m.get("home", {}).get("name"),
                                 "away_team": m.get("away", {}).get("name"),
+                                "local_time": local_time,
                                 "morocco_time": m_time,
                                 "status_text": status_text,
                                 "status_class": status_class,
+                                "channels": ["TNT Sports", "ESPN Premium"],
                                 "banner_url": f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else "",
-                                "source": "Fotmob"
                             })
         except Exception as e:
             print(f"Fotmob error: {e}")
-
-        # 2. Sofascore API Backup
-        try:
-            sofa_headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                "Referer": "https://www.sofascore.com/"
-            }
-            sofa_url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date_str}"
-            res = requests.get(sofa_url, headers=sofa_headers, timeout=12)
-            if res.status_code == 200:
-                events = res.json().get("events", [])
-                for ev in events:
-                    tournament = ev.get("tournament", {}).get("name", "")
-                    category = ev.get("tournament", {}).get("category", {}).get("name", "")
-                    
-                    if is_target_match(tournament, category):
-                        start_ts = ev.get("startTimestamp")
-                        match_dt = datetime.fromtimestamp(start_ts, tz=timezone(timedelta(hours=1))) if start_ts else None
-                        m_time = match_dt.strftime('%H:%M') if match_dt else "TBD"
-
-                        status_type = ev.get("status", {}).get("type", "").lower()
-                        started = status_type == "inprogress"
-                        finished = status_type == "finished"
-                        cancelled = status_type in ["canceled", "postponed"]
-
-                        status_text, status_class = calculate_status(match_dt, started, finished, cancelled)
-
-                        matches.append({
-                            "day": day_label,
-                            "league": tournament,
-                            "country": category,
-                            "home_team": ev.get("homeTeam", {}).get("name"),
-                            "away_team": ev.get("awayTeam", {}).get("name"),
-                            "morocco_time": m_time,
-                            "status_text": status_text,
-                            "status_class": status_class,
-                            "banner_url": f"https://api.sofascore.app/api/v1/event/{ev.get('id')}/image",
-                            "source": "Sofascore"
-                        })
-        except Exception as e:
-            print(f"Sofascore error: {e}")
 
     # Remove Duplicates
     unique_matches = []
@@ -179,21 +140,21 @@ def generate_html(matches_data):
     <meta charset="UTF-8">
     <title>Football Broadcast Dashboard</title>
     <style>
-        body {{ font-family: system-ui, sans-serif; background: #0b1329; color: #fff; padding: 20px; }}
-        .container {{ max-width: 1000px; margin: 0 auto; }}
+        body {{ font-family: system-ui, -apple-system, sans-serif; background: #0b1329; color: #fff; padding: 20px; }}
+        .container {{ max-width: 1100px; margin: 0 auto; }}
         .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }}
         table {{ width: 100%; border-collapse: collapse; background: #151e32; border-radius: 8px; overflow: hidden; }}
-        th, td {{ padding: 12px; text-align: left; border-bottom: 1px solid #222f47; }}
-        th {{ background: #0b1329; color: #94a3b8; font-size: 0.8em; }}
-        .section-hdr {{ background: #1e293b; color: #38bdf8; font-weight: bold; text-align: center; }}
+        th, td {{ padding: 14px 12px; text-align: left; border-bottom: 1px solid #222f47; vertical-align: middle; }}
+        th {{ background: #0b1329; color: #94a3b8; font-size: 0.75em; letter-spacing: 0.05em; text-transform: uppercase; }}
+        .section-hdr {{ background: #1a243a; color: #eab308; font-weight: bold; text-align: center; font-size: 0.9em; }}
         
-        /* Badges Colors */
-        .badge {{ padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.85em; display: inline-block; color: #000; }}
-        .badge-argentina {{ background: #38bdf8; color: #000; }}    /* Zraq fateh */
-        .badge-brazil {{ background: #4ade80; color: #000; }}       /* Khdar bahet */
-        .badge-libertadores {{ background: #facc15; color: #000; }} /* Sfar */
-        .badge-sudamericana {{ background: #c084fc; color: #000; }}  /* Move */
-        .badge-default {{ background: #94a3b8; color: #000; }}
+        /* Badges League Colors */
+        .badge {{ padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.8em; display: inline-block; text-decoration: none; }}
+        .badge-argentina {{ background: #7dd3fc; color: #0284c7; }}     /* Light Blue */
+        .badge-brazil {{ background: #334155; color: #cbd5e1; }}        /* Dark Slate */
+        .badge-libertadores {{ background: #fef08a; color: #a16207; }}  /* Yellow */
+        .badge-sudamericana {{ background: #e9d5ff; color: #7e22ce; }}   /* Purple */
+        .badge-default {{ background: #334155; color: #cbd5e1; }}
 
         /* Status Colors */
         .status-badge {{ padding: 3px 8px; border-radius: 12px; font-weight: bold; font-size: 0.75em; display: inline-block; text-transform: uppercase; }}
@@ -203,38 +164,37 @@ def generate_html(matches_data):
         .status-scheduled {{ background: #3b82f6; color: #fff; }}
         .status-cancelled {{ background: #64748b; color: #fff; }}
 
-        @keyframes pulse {{
-            0% {{ opacity: 1; }}
-            50% {{ opacity: 0.5; }}
-            100% {{ opacity: 1; }}
-        }}
+        @keyframes pulse {{ 0% {{ opacity: 1; }} 50% {{ opacity: 0.5; }} 100% {{ opacity: 1; }} }}
 
-        .btn-update {{ background: #eab308; border: none; padding: 10px 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }}
-        .btn-banner {{ background: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-top: 4px; }}
-        #modal {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }}
+        .btn-update {{ background: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }}
+        .btn-banner {{ background: #0284c7; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-top: 6px; font-size: 0.8em; font-weight: 500; }}
+        .channel-tag {{ background: #1e293b; color: #94a3b8; padding: 3px 6px; border-radius: 4px; font-size: 0.75em; margin-right: 4px; border: 1px solid #334155; inline-block; }}
+        
+        #modal {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }}
         #modal img {{ max-width: 80%; max-height: 80%; border-radius: 8px; }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚽ Football Broadcast Dashboard</h1>
+            <h1 style="margin:0; font-size: 1.5em;">⚽ Football Broadcast Dashboard</h1>
             <button class="btn-update" onclick="triggerWorkflow()">▶ START UPDATE</button>
         </div>
         <table>
             <thead>
                 <tr>
-                    <th>LEAGUE</th>
-                    <th>MATCH & BANNER</th>
-                    <th>MOROCCO TIME</th>
-                    <th>STATUS</th>
-                    <th>SOURCE</th>
+                    <th style="width: 20%;">LEAGUE</th>
+                    <th style="width: 28%;">MATCH & BANNER</th>
+                    <th style="width: 15%;">LOCAL TIME</th>
+                    <th style="width: 15%;">MOROCCO TIME (GMT+1)</th>
+                    <th style="width: 10%;">STATUS</th>
+                    <th style="width: 12%;">CHANNELS</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="5" class="section-hdr">📅 TODAY'S MATCHES — {today_str} ({len(today_m)})</td></tr>
+                <tr><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — {today_str} ({len(today_m)})</td></tr>
                 {render_rows(today_m)}
-                <tr><td colspan="5" class="section-hdr" style="color:#eab308">📅 TOMORROW'S MATCHES — {tomorrow_str} ({len(tomorrow_m)})</td></tr>
+                <tr><td colspan="6" class="section-hdr">📅 TOMORROW'S MATCHES — {tomorrow_str} ({len(tomorrow_m)})</td></tr>
                 {render_rows(tomorrow_m)}
             </tbody>
         </table>
@@ -262,18 +222,21 @@ def generate_html(matches_data):
 
 def render_rows(matches):
     if not matches:
-        return '<tr><td colspan="5" style="text-align:center; color:#64748b; padding:15px;">🚫 No matches scheduled for these leagues today.</td></tr>'
+        return '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:15px;">🚫 No matches scheduled for these leagues today.</td></tr>'
     html = ""
     for m in matches:
         badge_class = get_league_color(m['league'], m['country'])
-        banner_btn = f"<button class='btn-banner' onclick=\"showBanner('{m['banner_url']}')\">🖼️ Banner</button>" if m['banner_url'] else ""
+        banner_btn = f"<br><button class='btn-banner' onclick=\"showBanner('{m['banner_url']}')\">🖼️ View Match Banner</button>" if m['banner_url'] else ""
+        channels_html = "".join([f"<span class='channel-tag'>{c}</span>" for c in m.get('channels', [])])
+        
         html += f"""
         <tr>
-            <td><span class="badge {badge_class}">{m['league']}</span><br><small style="color:#94a3b8">{m['country']}</small></td>
-            <td><strong>{m['home_team']} VS {m['away_team']}</strong><br>{banner_btn}</td>
-            <td><strong style="color:#38bdf8">{m['morocco_time']}</strong></td>
+            <td><span class="badge {badge_class}">{m['league']}</span><br><small style="color:#64748b">{m['country']}</small></td>
+            <td><strong>{m['home_team']} <span style="color:#eab308">VS</span> {m['away_team']}</strong>{banner_btn}</td>
+            <td style="color:#cbd5e1">{m['local_time']} (GMT-3)</td>
+            <td><strong style="color:#38bdf8; font-size:1.05em">{m['morocco_time']}</strong></td>
             <td><span class="status-badge {m['status_class']}">{m['status_text']}</span></td>
-            <td><small>{m['source']}</small></td>
+            <td>{channels_html}</td>
         </tr>"""
     return html
 
