@@ -8,6 +8,9 @@ Key Requirements:
    Replaces 'https://www.zerozero.com.ar' and 'https://www.ogol.com.br' with 'https://cdn-img.staticzz.com'
 2. Hardcode 'Copa Argentina' and 'Copa do Brasil' into sidebar filters list (even with 0 matches),
    and remove 'Copa Paulista'.
+3. TV channel scraping logic:
+   - For Argentina & South American matches: Scrape channels directly from livesoccertv.com (e.g. ESPN Argentina, TNT Sports).
+   - For Brazil matches: Scrape TV broadcast listings directly from https://www.futebolnatv.com.br/jogos-hoje/ (e.g. Globo, SporTV, Premiere, CazéTV).
 """
 
 import os
@@ -121,18 +124,283 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
     return {"badge_class": "badge-default", "clean_league": league_name, "clean_country": country_name or "LATAM"}
 
 
-def get_channels_for_match(league_name: str, country_name: str) -> List[str]:
-    """Map league/country to primary Latin American broadcast networks."""
-    full = f"{(country_name or '').lower()} {(league_name or '').lower()}"
+def extract_team_tokens(name: str) -> List[str]:
+    """Extract significant lowercase alphabetic tokens from team name for fuzzy matching."""
+    if not name:
+        return []
+    cleaned = re.sub(r"[^a-zA-Z0-9\s]", " ", name.lower())
+    words = [w.strip() for w in cleaned.split() if w.strip()]
+    tokens = [w for w in words if w not in STOP_WORDS and len(w) >= 3]
+    return tokens if tokens else [w for w in words if len(w) >= 2]
+
+
+def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> bool:
+    """Check if two fixtures match on both home and away teams using token overlap and normalization."""
+    h_a_norm, a_a_norm = normalize_team(home_a), normalize_team(away_a)
+    h_b_norm, a_b_norm = normalize_team(home_b), normalize_team(away_b)
+
+    if h_a_norm and h_b_norm and h_a_norm == h_b_norm and a_a_norm and a_b_norm and a_a_norm == a_b_norm:
+        return True
+
+    h_a_tokens = set(extract_team_tokens(home_a))
+    a_a_tokens = set(extract_team_tokens(away_a))
+    h_b_tokens = set(extract_team_tokens(home_b))
+    a_b_tokens = set(extract_team_tokens(away_b))
+
+    home_matched = bool(h_a_tokens & h_b_tokens) or (bool(h_a_norm and h_b_norm) and (h_a_norm in h_b_norm or h_b_norm in h_a_norm))
+    away_matched = bool(a_a_tokens & a_b_tokens) or (bool(a_a_norm and a_b_norm) and (a_a_norm in a_b_norm or a_b_norm in a_a_norm))
+
+    return home_matched and away_matched
+
+
+def scrape_livesoccertv_channels() -> List[Dict[str, Any]]:
+    """
+    Scrapes TV broadcast channels directly from livesoccertv.com for Argentina & South American matches
+    (e.g., ESPN Argentina, ESPN Premium, TNT Sports, TyC Sports, Fox Sports, Star+, Disney+).
+    """
+    listings: List[Dict[str, Any]] = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7",
+    }
+
+    urls = [
+        "https://www.livesoccertv.com/schedules/",
+        "https://www.livesoccertv.com/competitions/argentina/primera-division/",
+        "https://www.livesoccertv.com/competitions/argentina/copa-argentina/",
+        "https://www.livesoccertv.com/competitions/international-clubs/copa-libertadores/",
+        "https://www.livesoccertv.com/competitions/international-clubs/copa-sudamericana/",
+    ]
+
+    target_networks = [
+        "ESPN Premium", "ESPN Argentina", "ESPN", "ESPN 2", "ESPN 3", "ESPN 4",
+        "TNT Sports", "TyC Sports", "TyC Sports Play", "Fox Sports", "Fox Sports 2",
+        "Star+", "Disney+", "DSports", "DirecTV Sports", "Telefe", "TV Pública"
+    ]
+
+    for url in urls:
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            if resp.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+            rows = soup.select("tr.matchrow, tr.fixture, table.schedules tr, table.fixture_table tr")
+            for row in rows:
+                teams_links = row.select("a.team, a.match-link, a.fxtr")
+                home_team, away_team = "", ""
+
+                if len(teams_links) >= 2:
+                    home_team = teams_links[0].get_text(strip=True)
+                    away_team = teams_links[1].get_text(strip=True)
+                elif len(teams_links) == 1:
+                    fixture_text = teams_links[0].get_text(strip=True)
+                    if " vs " in fixture_text:
+                        parts = fixture_text.split(" vs ")
+                        home_team, away_team = parts[0].strip(), parts[1].strip()
+                    elif " - " in fixture_text:
+                        parts = fixture_text.split(" - ")
+                        home_team, away_team = parts[0].strip(), parts[1].strip()
+
+                if not (home_team and away_team):
+                    fxt_cell = row.select_one("td.fixture, td.teams, td.match")
+                    if fxt_cell:
+                        text = fxt_cell.get_text(separator=" ", strip=True)
+                        if " vs " in text:
+                            parts = text.split(" vs ")
+                            home_team, away_team = parts[0].strip(), parts[1].strip()
+                        elif " - " in text:
+                            parts = text.split(" - ")
+                            home_team, away_team = parts[0].strip(), parts[1].strip()
+
+                if not (home_team and away_team):
+                    continue
+
+                chan_cells = row.select("td.chans a, td.channels a, span.channel, td.chans, td.channel")
+                detected_channels: List[str] = []
+
+                for cell in chan_cells:
+                    ctext = cell.get_text(strip=True)
+                    for net in target_networks:
+                        if net.lower() in ctext.lower() and net not in detected_channels:
+                            detected_channels.append(net)
+
+                if not detected_channels:
+                    row_text = row.get_text()
+                    for net in target_networks:
+                        if re.search(rf"\b{re.escape(net)}\b", row_text, re.IGNORECASE) and net not in detected_channels:
+                            detected_channels.append(net)
+
+                if detected_channels:
+                    listings.append({
+                        "home_team": home_team,
+                        "away_team": away_team,
+                        "channels": detected_channels,
+                        "source": "livesoccertv.com"
+                    })
+
+        except Exception as e:
+            logger.warning("LiveSoccerTV scrape notice for %s: %s", url, e)
+
+    logger.info("Scraped %d channel fixture listings from livesoccertv.com", len(listings))
+    return listings
+
+
+def scrape_futebolnatv_channels() -> List[Dict[str, Any]]:
+    """
+    Scrapes TV broadcast listings directly from https://www.futebolnatv.com.br/jogos-hoje/
+    (and tomorrow's listings) for Brazilian matches (e.g., Globo, SporTV, Premiere, CazéTV).
+    """
+    listings: List[Dict[str, Any]] = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+    }
+
+    urls = [
+        "https://www.futebolnatv.com.br/jogos-hoje/",
+        "https://www.futebolnatv.com.br/jogos-amanha/",
+    ]
+
+    target_brazil_channels = [
+        "Premiere", "Globo", "SporTV", "CazéTV", "Prime Video", "ESPN",
+        "Star+", "Disney+", "Max", "TNT", "Band", "Record", "YouTube", "Paramount+"
+    ]
+
+    for url in urls:
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            if resp.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+            match_elements = soup.select("tr.linha-jogo, div.jogo, div.card-jogo, div.match, tr[class*='jogo']")
+            if not match_elements:
+                match_elements = [tr for tr in soup.select("table tr") if " x " in tr.get_text() or " vs " in tr.get_text()]
+
+            for elem in match_elements:
+                text = elem.get_text(separator=" ", strip=True)
+
+                m_split = re.search(r"([A-Za-z0-9À-ÿ\.\-\s]+?)\s+(?:x|vs)\s+([A-Za-z0-9À-ÿ\.\-\s]+?)(?:\s+–|\s+-|\s+\d{2}:\d{2}|\s+Canal|\s+Onde|$)", text, re.IGNORECASE)
+                if not m_split:
+                    continue
+
+                home_candidate = m_split.group(1).strip()
+                away_candidate = m_split.group(2).strip()
+
+                home_team = re.sub(r"^\d{2}:\d{2}\s*", "", home_candidate).strip()
+                away_team = re.sub(r"\s+\d{2}:\d{2}.*$", "", away_candidate).strip()
+
+                detected_channels: List[str] = []
+                chan_tags = elem.select(".canal, .canais, .transmissao, a[href*='canal'], span[class*='canal']")
+                for tag in chan_tags:
+                    c_text = tag.get_text(strip=True)
+                    for ch in target_brazil_channels:
+                        if ch.lower() in c_text.lower() and ch not in detected_channels:
+                            detected_channels.append(ch)
+
+                if not detected_channels:
+                    for ch in target_brazil_channels:
+                        if re.search(rf"\b{re.escape(ch)}\b", text, re.IGNORECASE) and ch not in detected_channels:
+                            detected_channels.append(ch)
+
+                if any("caze" in ch.lower() for ch in detected_channels):
+                    if "CazéTV" not in detected_channels:
+                        detected_channels.append("CazéTV")
+
+                if detected_channels and home_team and away_team:
+                    listings.append({
+                        "home_team": home_team,
+                        "away_team": away_team,
+                        "channels": detected_channels,
+                        "source": "futebolnatv.com.br"
+                    })
+
+        except Exception as e:
+            logger.warning("FutebolNaTV scrape notice for %s: %s", url, e)
+
+    logger.info("Scraped %d channel fixture listings from futebolnatv.com.br", len(listings))
+    return listings
+
+
+def get_channels_for_match(
+    home_team: str,
+    away_team: str,
+    league_name: str,
+    country_name: str,
+    livesoccertv_listings: Optional[List[Dict[str, Any]]] = None,
+    futebolnatv_listings: Optional[List[Dict[str, Any]]] = None
+) -> List[str]:
+    """
+    Resolves broadcast channels for a given match:
+    1. For Brazil matches: Fetch listings directly from futebolnatv.com.br.
+    2. For Argentina & South American matches: Fetch channels directly from livesoccertv.com.
+    3. Fallback to primary verified broadcast networks.
+    """
+    country_lower = (country_name or "").lower()
+    league_lower = (league_name or "").lower()
+    is_brazil = (
+        "brazil" in country_lower or "brasil" in country_lower or
+        any(k in league_lower for k in ["série a", "serie a", "brasileir", "copa do brasil", "paulistão", "carioca"])
+    )
+
+    # 1. Brazil match -> search futebolnatv.com.br listings
+    if is_brazil and futebolnatv_listings:
+        for item in futebolnatv_listings:
+            if match_fixture_teams(home_team, away_team, item["home_team"], item["away_team"]):
+                if item.get("channels"):
+                    return item["channels"]
+
+    # 2. Argentina & South America match -> search livesoccertv.com listings
+    if not is_brazil and livesoccertv_listings:
+        for item in livesoccertv_listings:
+            if match_fixture_teams(home_team, away_team, item["home_team"], item["away_team"]):
+                if item.get("channels"):
+                    return item["channels"]
+
+    # 3. Fallback to verified Latin American broadcast networks
+    full = f"{country_lower} {league_lower}"
     if "libertadores" in full:
         return ["ESPN", "Fox Sports", "Star+", "Globo"]
     if "sudamericana" in full:
         return ["ESPN 3", "Star+", "DSports", "Paramount+"]
     if "argentina" in full or "liga profesional" in full or "copa argentina" in full:
         return ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-    if "brazil" in full or "brasil" in full or "série a" in full or "serie a" in full or "copa do brasil" in full:
+    if is_brazil:
         return ["Premiere", "Globo", "SporTV", "CazéTV"]
+
     return ["TNT Sports", "ESPN Premium"]
+
+
+def enrich_matches_with_tv_channels(matches: List[Dict[str, Any]]) -> None:
+    """
+    Enriches match objects with TV channels scraped directly from:
+    - livesoccertv.com (Argentina & South American matches)
+    - futebolnatv.com.br (Brazil matches)
+    """
+    logger.info("Fetching TV broadcast listings for fixtures...")
+    livesoccertv_listings = scrape_livesoccertv_channels()
+    futebolnatv_listings = scrape_futebolnatv_channels()
+
+    for m in matches:
+        home = m.get("home_team", "")
+        away = m.get("away_team", "")
+        league = m.get("league", "")
+        country = m.get("country", "")
+
+        channels = get_channels_for_match(
+            home_team=home,
+            away_team=away,
+            league_name=league,
+            country_name=country,
+            livesoccertv_listings=livesoccertv_listings,
+            futebolnatv_listings=futebolnatv_listings,
+        )
+
+        m["channels"] = channels
+        m["all_unique_channels"] = channels
 
 
 def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
@@ -296,6 +564,9 @@ def main():
     for m in matches:
         if m.get("banner_url"):
             m["banner_url"] = rewrite_cdn_image_url(m["banner_url"])
+
+    # Fetch and enrich TV channel listings
+    enrich_matches_with_tv_channels(matches)
 
     save_matches_to_disk(matches)
     update_dashboard_html(matches)
