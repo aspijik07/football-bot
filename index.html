@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
     <title>Football Broadcast Dashboard</title>
+    <meta name="description" content="Automated dashboard fetching real live match data from Fotmob and Sofascore for South American football leagues.">
+    <meta property="og:title" content="Football Broadcast Dashboard">
+    <meta property="og:description" content="Automated dashboard fetching real live match data from Fotmob and Sofascore for South American football leagues.">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -248,6 +251,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+            min-width: 1080px;
         }
         th, td {
             padding: 12px 14px;
@@ -340,14 +344,15 @@
             100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Dual-Team Match Column & Crest Logos */
+        /* Dual-Team Match Column & Crest Logos (Strict Single-Line Layout) */
         .match-headline {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 0.95em;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
+            margin-bottom: 8px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
             line-height: 1.4;
         }
         .team-item {
@@ -355,6 +360,8 @@
             align-items: center;
             gap: 6px;
             vertical-align: middle;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .team-crest-sm {
             width: 22px;
@@ -368,6 +375,7 @@
         .team-title {
             color: #f8fafc;
             font-weight: 700;
+            white-space: nowrap;
         }
         .vs-glow {
             color: #eab308;
@@ -375,48 +383,73 @@
             font-size: 0.85em;
             padding: 0 4px;
             letter-spacing: 0.05em;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
-        /* Compact Banner Action Buttons */
-        .banner-compact-controls {
+        /* Large Match Banner Preview Layout */
+        .banner-preview-box {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin-top: 4px;
-        }
-        .banner-btn-row {
-            display: flex;
-            align-items: center;
             gap: 6px;
-            flex-wrap: wrap;
+            margin-top: 6px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .banner-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            background: #0f172a;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .banner-image-container:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+            box-shadow: 0 5px 16px rgba(56, 189, 248, 0.25);
+        }
+        .match-banner-full-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.25s ease;
+        }
+        .banner-image-container:hover .match-banner-full-img {
+            transform: scale(1.03);
+        }
+        .banner-hover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 6px 8px;
+            background: linear-gradient(transparent, rgba(11, 19, 41, 0.9) 70%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+        .banner-overlay-zoom {
+            font-size: 0.72em;
+            color: #ffffff;
+            font-weight: 700;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            backdrop-filter: blur(2px);
         }
         .banner-actions-subrow {
             display: flex;
             align-items: center;
             gap: 6px;
             flex-wrap: wrap;
-        }
-        .btn-compact-banner {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #1e293b;
-            color: #38bdf8;
-            border: 1px solid #334155;
-            padding: 4px 10px;
-            border-radius: 5px;
-            font-size: 0.74em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            white-space: nowrap;
-        }
-        .btn-compact-banner:hover {
-            background: #0f172a;
-            border-color: #38bdf8;
-            color: #7dd3fc;
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
-            transform: translateY(-1px);
         }
         .banner-source-pill {
             background: rgba(56, 189, 248, 0.15);
@@ -427,26 +460,6 @@
             font-size: 0.85em;
             font-weight: 700;
         }
-        .btn-compact-banner-mini {
-            background: #1e293b;
-            color: #38bdf8;
-            border: 1px solid #334155;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 0.72em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-compact-banner-mini:hover {
-            background: #334155;
-            border-color: #38bdf8;
-            color: #7dd3fc;
-        }
 
         /* Composite Dual-Team Card Thumbnail */
         .dual-thumb-card {
@@ -456,11 +469,11 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             border: 1px solid #334155;
             border-radius: 8px;
-            padding: 6px 10px;
+            padding: 10px 14px;
             cursor: pointer;
             transition: all 0.18s ease;
-            max-width: 320px;
-            margin-bottom: 6px;
+            width: 100%;
+            max-width: 380px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         .dual-thumb-card:hover {
@@ -916,12 +929,12 @@
                     <table id="matches-table">
                         <thead>
                             <tr>
-                                <th style="width: 17%;">LEAGUE</th>
-                                <th style="width: 32%;">MATCH & BANNER</th>
-                                <th style="width: 13%;">LOCAL TIME</th>
-                                <th style="width: 14%;">MOROCCO TIME (GMT+1)</th>
-                                <th style="width: 12%;">STATUS</th>
-                                <th style="width: 12%;">CHANNELS</th>
+                                <th style="width: 16%;">LEAGUE</th>
+                                <th style="width: 38%;">MATCH & BANNER</th>
+                                <th style="width: 11%;">LOCAL TIME</th>
+                                <th style="width: 13%;">MOROCCO TIME (GMT+1)</th>
+                                <th style="width: 11%;">STATUS</th>
+                                <th style="width: 11%;">CHANNELS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -935,7 +948,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10201.png" alt="Newell's Old Boys" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -948,21 +961,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('today_newellsold_vélezsarsf_0')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_newellsold_vélezsarsf_0')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png" alt="Newell's Old Boys vs Vélez Sarsfield" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
@@ -975,7 +987,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161730.png" alt="Defensa y Justicia" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -988,21 +1000,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('today_defensayju_gimnasiame_1')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_defensayju_gimnasiame_1')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png" alt="Defensa y Justicia vs Gimnasia Mendoza" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">19:15 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">23:15</strong></td>
@@ -1015,7 +1026,7 @@
                 <small style="color:#94a3b8; font-weight:500;">South America</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/192875.png" alt="Independiente del Valle" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1028,21 +1039,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('today_independie_flamengo_2')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_independie_flamengo_2')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg" alt="Independiente del Valle vs Flamengo" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
@@ -1055,7 +1065,7 @@
                 <small style="color:#94a3b8; font-weight:500;">South America</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/1845.png" alt="Cienciano" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1068,21 +1078,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('today_cienciano_montevideo_3')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_cienciano_montevideo_3')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg" alt="Cienciano vs Montevideo City Torque" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
@@ -1100,7 +1109,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10077.png" alt="Boca Juniors" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1113,21 +1122,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_bocajunior_centralcór_0')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_bocajunior_centralcór_0')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png" alt="Boca Juniors vs Central Córdoba de Santiago" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
@@ -1140,7 +1148,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10094.png" alt="Estudiantes" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1153,21 +1161,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_estudiante_platense_1')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_estudiante_platense_1')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg" alt="Estudiantes vs Club Atlético Platense" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">14:45 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
@@ -1180,7 +1187,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161729.png" alt="Independiente Rivadavia" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1193,21 +1200,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_independie_aldosivi_2')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_independie_aldosivi_2')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg" alt="Independiente Rivadavia vs Aldosivi" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">14:45 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
@@ -1220,7 +1226,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161727.png" alt="Atlético Tucumán" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1233,21 +1239,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_atléticotu_riverplate_3')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_atléticotu_riverplate_3')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg" alt="Atlético Tucumán vs River Plate" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:30</strong></td>
@@ -1260,7 +1265,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10101.png" alt="Talleres" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1273,21 +1278,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_talleres_unión_4')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">zerozero.com.ar</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_talleres_unión_4')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg" alt="Talleres vs Unión" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">zerozero.com.ar</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">20:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">00:00</strong></td>
@@ -1300,7 +1304,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581873.png" alt="União São João" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1313,22 +1317,28 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-    <!-- Compact Banner Button Controls (Standard Fallback) -->
-    <div class="banner-compact-controls">
-        <div class="banner-btn-row">
-            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_uniãosãojo_juventussp_5')" title="Click to view match card in modal">
-                <span>🖼️ View Match Banner</span>
-                <span class="banner-source-pill">Standard Card</span>
-            </button>
-        </div>
-        <div class="banner-actions-subrow">
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581873.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct União São João crest image">🔗 União São Jo Crest</a>
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581848.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Juventus-SP crest image">🔗 Juventus-SP Crest</a>
-            <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/581873.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
-        </div>
-    </div>
+                <!-- Composite Card Preview (Standard Fallback) -->
+                <div class="banner-preview-box">
+                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_uniãosãojo_juventussp_5')" title="Click to view match card in modal">
+                        <div class="thumb-team-side">
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581873.png" alt="União São João" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                            <span class="thumb-team-label">União São João</span>
+                        </div>
+                        <div class="thumb-center-vs">
+                            <span class="thumb-vs-text">VS</span>
+                            <span class="thumb-view-badge">🔍 View Card</span>
+                        </div>
+                        <div class="thumb-team-side">
+                            <span class="thumb-team-label">Juventus-SP</span>
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581848.png" alt="Juventus-SP" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581873.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct União São  crest image">🔗 União São  Crest</a>
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581848.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Juventus-S crest image">🔗 Juventus-S Crest</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/581873.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
@@ -1341,7 +1351,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581877.png" alt="Primavera SP" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1354,22 +1364,28 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-    <!-- Compact Banner Button Controls (Standard Fallback) -->
-    <div class="banner-compact-controls">
-        <div class="banner-btn-row">
-            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_primaveras_noroeste_6')" title="Click to view match card in modal">
-                <span>🖼️ View Match Banner</span>
-                <span class="banner-source-pill">Standard Card</span>
-            </button>
-        </div>
-        <div class="banner-actions-subrow">
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581877.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Primavera SP crest image">🔗 Primavera SP Crest</a>
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/163784.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Noroeste crest image">🔗 Noroeste Crest</a>
-            <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/581877.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
-        </div>
-    </div>
+                <!-- Composite Card Preview (Standard Fallback) -->
+                <div class="banner-preview-box">
+                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_primaveras_noroeste_6')" title="Click to view match card in modal">
+                        <div class="thumb-team-side">
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/581877.png" alt="Primavera SP" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                            <span class="thumb-team-label">Primavera SP</span>
+                        </div>
+                        <div class="thumb-center-vs">
+                            <span class="thumb-vs-text">VS</span>
+                            <span class="thumb-view-badge">🔍 View Card</span>
+                        </div>
+                        <div class="thumb-team-side">
+                            <span class="thumb-team-label">Noroeste</span>
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/163784.png" alt="Noroeste" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/581877.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Primavera  crest image">🔗 Primavera  Crest</a>
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/163784.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Noroeste crest image">🔗 Noroeste Crest</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/581877.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">18:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">22:00</strong></td>
@@ -1382,7 +1398,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9767.png" alt="Coritiba" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1395,21 +1411,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_coritiba_athleticop_7')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">ogol.com.br</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_coritiba_athleticop_7')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg" alt="Coritiba vs Athletico Paranaense" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">ogol.com.br</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">01:00</strong></td>
@@ -1422,7 +1437,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1435,21 +1450,20 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-        <!-- Compact Banner Button Controls -->
-        <div class="banner-compact-controls">
-            <div class="banner-btn-row">
-                <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_atléticomg_fluminense_8')" title="Click to open full 16:9 match preview banner in modal">
-                    <span>🖼️ View Match Banner</span>
-                    <span class="banner-source-pill">ogol.com.br</span>
-                </button>
-            </div>
-            <div class="banner-actions-subrow">
-                <a href="https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-            </div>
-        </div>
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_atléticomg_fluminense_8')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg" alt="Atlético-MG vs Fluminense" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">ogol.com.br</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">16:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
@@ -1462,7 +1476,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1475,22 +1489,28 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-    <!-- Compact Banner Button Controls (Standard Fallback) -->
-    <div class="banner-compact-controls">
-        <div class="banner-btn-row">
-            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_grêmio_vascodagam_9')" title="Click to view match card in modal">
-                <span>🖼️ View Match Banner</span>
-                <span class="banner-source-pill">Standard Card</span>
-            </button>
-        </div>
-        <div class="banner-actions-subrow">
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Grêmio crest image">🔗 Grêmio Crest</a>
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Vasco da Gama crest image">🔗 Vasco da Gam Crest</a>
-            <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/9769.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
-        </div>
-    </div>
+                <!-- Composite Card Preview (Standard Fallback) -->
+                <div class="banner-preview-box">
+                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_grêmio_vascodagam_9')" title="Click to view match card in modal">
+                        <div class="thumb-team-side">
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                            <span class="thumb-team-label">Grêmio</span>
+                        </div>
+                        <div class="thumb-center-vs">
+                            <span class="thumb-vs-text">VS</span>
+                            <span class="thumb-view-badge">🔍 View Card</span>
+                        </div>
+                        <div class="thumb-team-side">
+                            <span class="thumb-team-label">Vasco da Gama</span>
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Grêmio crest image">🔗 Grêmio Crest</a>
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Vasco da G crest image">🔗 Vasco da G Crest</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/9769.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">16:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
@@ -1503,7 +1523,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" alt="Chapecoense" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1516,22 +1536,28 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-    <!-- Compact Banner Button Controls (Standard Fallback) -->
-    <div class="banner-compact-controls">
-        <div class="banner-btn-row">
-            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_chapecoens_internacio_10')" title="Click to view match card in modal">
-                <span>🖼️ View Match Banner</span>
-                <span class="banner-source-pill">Standard Card</span>
-            </button>
-        </div>
-        <div class="banner-actions-subrow">
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Chapecoense crest image">🔗 Chapecoense Crest</a>
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Internacional crest image">🔗 Internaciona Crest</a>
-            <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/197693.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
-        </div>
-    </div>
+                <!-- Composite Card Preview (Standard Fallback) -->
+                <div class="banner-preview-box">
+                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_chapecoens_internacio_10')" title="Click to view match card in modal">
+                        <div class="thumb-team-side">
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" alt="Chapecoense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                            <span class="thumb-team-label">Chapecoense</span>
+                        </div>
+                        <div class="thumb-center-vs">
+                            <span class="thumb-vs-text">VS</span>
+                            <span class="thumb-view-badge">🔍 View Card</span>
+                        </div>
+                        <div class="thumb-team-side">
+                            <span class="thumb-team-label">Internacional</span>
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" alt="Internacional" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/197693.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Chapecoens crest image">🔗 Chapecoens Crest</a>
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8702.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Internacio crest image">🔗 Internacio Crest</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/197693.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
@@ -1544,7 +1570,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1557,22 +1583,28 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-    <!-- Compact Banner Button Controls (Standard Fallback) -->
-    <div class="banner-compact-controls">
-        <div class="banner-btn-row">
-            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_palmeiras_sãopaulo_11')" title="Click to view match card in modal">
-                <span>🖼️ View Match Banner</span>
-                <span class="banner-source-pill">Standard Card</span>
-            </button>
-        </div>
-        <div class="banner-actions-subrow">
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Palmeiras crest image">🔗 Palmeiras Crest</a>
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct São Paulo crest image">🔗 São Paulo Crest</a>
-            <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
-        </div>
-    </div>
+                <!-- Composite Card Preview (Standard Fallback) -->
+                <div class="banner-preview-box">
+                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_palmeiras_sãopaulo_11')" title="Click to view match card in modal">
+                        <div class="thumb-team-side">
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                            <span class="thumb-team-label">Palmeiras</span>
+                        </div>
+                        <div class="thumb-center-vs">
+                            <span class="thumb-vs-text">VS</span>
+                            <span class="thumb-view-badge">🔍 View Card</span>
+                        </div>
+                        <div class="thumb-team-side">
+                            <span class="thumb-team-label">São Paulo</span>
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Palmeiras crest image">🔗 Palmeiras Crest</a>
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct São Paulo crest image">🔗 São Paulo Crest</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">18:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">22:30</strong></td>
@@ -1585,7 +1617,7 @@
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
             </td>
             <td>
-                <!-- Match Headline with Team Crest Logos -->
+                <!-- Match Headline with Team Crest Logos (Single Line) -->
                 <div class="match-headline">
                     <span class="team-item">
                         <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
@@ -1598,22 +1630,28 @@
                     </span>
                 </div>
 
-                <!-- Match Banner Column (Compact Banner Buttons) -->
-                
-    <!-- Compact Banner Button Controls (Standard Fallback) -->
-    <div class="banner-compact-controls">
-        <div class="banner-btn-row">
-            <button type="button" class="btn-compact-banner" onclick="openMatchBanner('tomorrow_botafogo_rbbraganti_12')" title="Click to view match card in modal">
-                <span>🖼️ View Match Banner</span>
-                <span class="banner-source-pill">Standard Card</span>
-            </button>
-        </div>
-        <div class="banner-actions-subrow">
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Botafogo crest image">🔗 Botafogo Crest</a>
-            <a href="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct RB Bragantino crest image">🔗 RB Bragantin Crest</a>
-            <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/8517.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
-        </div>
-    </div>
+                <!-- Composite Card Preview (Standard Fallback) -->
+                <div class="banner-preview-box">
+                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_botafogo_rbbraganti_12')" title="Click to view match card in modal">
+                        <div class="thumb-team-side">
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                            <span class="thumb-team-label">Botafogo</span>
+                        </div>
+                        <div class="thumb-center-vs">
+                            <span class="thumb-vs-text">VS</span>
+                            <span class="thumb-view-badge">🔍 View Card</span>
+                        </div>
+                        <div class="thumb-team-side">
+                            <span class="thumb-team-label">RB Bragantino</span>
+                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" alt="RB Bragantino" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct Botafogo crest image">🔗 Botafogo Crest</a>
+                        <a href="https://images.fotmob.com/image_resources/logo/teamlogo/109705.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct RB Bragant crest image">🔗 RB Bragant Crest</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://images.fotmob.com/image_resources/logo/teamlogo/8517.png', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
             </td>
             <td style="color:#cbd5e1; font-weight:500;">20:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">00:30</strong></td>
@@ -1908,40 +1946,185 @@
             }
         }
 
-        // Trigger GitHub Actions Workflow
-        function triggerWorkflow() {
-            let token = localStorage.getItem('github_token') || prompt("Enter GitHub Personal Access Token (requires repo/workflow scope):");
-            if (!token) return;
-            localStorage.setItem('github_token', token);
+        function renderBannerCellHtml(m, matchId, homeTeam, awayTeam, homeLogo, awayLogo, homeUrlBtn, awayUrlBtn, copyBtn) {
+            if (m.has_scraped_banner && m.banner_url) {
+                return `
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('${matchId}')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="${m.banner_url}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">${m.banner_source_site || 'news'}</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="${m.banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${m.banner_url}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>`;
+            }
+            return `
+            <!-- Composite Card Preview (Standard Fallback) -->
+            <div class="banner-preview-box">
+                <div class="dual-thumb-card" onclick="openMatchBanner('${matchId}')" title="Click to view match card in modal">
+                    <div class="thumb-team-side">
+                        <img src="${homeLogo}" alt="${homeTeam}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                        <span class="thumb-team-label">${homeTeam}</span>
+                    </div>
+                    <div class="thumb-center-vs">
+                        <span class="thumb-vs-text">VS</span>
+                        <span class="thumb-view-badge">🔍 View Card</span>
+                    </div>
+                    <div class="thumb-team-side">
+                        <span class="thumb-team-label">${awayTeam}</span>
+                        <img src="${awayLogo}" alt="${awayTeam}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                    </div>
+                </div>
+                <div class="banner-actions-subrow">
+                    ${homeUrlBtn}
+                    ${awayUrlBtn}
+                    ${copyBtn}
+                </div>
+            </div>`;
+        }
 
+        function renderRowsHtml(matches) {
+            if (!matches || matches.length === 0) {
+                return '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:22px; font-style:italic;">🚫 No matches scheduled for these leagues.</td></tr>';
+            }
+            return matches.map((m, idx) => {
+                const badgeClass = m.badge_class || 'badge-default';
+                const league = m.league || '';
+                const leagueEsc = league.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                const day = m.day || 'today';
+                const homeTeam = m.home_team || 'Home';
+                const awayTeam = m.away_team || 'Away';
+                const homeLogo = m.home_logo || DEFAULT_CREST;
+                const awayLogo = m.away_logo || DEFAULT_CREST;
+                const isLive = (m.status_text || '').includes('LIVE');
+                const isSoon = (m.status_text || '').includes('SOON');
+                const matchId = m.match_id || `${day}_${idx}`;
+
+                let homeUrlBtn = '';
+                if (m.home_logo) {
+                    homeUrlBtn = `<a href="${m.home_logo}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct ${homeTeam.slice(0, 12)} crest image">🔗 ${homeTeam.slice(0, 12)} Crest</a>`;
+                }
+                let awayUrlBtn = '';
+                if (m.away_logo) {
+                    awayUrlBtn = `<a href="${m.away_logo}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct ${awayTeam.slice(0, 12)} crest image">🔗 ${awayTeam.slice(0, 12)} Crest</a>`;
+                }
+                const copyTarget = m.home_logo || m.away_logo || '';
+                const copyBtn = copyTarget ? `<button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${copyTarget}', this, event)" title="Copy image URL to clipboard">📋 Copy URL</button>` : '';
+                const channelsHtml = (m.channels || []).map(c => `<span class="channel-tag">${c}</span>`).join('');
+
+                return `
+                <tr data-league="${leagueEsc}" data-day="${day}" data-is-live="${isLive}" data-is-soon="${isSoon}" data-id="${matchId}">
+                    <td>
+                        <span class="badge ${badgeClass}">${league}</span><br>
+                        <small style="color:#94a3b8; font-weight:500;">${m.country}</small>
+                    </td>
+                    <td>
+                        <div class="match-headline">
+                            <span class="team-item">
+                                <img src="${homeLogo}" alt="${homeTeam}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                                <strong class="team-title">${homeTeam}</strong>
+                            </span>
+                            <span class="vs-glow">VS</span>
+                            <span class="team-item">
+                                <strong class="team-title">${awayTeam}</strong>
+                                <img src="${awayLogo}" alt="${awayTeam}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                            </span>
+                        </div>
+                        ${renderBannerCellHtml(m, matchId, homeTeam, awayTeam, homeLogo, awayLogo, homeUrlBtn, awayUrlBtn, copyBtn)}
+                    </td>
+                    <td style="color:#cbd5e1; font-weight:500;">${m.local_time} <small style="color:#64748b;">(GMT-3)</small></td>
+                    <td><strong style="color:#38bdf8; font-size:1.05em;">${m.morocco_time}</strong></td>
+                    <td><span class="status-badge ${m.status_class || 'status-scheduled'}">${m.status_text}</span></td>
+                    <td>${channelsHtml}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function applyUpdatedMatches(matchesList, lastUpdatedStr) {
+            if (!Array.isArray(matchesList) || matchesList.length === 0) return;
+            const todayM = [];
+            const tomorrowM = [];
+
+            for (const key in MATCHES_DATA) delete MATCHES_DATA[key];
+
+            matchesList.forEach((m, idx) => {
+                const day = (m.day || 'today').toLowerCase();
+                const hNorm = (m.home_team || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+                const aNorm = (m.away_team || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+                const matchId = `${day}_${hNorm}_${aNorm}_${idx}`;
+                m.match_id = matchId;
+                m.day = day;
+                MATCHES_DATA[matchId] = m;
+                if (day === 'today') todayM.push(m);
+                else tomorrowM.push(m);
+            });
+
+            const tbody = document.querySelector('#matches-table tbody');
+            if (tbody) {
+                const todayHdr = document.getElementById('hdr-today');
+                const emptyToday = document.getElementById('empty-today-row');
+                const tomorrowHdr = document.getElementById('hdr-tomorrow');
+                const emptyTomorrow = document.getElementById('empty-tomorrow-row');
+
+                const todayHeaderHtml = todayHdr ? todayHdr.outerHTML : `<tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES (${todayM.length})</td></tr>`;
+                const emptyTodayHtml = emptyToday ? emptyToday.outerHTML : '<tr id="empty-today-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for today.</td></tr>';
+                const tomorrowHeaderHtml = tomorrowHdr ? tomorrowHdr.outerHTML : `<tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES (${tomorrowM.length})</td></tr>`;
+                const emptyTomorrowHtml = emptyTomorrow ? emptyTomorrow.outerHTML : '<tr id="empty-tomorrow-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>';
+
+                tbody.innerHTML = `
+                    ${todayHeaderHtml}
+                    ${emptyTodayHtml}
+                    ${renderRowsHtml(todayM)}
+                    ${tomorrowHeaderHtml}
+                    ${emptyTomorrowHtml}
+                    ${renderRowsHtml(tomorrowM)}
+                `;
+            }
+
+            const footer = document.querySelector('.footer');
+            if (footer) {
+                const dateText = lastUpdatedStr ? new Date(lastUpdatedStr).toLocaleString() : new Date().toLocaleString();
+                footer.textContent = 'Last Updated: ' + dateText + ' • Synced with Fotmob & Sofascore';
+            }
+
+            filterLeagues();
+        }
+
+        // Trigger Live Match Data Update
+        async function triggerWorkflow() {
             const btn = document.querySelector('.btn-update');
             const originalText = btn.textContent;
-            btn.textContent = '⏳ Triggering...';
+            btn.textContent = '⏳ Fetching live data...';
             btn.disabled = true;
 
-            fetch('https://api.github.com/repos/aspijik07/football-bot/actions/workflows/runner.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ref: 'main' })
-            })
-            .then(res => {
-                btn.textContent = originalText;
-                btn.disabled = false;
-                if (res.ok) {
-                    alert('✅ GitHub Actions Workflow started successfully! The dashboard will refresh with latest data shortly.');
+            try {
+                const res = await fetch('/api/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await res.json();
+                if (result.success && Array.isArray(result.matches) && result.matches.length > 0) {
+                    applyUpdatedMatches(result.matches, result.last_updated);
+                    showToast(`✅ Synced ${result.count} matches from Fotmob & Sofascore!`);
+                } else if (result.matches) {
+                    applyUpdatedMatches(result.matches, result.last_updated);
+                    showToast('ℹ️ Refreshed fixtures data');
                 } else {
-                    alert('❌ Failed to trigger workflow (HTTP ' + res.status + '). Verify token permissions.');
+                    showToast('⚠️ Notice: ' + (result.message || 'Could not fetch live updates'));
                 }
-            })
-            .catch(err => {
+            } catch (err) {
+                console.warn('Update error:', err);
+                showToast('⚠️ Notice: ' + err.message);
+            } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
-                alert('❌ Error: ' + err.message);
-            });
+            }
         }
     </script>
 </body>
