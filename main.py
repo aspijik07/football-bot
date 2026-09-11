@@ -2,6 +2,9 @@ import os
 import json
 import urllib.request
 import urllib.error
+import subprocess
+import unicodedata
+import re
 from datetime import datetime, timedelta, timezone
 
 try:
@@ -321,6 +324,164 @@ def fetch_sofascore_matches(target_date, day_label):
     return matches
 
 
+NEWS_FEED_CACHE = {}
+
+
+def fetch_domain_news(domain):
+    """
+    Fetches and parses preview news articles from zerozero.com.ar or ogol.com.br.
+    Uses proper browser headers and timeouts (6s) so scraping failures never crash execution.
+    """
+    if domain in NEWS_FEED_CACHE:
+        return NEWS_FEED_CACHE[domain]
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "es-ES,es;q=0.9,pt-BR,pt;q=0.9,en;q=0.8"
+    }
+
+    url_rss = f"https://www.{domain}/rss/noticias.php"
+    items = []
+    raw_content = ""
+
+    # Attempt 1: curl with max-time 6s
+    try:
+        res = subprocess.run(
+            ["curl", "-s", "-L", "--max-time", "6", "-A", headers["User-Agent"], url_rss],
+            capture_output=True,
+            text=True
+        )
+        if res.returncode == 0 and res.stdout and "<item>" in res.stdout:
+            raw_content = res.stdout
+    except Exception as e:
+        print(f"Curl notice for {url_rss}: {e}")
+
+    # Attempt 2: urllib.request fallback
+    if not raw_content:
+        try:
+            req = urllib.request.Request(url_rss, headers=headers)
+            with urllib.request.urlopen(req, timeout=6) as resp:
+                if resp.status == 200:
+                    raw_content = resp.read().decode("utf-8", errors="ignore")
+        except Exception as e:
+            print(f"urllib notice for {url_rss}: {e}")
+
+    if raw_content:
+        for it in re.findall(r"<item>(.*?)</item>", raw_content, re.DOTALL):
+            t_match = re.search(r"<title>(.*?)</title>", it)
+            img_match = re.search(r'<media:content[^>]+url=["\'](.*?)["\']', it) or re.search(r'<enclosure[^>]+url=["\'](.*?)["\']', it)
+            link_match = re.search(r"<link>(.*?)</link>", it)
+            if t_match and img_match:
+                title_clean = t_match.group(1).replace("<![CDATA[", "").replace("]]>", "").strip()
+                img_url = img_match.group(1).strip()
+                link = link_match.group(1).strip() if link_match else ""
+                items.append({
+                    "title": title_clean,
+                    "image_url": img_url,
+                    "link": link,
+                    "source": domain
+                })
+
+    NEWS_FEED_CACHE[domain] = items
+    print(f"Loaded {len(items)} news articles from {domain}")
+    return items
+
+
+MATCH_STOP_WORDS = {
+    "club", "atletico", "atlético", "ca", "cd", "cf", "fc", "sp", "sc", "ad",
+    "de", "la", "del", "el", "los", "las", "da", "do", "dos", "das", "e",
+    "deportivo", "deportiva", "sport", "social", "asociacion", "asociación"
+}
+
+
+def clean_name_for_matching(text):
+    if not text:
+        return ""
+    norm = unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode("utf-8").lower()
+    norm = re.sub(r"[^a-z0-9\s]", " ", norm)
+    return " ".join(norm.split())
+
+
+def extract_team_tokens(team_name):
+    clean = clean_name_for_matching(team_name)
+    words = clean.split()
+    tokens = [w for w in words if w not in MATCH_STOP_WORDS and len(w) >= 3]
+    if not tokens:
+        tokens = [w for w in words if len(w) >= 3]
+    return tokens, clean
+
+
+def match_teams_in_title(home_team, away_team, article_title):
+    title_clean = clean_name_for_matching(article_title)
+    h_tokens, h_clean = extract_team_tokens(home_team)
+    a_tokens, a_clean = extract_team_tokens(away_team)
+
+    home_found = (h_clean in title_clean) or (any(t in title_clean for t in h_tokens) if h_tokens else False)
+    away_found = (a_clean in title_clean) or (any(t in title_clean for t in a_tokens) if a_tokens else False)
+
+    return home_found and away_found
+
+
+def enrich_matches_with_banners(matches):
+    """
+    Enriches matches with real preview banner graphics scraped from:
+      - zerozero.com.ar (for Argentina matches: Liga Profesional, Copa Argentina)
+      - ogol.com.br (for Brazil matches: Série A, Paulista, Copa do Brasil)
+      - both zerozero and ogol (for Copa Libertadores & Copa Sudamericana)
+    Gracefully falls back to standard match graphic/logo if no preview banner is found.
+    """
+    try:
+        zz_articles = fetch_domain_news("zerozero.com.ar")
+    except Exception as e:
+        print(f"Error fetching zerozero news: {e}")
+        zz_articles = []
+
+    try:
+        ogol_articles = fetch_domain_news("ogol.com.br")
+    except Exception as e:
+        print(f"Error fetching ogol news: {e}")
+        ogol_articles = []
+
+    for m in matches:
+        country = m.get("country", "")
+        league = (m.get("league") or "").lower()
+        home_team = m.get("home_team", "")
+        away_team = m.get("away_team", "")
+
+        # Target dynamic scraping sources based on country and competition
+        if country == "Argentina" or any(k in league for k in ["clausura", "apertura", "liga profesional", "copa argentina", "argentina"]):
+            search_pool = zz_articles + ogol_articles
+        elif country == "Brazil" or any(k in league for k in ["série a", "serie a", "paulista", "copa do brasil", "copa paulista", "brasil", "brazil"]):
+            search_pool = ogol_articles + zz_articles
+        else:
+            # South America cups (Copa Libertadores, Copa Sudamericana) search across both
+            search_pool = zz_articles + ogol_articles
+
+        matched_banner = None
+        matched_title = None
+        matched_source = None
+
+        for art in search_pool:
+            if match_teams_in_title(home_team, away_team, art["title"]):
+                matched_banner = art["image_url"]
+                matched_title = art["title"]
+                matched_source = art["source"]
+                break
+
+        if matched_banner:
+            m["banner_url"] = matched_banner
+            m["banner_title"] = matched_title
+            m["banner_source_site"] = matched_source
+            m["has_scraped_banner"] = True
+        else:
+            # Fallback gracefully to standard match logo
+            m["banner_url"] = m.get("home_logo", "") or DEFAULT_SVG_CREST
+            m["banner_title"] = f"{home_team} vs {away_team}"
+            m["banner_source_site"] = "fallback"
+            m["has_scraped_banner"] = False
+
+
 def fetch_all_matches():
     """
     Fetches all live, scheduled, and upcoming matches for target leagues
@@ -381,16 +542,77 @@ def fetch_all_matches():
                             "status_text": item.get("status", "SCHEDULED"),
                             "status_class": "status-scheduled",
                             "channels": item.get("all_unique_channels", ["TNT Sports", "ESPN Premium"]),
-                            "banner_url": item.get("home_logo", ""),
+                            "banner_url": item.get("banner_url") or item.get("home_logo", ""),
+                            "has_scraped_banner": item.get("has_scraped_banner", False),
                             "source": "cache"
                         })
         except Exception as e:
             print(f"Error reading matches.json fallback: {e}")
 
+    # Enrich with dynamic scraped preview banners
+    enrich_matches_with_banners(unique_matches)
+
     return unique_matches
 
 
 DEFAULT_SVG_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>"
+
+
+def render_banner_cell_content(m, match_id, home_team, away_team, home_logo, away_logo, home_url_btn, away_url_btn, copy_btn):
+    """
+    Renders either:
+    1. A clickable 16:9 thumbnail of the scraped match preview banner from zerozero/ogol
+       with direct URL link & copy button below it.
+    2. Or a graceful fallback composite dual-team card with both club logos.
+    """
+    if m.get("has_scraped_banner") and m.get("banner_url"):
+        banner_url = m["banner_url"]
+        source_site = m.get("banner_source_site", "news")
+        url_display = (banner_url[:42] + "...") if len(banner_url) > 45 else banner_url
+
+        return f"""
+        <!-- Clickable 16:9 Scraped Match Banner Thumbnail -->
+        <div class="scraped-banner-card" onclick="openMatchBanner('{match_id}')" title="Click to open full 16:9 preview banner modal">
+            <div class="scraped-banner-wrapper">
+                <img src="{banner_url}" alt="{home_team} vs {away_team}" class="scraped-banner-img" loading="lazy" onerror="this.onerror=null;this.closest('.scraped-banner-card').style.display='none';">
+                <div class="banner-badge-overlay">
+                    <span class="banner-source-tag">📰 {source_site}</span>
+                    <span class="banner-preview-tag">🔍 Full Banner</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direct text link below the image showing direct image source URL -->
+        <div class="banner-url-direct-row">
+            <span class="direct-url-label">Direct Banner URL:</span>
+            <a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-banner-text-link" title="Open direct banner image in new tab">{url_display}</a>
+            <button type="button" class="btn-copy-banner-url" onclick="copyDirectUrl('{banner_url}', this, event)" title="Copy direct image URL to clipboard">📋 Copy URL</button>
+        </div>"""
+
+    # Graceful Fallback: Composite Dual-Team Card
+    return f"""
+    <!-- Fallback Composite Dual-Team Thumbnail Preview Card -->
+    <div class="dual-thumb-card" onclick="openMatchBanner('{match_id}')" title="Click to view match banner modal">
+        <div class="thumb-team-side">
+            <img src="{home_logo}" alt="{home_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
+            <span class="thumb-team-label" title="{home_team}">{home_team}</span>
+        </div>
+        <div class="thumb-center-vs">
+            <span class="thumb-vs-text">VS</span>
+            <span class="thumb-view-badge">👁️ Banner</span>
+        </div>
+        <div class="thumb-team-side">
+            <img src="{away_logo}" alt="{away_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
+            <span class="thumb-team-label" title="{away_team}">{away_team}</span>
+        </div>
+    </div>
+
+    <!-- Direct Source URL Links -->
+    <div class="banner-source-row">
+        {home_url_btn}
+        {away_url_btn}
+        {copy_btn}
+    </div>"""
 
 
 def render_rows(matches):
@@ -449,28 +671,8 @@ def render_rows(matches):
                     <strong class="team-title">{away_team}</strong>
                 </div>
 
-                <!-- Composite Dual-Team Thumbnail Preview Card -->
-                <div class="dual-thumb-card" onclick="openMatchBanner('{match_id}')" title="Click to view full composite Team A vs Team B match banner">
-                    <div class="thumb-team-side">
-                        <img src="{home_logo}" alt="{home_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
-                        <span class="thumb-team-label" title="{home_team}">{home_team}</span>
-                    </div>
-                    <div class="thumb-center-vs">
-                        <span class="thumb-vs-text">VS</span>
-                        <span class="thumb-view-badge">👁️ Banner</span>
-                    </div>
-                    <div class="thumb-team-side">
-                        <img src="{away_logo}" alt="{away_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_SVG_CREST}';">
-                        <span class="thumb-team-label" title="{away_team}">{away_team}</span>
-                    </div>
-                </div>
-
-                <!-- Direct Source URL Links -->
-                <div class="banner-source-row">
-                    {home_url_btn}
-                    {away_url_btn}
-                    {copy_btn}
-                </div>
+                <!-- Match Banner Column (Scraped 16:9 Banner or Composite Dual-Team Card) -->
+                {render_banner_cell_content(m, match_id, home_team, away_team, home_logo, away_logo, home_url_btn, away_url_btn, copy_btn)}
             </td>
             <td style="color:#cbd5e1; font-weight:500;">{m['local_time']} <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">{m['morocco_time']}</strong></td>
@@ -532,6 +734,10 @@ def generate_html(matches_data):
                 "away_team": m["away_team"],
                 "home_logo": m.get("home_logo", ""),
                 "away_logo": m.get("away_logo", ""),
+                "banner_url": m.get("banner_url", ""),
+                "banner_title": m.get("banner_title", ""),
+                "banner_source_site": m.get("banner_source_site", ""),
+                "has_scraped_banner": m.get("has_scraped_banner", False),
                 "league": m["league"],
                 "country": m["country"],
                 "badge_class": m.get("badge_class", "badge-default"),
@@ -901,6 +1107,121 @@ def generate_html(matches_data):
             padding: 0 2px;
         }}
 
+        /* 16:9 Scraped Match Preview Banner Card */
+        .scraped-banner-card {{
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            background: #0f172a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            max-width: 320px;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }}
+        .scraped-banner-card:hover {{
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(56, 189, 248, 0.25);
+        }}
+        .scraped-banner-wrapper {{
+            position: relative;
+            width: 100%;
+        }}
+        .scraped-banner-img {{
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.25s ease;
+        }}
+        .scraped-banner-card:hover .scraped-banner-img {{
+            transform: scale(1.03);
+        }}
+        .banner-badge-overlay {{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 5px 8px;
+            background: linear-gradient(to top, rgba(11, 19, 41, 0.95) 0%, rgba(11, 19, 41, 0.5) 60%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        .banner-source-tag {{
+            font-size: 0.68em;
+            font-weight: 700;
+            color: #f1f5f9;
+            background: rgba(30, 41, 59, 0.85);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }}
+        .banner-preview-tag {{
+            font-size: 0.68em;
+            font-weight: 700;
+            color: #38bdf8;
+            background: rgba(14, 116, 144, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+        }}
+
+        /* Direct Banner URL Text Row below Thumbnail */
+        .banner-url-direct-row {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            max-width: 320px;
+            margin-top: 4px;
+        }}
+        .direct-url-label {{
+            font-size: 0.7em;
+            font-weight: 700;
+            color: #94a3b8;
+        }}
+        .direct-banner-text-link {{
+            font-size: 0.72em;
+            font-family: monospace;
+            color: #38bdf8;
+            text-decoration: none;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            max-width: 170px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
+        }}
+        .direct-banner-text-link:hover {{
+            color: #7dd3fc;
+            border-color: #38bdf8;
+            text-decoration: underline;
+        }}
+        .btn-copy-banner-url {{
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.72em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }}
+        .btn-copy-banner-url:hover {{
+            background: #334155;
+            color: #ffffff;
+            border-color: #38bdf8;
+        }}
+
         /* Composite Dual-Team Card Thumbnail */
         .dual-thumb-card {{
             display: flex;
@@ -1133,6 +1454,36 @@ def generate_html(matches_data):
             border: 1px solid #1e293b;
         }}
 
+        /* Modal Full Banner Stage */
+        .modal-scraped-banner-stage {{
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            margin-top: 12px;
+            background: #0b1329;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }}
+        .modal-banner-full {{
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            display: block;
+        }}
+        .modal-banner-caption {{
+            background: #0f172a;
+            padding: 6px 12px;
+            font-size: 0.75em;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #1e293b;
+        }}
+        .modal-banner-aspect-tag {{
+            color: #38bdf8;
+            font-weight: 700;
+        }}
+
         /* Modal Direct Image URL Section */
         .modal-url-box {{
             background: #0f172a;
@@ -1333,12 +1684,12 @@ def generate_html(matches_data):
         </div>
     </div>
 
-    <!-- Match Banner Modal with Composite Team A vs Team B Display -->
+    <!-- Match Banner Modal with Scraped 16:9 Banner and Composite Fallback Display -->
     <div id="modal" onclick="closeBanner(event)">
         <div class="modal-card" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="document.getElementById('modal').style.display='none'" title="Close">✕</button>
 
-            <!-- Match Banner Composite Stage -->
+            <!-- Match Banner Stage (Header, Meta, & Visual) -->
             <div class="modal-banner-stage">
                 <div class="modal-match-meta">
                     <span id="modal-league-badge" class="badge badge-default">League</span>
@@ -1346,7 +1697,17 @@ def generate_html(matches_data):
                     <span id="modal-status-badge" class="status-badge status-scheduled">SCHEDULED</span>
                 </div>
 
-                <div class="modal-vs-stage">
+                <!-- 16:9 Scraped Match Banner Full Preview -->
+                <div id="modal-scraped-banner-stage" class="modal-scraped-banner-stage" style="display:none;">
+                    <img id="modal-banner-img" class="modal-banner-full" alt="Match Preview Banner">
+                    <div class="modal-banner-caption">
+                        <span id="modal-banner-source-tag">📰 News Banner Graphic</span>
+                        <span class="modal-banner-aspect-tag">16:9 Preview Graphic</span>
+                    </div>
+                </div>
+
+                <!-- Fallback Composite Team A vs Team B VS Stage -->
+                <div id="modal-fallback-stage" class="modal-vs-stage">
                     <!-- Home Team -->
                     <div class="modal-team-block">
                         <img id="modal-home-img" class="modal-crest-img" alt="Home Crest">
@@ -1371,15 +1732,27 @@ def generate_html(matches_data):
             <div class="modal-url-box">
                 <div class="modal-url-heading">Direct Image Source URLs (Clickable & Copyable)</div>
                 
+                <!-- Direct Scraped 16:9 Banner URL -->
+                <div class="url-entry" id="box-banner-url" style="display:none;">
+                    <span style="font-size:0.75em; color:#38bdf8; font-weight:700; width:72px; flex-shrink:0;">16:9 Banner</span>
+                    <input type="text" id="modal-banner-url-input" readonly>
+                    <a id="modal-banner-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open</a>
+                    <button type="button" class="btn-modal-action btn-modal-copy" onclick="copyFromInput('modal-banner-url-input')">📋 Copy</button>
+                </div>
+
+                <!-- Direct Home Crest URL -->
                 <div class="url-entry" id="box-home-url">
+                    <span style="font-size:0.75em; color:#cbd5e1; font-weight:600; width:72px; flex-shrink:0;" id="label-home-crest">Home Crest</span>
                     <input type="text" id="modal-home-url-input" readonly>
-                    <a id="modal-home-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open Image</a>
+                    <a id="modal-home-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open</a>
                     <button type="button" class="btn-modal-action btn-modal-copy" onclick="copyFromInput('modal-home-url-input')">📋 Copy</button>
                 </div>
 
+                <!-- Direct Away Crest URL -->
                 <div class="url-entry" id="box-away-url" style="margin-top:6px;">
+                    <span style="font-size:0.75em; color:#cbd5e1; font-weight:600; width:72px; flex-shrink:0;" id="label-away-crest">Away Crest</span>
                     <input type="text" id="modal-away-url-input" readonly>
-                    <a id="modal-away-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open Image</a>
+                    <a id="modal-away-url-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-action">🔗 Open</a>
                     <button type="button" class="btn-modal-action btn-modal-copy" onclick="copyFromInput('modal-away-url-input')">📋 Copy</button>
                 </div>
             </div>
@@ -1451,7 +1824,33 @@ def generate_html(matches_data):
 
             document.getElementById('modal-time-tag').textContent = m.morocco_time + ' GMT+1 (' + m.local_time + ' GMT-3)';
 
-            // Set up direct image URLs
+            // Check if scraped 16:9 banner exists
+            const hasBanner = m.has_scraped_banner && m.banner_url;
+            const scrapedStage = document.getElementById('modal-scraped-banner-stage');
+            const fallbackStage = document.getElementById('modal-fallback-stage');
+            const bannerImg = document.getElementById('modal-banner-img');
+            const boxBanner = document.getElementById('box-banner-url');
+
+            if (hasBanner) {{
+                scrapedStage.style.display = 'block';
+                bannerImg.src = m.banner_url;
+                bannerImg.onerror = function() {{
+                    scrapedStage.style.display = 'none';
+                    fallbackStage.style.display = 'flex';
+                }};
+                fallbackStage.style.display = 'none';
+                document.getElementById('modal-banner-source-tag').textContent = '📰 Source: ' + (m.banner_source_site || 'zerozero / ogol');
+
+                boxBanner.style.display = 'flex';
+                document.getElementById('modal-banner-url-input').value = m.banner_url;
+                document.getElementById('modal-banner-url-btn').href = m.banner_url;
+            }} else {{
+                scrapedStage.style.display = 'none';
+                fallbackStage.style.display = 'flex';
+                boxBanner.style.display = 'none';
+            }}
+
+            // Set up direct crest image URLs
             const homeUrl = m.home_logo || '';
             const awayUrl = m.away_logo || '';
 
@@ -1460,6 +1859,7 @@ def generate_html(matches_data):
                 boxHome.style.display = 'flex';
                 document.getElementById('modal-home-url-input').value = homeUrl;
                 document.getElementById('modal-home-url-btn').href = homeUrl;
+                document.getElementById('label-home-crest').textContent = (m.home_team || 'Home').substring(0, 10);
             }} else {{
                 boxHome.style.display = 'none';
             }}
@@ -1469,6 +1869,7 @@ def generate_html(matches_data):
                 boxAway.style.display = 'flex';
                 document.getElementById('modal-away-url-input').value = awayUrl;
                 document.getElementById('modal-away-url-btn').href = awayUrl;
+                document.getElementById('label-away-crest').textContent = (m.away_team || 'Away').substring(0, 10);
             }} else {{
                 boxAway.style.display = 'none';
             }}
@@ -1627,6 +2028,10 @@ if __name__ == "__main__":
                 "local_time": m["local_time"],
                 "morocco_time": m["morocco_time"],
                 "status": m["status_text"],
+                "banner_url": m.get("banner_url", ""),
+                "banner_title": m.get("banner_title", ""),
+                "banner_source_site": m.get("banner_source_site", ""),
+                "has_scraped_banner": m.get("has_scraped_banner", False),
                 "all_unique_channels": m.get("channels", [])
             }
             for m in data
