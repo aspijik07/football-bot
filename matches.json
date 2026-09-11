@@ -1,6 +1,6 @@
 {
     "total_matches": 17,
-    "last_updated": "2026-09-11T11:31:34.474957+00:00",
+    "last_updated": "2026-09-11T12:46:38.504761+00:00",
     "matches": [
         {
             "day_label": "Today",
@@ -277,10 +277,10 @@
             "local_time": "16:00",
             "morocco_time": "20:00",
             "status": "SCHEDULED",
-            "banner_url": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png",
-            "banner_title": "Atlético-MG vs Fluminense",
-            "banner_source_site": "fallback",
-            "has_scraped_banner": false,
+            "banner_url": "https://www.ogol.com.br/img/noticias/399/imgS620I1199399T20260911104032.jpg",
+            "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão 12/09)",
+            "banner_source_site": "ogol.com.br",
+            "has_scraped_banner": true,
             "all_unique_channels": [
                 "Premiere",
                 "Globo",
