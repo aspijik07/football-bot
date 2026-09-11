@@ -6,140 +6,635 @@
     <meta name="referrer" content="no-referrer">
     <title>Football Broadcast Dashboard</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0b1329; color: #f8fafc; margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h1 { color: #38bdf8; font-size: 1.6em; margin: 0; }
-        
-        .btn-update { background-color: #eab308; color: #000; border: none; padding: 10px 18px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-        .btn-update:hover { background-color: #facc15; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0b1329;
+            color: #ffffff;
+            margin: 0;
+            padding: 24px 16px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .title-group h1 {
+            margin: 0;
+            font-size: 1.6em;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .title-group p {
+            margin: 4px 0 0 0;
+            color: #94a3b8;
+            font-size: 0.85em;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-update {
+            background: #eab308;
+            color: #0b1329;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 0.9em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .btn-update:hover {
+            background: #facc15;
+            transform: translateY(-1px);
+        }
+        .btn-update:active {
+            transform: translateY(0);
+        }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0; background-color: #151e32; border-radius: 8px; overflow: hidden; margin-bottom: 25px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #222f47; vertical-align: middle; }
-        th { background-color: #0b1329; color: #94a3b8; font-size: 0.8em; text-transform: uppercase; }
-        
-        .section-header { background-color: #1e293b !important; color: #38bdf8 !important; font-size: 1em; font-weight: bold; text-align: center; border-top: 2px solid #38bdf8; }
-        
-        .row-argentina { background-color: rgba(186, 230, 253, 0.15) !important; }
-        .badge-arg { background-color: #bae6fd; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }
-        .badge-other { background-color: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; display: inline-block; }
-        
-        .match-title { font-weight: bold; font-size: 0.95em; margin-bottom: 5px; }
-        .btn-view-banner { background-color: #0284c7; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.78em; cursor: pointer; }
-        
-        .channel-tag { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 4px; }
-        .no-matches { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
+        /* Metrics Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #151e32;
+            border: 1px solid #222f47;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .stat-card .label {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+        }
+        .stat-card .value {
+            font-size: 1.4em;
+            font-weight: 800;
+            color: #f8fafc;
+            margin-top: 4px;
+        }
 
-        #img-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; }
-        #img-modal img { max-width: 85%; max-height: 85%; border-radius: 8px; box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+        /* Table */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #222f47;
+            background: #151e32;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 14px 14px;
+            border-bottom: 1px solid #222f47;
+            vertical-align: middle;
+        }
+        th {
+            background: #0d172e;
+            color: #94a3b8;
+            font-size: 0.75em;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.015);
+        }
+        .section-hdr {
+            background: #1a253d !important;
+            color: #eab308 !important;
+            font-weight: 700;
+            text-align: center;
+            font-size: 0.9em;
+            letter-spacing: 0.03em;
+            padding: 12px;
+            border-top: 2px solid #eab308;
+        }
+        .section-hdr.tomorrow {
+            color: #38bdf8 !important;
+            border-top-color: #38bdf8;
+        }
+
+        /* Badges League Colors */
+        .badge {
+            padding: 4px 9px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8em;
+            display: inline-block;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .badge-argentina { background: #7dd3fc; color: #0284c7; }     /* Light Blue */
+        .badge-brazil { background: #334155; color: #cbd5e1; }        /* Dark Slate */
+        .badge-libertadores { background: #fef08a; color: #a16207; }  /* Yellow */
+        .badge-sudamericana { background: #e9d5ff; color: #7e22ce; }   /* Purple */
+        .badge-default { background: #334155; color: #cbd5e1; }
+
+        /* Status Colors */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.75em;
+            display: inline-block;
+            text-transform: uppercase;
+            white-space: nowrap;
+            letter-spacing: 0.03em;
+        }
+        .status-live {
+            background: #ef4444;
+            color: #ffffff;
+            animation: pulse 1.5s infinite;
+        }
+        .status-soon {
+            background: #f97316;
+            color: #ffffff;
+        }
+        .status-finished {
+            background: #22c55e;
+            color: #ffffff;
+        }
+        .status-scheduled {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+        .status-cancelled {
+            background: #64748b;
+            color: #ffffff;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { opacity: 0.75; transform: scale(1.02); box-shadow: 0 0 8px 2px rgba(239, 68, 68, 0.4); }
+            100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .btn-banner {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 6px;
+            font-size: 0.78em;
+            font-weight: 600;
+            transition: background 0.15s ease;
+        }
+        .btn-banner:hover {
+            background: #0369a1;
+        }
+
+        .channel-tag {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            margin-right: 4px;
+            margin-bottom: 2px;
+            border: 1px solid #334155;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-card {
+            background: #151e32;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.4em;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #ffffff;
+        }
+        #modal-img {
+            max-width: 180px;
+            max-height: 180px;
+            object-fit: contain;
+            margin: 12px auto;
+            display: block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+        #modal-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-top: 14px;
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.8em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚽ Football Broadcast Dashboard</h1>
-            <button class="btn-update" onclick="triggerWorkflow()">▶ START UPDATE</button>
+            <div class="title-group">
+                <h1>⚽ Football Broadcast Dashboard</h1>
+                <p>Live South American & Continental Coverage — Fotmob & Sofascore Synced</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-update" onclick="triggerWorkflow()">▶ START UPDATE</button>
+            </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>League</th>
-                    <th>Match & Banner</th>
-                    <th>Local Time</th>
-                    <th>Morocco Time (GMT+1)</th>
-                    <th>Channels</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td colspan="5" class="section-header">📅 TODAY'S MATCHES — 10/09/2026 (3)</td></tr>
-                
-        <tr class="row-argentina">
-            <td>
-                <span class="badge-arg">Liga Profesional - Clausura</span><br>
-                <small style="color: #94a3b8">Argentina</small>
-            </td>
-            <td>
-                <div class="match-title">Newells Old Boys <span style="color:#eab308">VS</span> Velez Sarsfield</div>
-                <button class="btn-view-banner" onclick="openBanner('https://images.fotmob.com/image_resources/logo/leaguelogo/87.png')">🖼️ View Match Banner</button>
-            </td>
-            <td><span style="color:#cbd5e1">21:00 (GMT-3)</span></td>
-            <td><strong style="color: #38bdf8; font-size: 1.05em;">01:00</strong></td>
-            <td><span class="channel-tag">ESPN</span><span class="channel-tag">Star+</span></td>
-        </tr>
-        <tr >
-            <td>
-                <span class="badge-other">Série A Betano</span><br>
-                <small style="color: #94a3b8">Brazil</small>
-            </td>
-            <td>
-                <div class="match-title">Flamengo <span style="color:#eab308">VS</span> Palmeiras</div>
-                <button class="btn-view-banner" onclick="openBanner('https://images.fotmob.com/image_resources/logo/leaguelogo/268.png')">🖼️ View Match Banner</button>
-            </td>
-            <td><span style="color:#cbd5e1">20:00 (GMT-3)</span></td>
-            <td><strong style="color: #38bdf8; font-size: 1.05em;">00:00</strong></td>
-            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span></td>
-        </tr>
-        <tr >
-            <td>
-                <span class="badge-other">Copa Sudamericana</span><br>
-                <small style="color: #94a3b8">South America</small>
-            </td>
-            <td>
-                <div class="match-title">Cienciano <span style="color:#eab308">VS</span> Montevideo City</div>
-                <button class="btn-view-banner" onclick="openBanner('https://i.ibb.co/3sX84qH/cienciano-vs-montevideo.jpg')">🖼️ View Match Banner</button>
-            </td>
-            <td><span style="color:#cbd5e1">21:30 (GMT-3)</span></td>
-            <td><strong style="color: #38bdf8; font-size: 1.05em;">01:30</strong></td>
-            <td><span class="channel-tag">ESPN 3</span><span class="channel-tag">Star+</span></td>
-        </tr>
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="label">Total Fixtures</div>
+                <div class="value">17</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Live In Progress</div>
+                <div class="value" style="color: #ef4444;">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Starting Soon</div>
+                <div class="value" style="color: #f97316;">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Today / Tomorrow</div>
+                <div class="value" style="color: #38bdf8;">4 / 13</div>
+            </div>
+        </div>
 
-                <tr><td colspan="5" class="section-header" style="border-top-color: #eab308; color: #eab308 !important;">📅 TOMORROW'S MATCHES — 11/09/2026 (1)</td></tr>
-                
-        <tr class="row-argentina">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 18%;">LEAGUE</th>
+                        <th style="width: 28%;">MATCH & BANNER</th>
+                        <th style="width: 14%;">LOCAL TIME</th>
+                        <th style="width: 16%;">MOROCCO TIME (GMT+1)</th>
+                        <th style="width: 12%;">STATUS</th>
+                        <th style="width: 12%;">CHANNELS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — 11/09/2026 (4)</td></tr>
+                    
+        <tr>
             <td>
-                <span class="badge-arg">Liga Profesional - Clausura</span><br>
-                <small style="color: #94a3b8">Argentina</small>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
             </td>
             <td>
-                <div class="match-title">River Plate <span style="color:#eab308">VS</span> Boca Juniors</div>
-                <button class="btn-view-banner" onclick="openBanner('https://images.fotmob.com/image_resources/logo/leaguelogo/87.png')">🖼️ View Match Banner</button>
+                <strong>Newell's Old Boys <span style="color:#eab308; margin: 0 4px;">VS</span> Vélez Sarsfield</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10201.png', 'Newell\'s Old Boys VS Vélez Sarsfield')">🖼️ View Match Banner</button>
             </td>
-            <td><span style="color:#cbd5e1">18:00 (GMT-3)</span></td>
-            <td><strong style="color: #38bdf8; font-size: 1.05em;">22:00</strong></td>
-            <td><span class="channel-tag">TNT Sports</span><span class="channel-tag">ESPN Premium</span></td>
+            <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
         </tr>
-            </tbody>
-        </table>
+        <tr>
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <strong>Defensa y Justicia <span style="color:#eab308; margin: 0 4px;">VS</span> Gimnasia Mendoza</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/161730.png', 'Defensa y Justicia VS Gimnasia Mendoza')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">19:15 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">23:15</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-libertadores">Copa Libertadores</span><br>
+                <small style="color:#94a3b8; font-weight:500;">South America</small>
+            </td>
+            <td>
+                <strong>Independiente del Valle <span style="color:#eab308; margin: 0 4px;">VS</span> Flamengo</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/192875.png', 'Independiente del Valle VS Flamengo')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
+            <td><span class="status-badge status-finished">FINISHED (0 - 2)</span></td>
+            <td><span class="channel-tag">ESPN</span><span class="channel-tag">Fox Sports</span><span class="channel-tag">Star+</span><span class="channel-tag">Globo</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-sudamericana">Copa Sudamericana</span><br>
+                <small style="color:#94a3b8; font-weight:500;">South America</small>
+            </td>
+            <td>
+                <strong>Cienciano <span style="color:#eab308; margin: 0 4px;">VS</span> Montevideo City Torque</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/1845.png', 'Cienciano VS Montevideo City Torque')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
+            <td><span class="status-badge status-finished">FINISHED (2 - 0)</span></td>
+            <td><span class="channel-tag">ESPN 3</span><span class="channel-tag">Star+</span><span class="channel-tag">DSports</span><span class="channel-tag">Paramount+</span></td>
+        </tr>
+                    <tr><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — 12/09/2026 (13)</td></tr>
+                    
+        <tr>
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <strong>Boca Juniors <span style="color:#eab308; margin: 0 4px;">VS</span> Central Córdoba de Santiago</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10077.png', 'Boca Juniors VS Central Córdoba de Santiago')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">01:30</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <strong>Estudiantes <span style="color:#eab308; margin: 0 4px;">VS</span> Club Atlético Platense</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10094.png', 'Estudiantes VS Club Atlético Platense')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">14:45 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <strong>Independiente Rivadavia <span style="color:#eab308; margin: 0 4px;">VS</span> Aldosivi</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/161729.png', 'Independiente Rivadavia VS Aldosivi')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">14:45 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <strong>Atlético Tucumán <span style="color:#eab308; margin: 0 4px;">VS</span> River Plate</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/161727.png', 'Atlético Tucumán VS River Plate')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">17:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">21:30</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <strong>Talleres <span style="color:#eab308; margin: 0 4px;">VS</span> Unión</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10101.png', 'Talleres VS Unión')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">20:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">00:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">ESPN Premium</span><span class="channel-tag">TNT Sports</span><span class="channel-tag">TyC Sports</span><span class="channel-tag">Star+</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Copa Paulista</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>União São João <span style="color:#eab308; margin: 0 4px;">VS</span> Juventus-SP</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/581873.png', 'União São João VS Juventus-SP')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Copa Paulista</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Primavera SP <span style="color:#eab308; margin: 0 4px;">VS</span> Noroeste</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/581877.png', 'Primavera SP VS Noroeste')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">18:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">22:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Coritiba <span style="color:#eab308; margin: 0 4px;">VS</span> Athletico Paranaense</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/9767.png', 'Coritiba VS Athletico Paranaense')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">21:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">01:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Atlético-MG <span style="color:#eab308; margin: 0 4px;">VS</span> Fluminense</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10272.png', 'Atlético-MG VS Fluminense')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">16:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Grêmio <span style="color:#eab308; margin: 0 4px;">VS</span> Vasco da Gama</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/9769.png', 'Grêmio VS Vasco da Gama')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">16:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Chapecoense <span style="color:#eab308; margin: 0 4px;">VS</span> Internacional</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/197693.png', 'Chapecoense VS Internacional')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Palmeiras <span style="color:#eab308; margin: 0 4px;">VS</span> São Paulo</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', 'Palmeiras VS São Paulo')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">18:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">22:30</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+        <tr>
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <strong>Botafogo <span style="color:#eab308; margin: 0 4px;">VS</span> RB Bragantino</strong>
+                <br><button class="btn-banner" onclick="showBanner('https://images.fotmob.com/image_resources/logo/teamlogo/8517.png', 'Botafogo VS RB Bragantino')">🖼️ View Match Banner</button>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">20:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">00:30</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="channel-tag">Premiere</span><span class="channel-tag">Globo</span><span class="channel-tag">SporTV</span><span class="channel-tag">CazéTV</span></td>
+        </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Last Updated: 2026-09-11 11:54:12 GMT+1 • Auto-generated via GitHub Actions Runner
+        </div>
     </div>
 
-    <div id="img-modal" onclick="this.style.display='none'">
-        <img id="modal-img" src="" alt="Match Banner">
+    <!-- Match Banner Modal -->
+    <div id="modal" onclick="closeBanner(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">✕</button>
+            <div id="modal-title">Match Banner</div>
+            <img id="modal-img" alt="Match Logo / Banner">
+            <p style="color: #94a3b8; font-size: 0.8em; margin: 8px 0 0 0;">Official Club Crest & Broadcast Identity</p>
+        </div>
     </div>
 
     <script>
-        function openBanner(url) {
+        function showBanner(url, matchTitle) {
+            if (!url) {
+                alert('No banner graphic available for this fixture.');
+                return;
+            }
             document.getElementById('modal-img').src = url;
-            document.getElementById('img-modal').style.display = 'flex';
+            document.getElementById('modal-title').textContent = matchTitle || 'Match Banner';
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeBanner(e) {
+            if (e.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+            }
         }
 
         function triggerWorkflow() {
-            let token = localStorage.getItem('github_token') || prompt("Enter GitHub Token:");
+            let token = localStorage.getItem('github_token') || prompt("Enter GitHub Personal Access Token (requires repo/workflow scope):");
             if (!token) return;
             localStorage.setItem('github_token', token);
-            
+
+            const btn = document.querySelector('.btn-update');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Triggering...';
+            btn.disabled = true;
+
             fetch('https://api.github.com/repos/aspijik07/football-bot/actions/workflows/runner.yml/dispatches', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': 'Bearer ' + token,
                     'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ ref: 'main' })
-            }).then(res => {
-                if (res.ok) alert('✅ Workflow Started!');
-                else alert('❌ Error starting workflow.');
-            }).catch(err => alert('❌ Error: ' + err));
+            })
+            .then(res => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                if (res.ok) {
+                    alert('✅ GitHub Actions Workflow started successfully! The dashboard will refresh with latest data shortly.');
+                } else {
+                    alert('❌ Failed to trigger workflow (HTTP ' + res.status + '). Verify token permissions.');
+                }
+            })
+            .catch(err => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                alert('❌ Error: ' + err.message);
+            });
         }
     </script>
 </body>

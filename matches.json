@@ -1,19 +1,311 @@
 {
-    "total_matches": 1,
+    "total_matches": 17,
+    "last_updated": "2026-09-11T10:54:12.972636+00:00",
     "matches": [
         {
             "day_label": "Today",
-            "league": "Liga Profesional",
+            "league": "Liga Profesional Clausura",
             "country": "Argentina",
-            "home_team": "Newells Old Boys",
-            "away_team": "Velez Sarsfield",
-            "home_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Newell%27s_Old_Boys_logo.svg/300px-Newell%27s_Old_Boys_logo.svg.png",
-            "away_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg/300px-Club_Atl%C3%A9tico_V%C3%A9lez_Sarsfield_logo.svg.png",
-            "local_time": "21:00",
+            "home_team": "Newell's Old Boys",
+            "away_team": "Vélez Sarsfield",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png",
+            "local_time": "17:00",
             "morocco_time": "21:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ]
+        },
+        {
+            "day_label": "Today",
+            "league": "Liga Profesional Clausura",
+            "country": "Argentina",
+            "home_team": "Defensa y Justicia",
+            "away_team": "Gimnasia Mendoza",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png",
+            "local_time": "19:15",
+            "morocco_time": "23:15",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ]
+        },
+        {
+            "day_label": "Today",
+            "league": "Copa Libertadores",
+            "country": "South America",
+            "home_team": "Independiente del Valle",
+            "away_team": "Flamengo",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png",
+            "local_time": "21:30",
+            "morocco_time": "01:30",
+            "status": "FINISHED (0 - 2)",
             "all_unique_channels": [
                 "ESPN",
+                "Fox Sports",
+                "Star+",
+                "Globo"
+            ]
+        },
+        {
+            "day_label": "Today",
+            "league": "Copa Sudamericana",
+            "country": "South America",
+            "home_team": "Cienciano",
+            "away_team": "Montevideo City Torque",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png",
+            "local_time": "21:30",
+            "morocco_time": "01:30",
+            "status": "FINISHED (2 - 0)",
+            "all_unique_channels": [
+                "ESPN 3",
+                "Star+",
+                "DSports",
+                "Paramount+"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Liga Profesional Clausura",
+            "country": "Argentina",
+            "home_team": "Boca Juniors",
+            "away_team": "Central Córdoba de Santiago",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png",
+            "local_time": "21:30",
+            "morocco_time": "01:30",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
                 "Star+"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Liga Profesional Clausura",
+            "country": "Argentina",
+            "home_team": "Estudiantes",
+            "away_team": "Club Atlético Platense",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png",
+            "local_time": "14:45",
+            "morocco_time": "18:45",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Liga Profesional Clausura",
+            "country": "Argentina",
+            "home_team": "Independiente Rivadavia",
+            "away_team": "Aldosivi",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png",
+            "local_time": "14:45",
+            "morocco_time": "18:45",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Liga Profesional Clausura",
+            "country": "Argentina",
+            "home_team": "Atlético Tucumán",
+            "away_team": "River Plate",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png",
+            "local_time": "17:30",
+            "morocco_time": "21:30",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Liga Profesional Clausura",
+            "country": "Argentina",
+            "home_team": "Talleres",
+            "away_team": "Unión",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png",
+            "local_time": "20:00",
+            "morocco_time": "00:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Copa Paulista",
+            "country": "Brazil",
+            "home_team": "União São João",
+            "away_team": "Juventus-SP",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581873.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581848.png",
+            "local_time": "17:00",
+            "morocco_time": "21:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Copa Paulista",
+            "country": "Brazil",
+            "home_team": "Primavera SP",
+            "away_team": "Noroeste",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/581877.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/163784.png",
+            "local_time": "18:00",
+            "morocco_time": "22:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Série A",
+            "country": "Brazil",
+            "home_team": "Coritiba",
+            "away_team": "Athletico Paranaense",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png",
+            "local_time": "21:00",
+            "morocco_time": "01:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Série A",
+            "country": "Brazil",
+            "home_team": "Atlético-MG",
+            "away_team": "Fluminense",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png",
+            "local_time": "16:00",
+            "morocco_time": "20:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Série A",
+            "country": "Brazil",
+            "home_team": "Grêmio",
+            "away_team": "Vasco da Gama",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png",
+            "local_time": "16:00",
+            "morocco_time": "20:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Série A",
+            "country": "Brazil",
+            "home_team": "Chapecoense",
+            "away_team": "Internacional",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8702.png",
+            "local_time": "17:00",
+            "morocco_time": "21:00",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Série A",
+            "country": "Brazil",
+            "home_team": "Palmeiras",
+            "away_team": "São Paulo",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png",
+            "local_time": "18:30",
+            "morocco_time": "22:30",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day_label": "Tomorrow",
+            "league": "Série A",
+            "country": "Brazil",
+            "home_team": "Botafogo",
+            "away_team": "RB Bragantino",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png",
+            "local_time": "20:30",
+            "morocco_time": "00:30",
+            "status": "SCHEDULED",
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
             ]
         }
     ]

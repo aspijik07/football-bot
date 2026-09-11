@@ -1,0 +1,6 @@
+{
+  "name": "Football Broadcast Dashboard",
+  "description": "Automated dashboard fetching real live match data from Fotmob and Sofascore for South American football leagues.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
