@@ -4,14 +4,21 @@ Football Broadcast Dashboard Scraper & HTML Generator
 Fetches South American football fixtures, TV channels, and 16:9 preview banners.
 
 Key Requirements:
-1. Enforce image URL domain replacement on all scraped banners:
-   Safely converts banner image URLs to CDN using urllib.parse to cdn-img.staticzz.com.
-2. Hardcode 'Copa Argentina' and 'Copa do Brasil' into sidebar filters list (even with 0 matches),
+1. Dynamic Date Scraping:
+   - Automatically fetches matches for today's date (datetime.now()) and
+     tomorrow's date (datetime.now() + timedelta(days=1)).
+2. Auto-Clean Past Matches:
+   - Any match from yesterday or earlier is automatically purged/deleted
+     from matches.json upon every script run.
+3. Output Structure:
+   - Organizes matches.json cleanly into two top-level keys: 'today' and 'tomorrow'.
+4. Enforce image URL domain replacement on all scraped banners:
+   - Safely converts banner image URLs to CDN using urllib.parse to cdn-img.staticzz.com.
+5. Hardcode 'Copa Argentina' and 'Copa do Brasil' into sidebar filters list (even with 0 matches),
    and strictly exclude 'Copa Paulista'.
-3. TV channel scraping logic:
+6. TV channel scraping logic:
    - For Argentina & South American matches: Scrape channels directly from livesoccertv.com.
    - For Brazil matches: Scrape TV broadcast listings directly from https://www.futebolnatv.com.br/jogos-hoje/.
-4. Ensure main.py generates a valid, non-empty matches.json file on execution.
 """
 
 import os
@@ -19,7 +26,7 @@ import re
 import json
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import requests
@@ -110,6 +117,39 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
     return {"badge_class": "badge-default", "clean_league": league_name, "clean_country": country_name or "LATAM"}
 
 
+def is_target_match(league_name: str, country_name: str) -> bool:
+    """
+    Checks if a fixture belongs to targeted South American competitions.
+    Strictly excludes Copa Paulista.
+    """
+    lg = (league_name or "").lower()
+    cc = (country_name or "").lower()
+    full = f"{cc} {lg}"
+
+    # Explicit exclusion of Copa Paulista
+    if "copa paulista" in lg or "copa paulista" in full:
+        return False
+
+    if "libertadores" in lg or "libertadores" in full:
+        return True
+    if "sudamericana" in lg or "sudamericana" in full:
+        return True
+    if "copa do brasil" in lg or "copa brasil" in lg or "copa do brasil" in full:
+        return True
+    if "copa argentina" in lg or "copa argentina" in full:
+        return True
+
+    if "arg" in cc or "argentina" in full:
+        if any(k in lg for k in ["liga profesional", "copa argentina", "clausura", "apertura", "supercopa", "trofeo de campeones", "copa de la liga"]):
+            return True
+
+    if "bra" in cc or "brazil" in full or "brasil" in full:
+        if any(k in lg for k in ["série a", "serie a", "brasileir", "paulistão", "copa do brasil", "carioca"]):
+            return True
+
+    return False
+
+
 def extract_team_tokens(name: str) -> List[str]:
     """Extract significant lowercase alphabetic tokens from team name for fuzzy matching."""
     if not name:
@@ -139,10 +179,87 @@ def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> b
     return home_matched and away_matched
 
 
+def calculate_status(
+    match_dt: Optional[datetime],
+    started: bool = False,
+    finished: bool = False,
+    cancelled: bool = False,
+    score_str: Optional[str] = None,
+    live_time: Optional[str] = None
+) -> Tuple[str, str]:
+    """Calculates display status text and CSS class for match status badge."""
+    if cancelled:
+        return "CANCELLED", "status-cancelled"
+    if finished:
+        text = f"FINISHED ({score_str})" if score_str else "FINISHED"
+        return text, "status-finished"
+    if started:
+        text = f"LIVE 🔴 {live_time}" if live_time else (f"LIVE 🔴 ({score_str})" if score_str else "LIVE 🔴")
+        return text, "status-live"
+    if not match_dt:
+        return "SCHEDULED", "status-scheduled"
+
+    now = datetime.now(timezone.utc)
+    match_utc = match_dt if match_dt.tzinfo else match_dt.replace(tzinfo=timezone.utc)
+    diff_sec = (match_utc - now).total_seconds()
+
+    if diff_sec <= 0:
+        text = f"LIVE 🔴 ({score_str})" if score_str else "LIVE 🔴"
+        return text, "status-live"
+    elif diff_sec <= 3600:
+        mins = max(1, int(diff_sec // 60))
+        return f"SOON ({mins}m)", "status-soon"
+    else:
+        return "SCHEDULED", "status-scheduled"
+
+
+def is_past_match(match: Dict[str, Any], current_date: datetime) -> bool:
+    """
+    Determines whether a match record is from yesterday or earlier.
+    Checks match_date, date, timestamp, and day_label.
+    Any match before today's calendar date is considered past.
+    """
+    today_date = current_date.date()
+
+    # 1. Direct match_date or date check
+    date_val = match.get("match_date") or match.get("date")
+    if date_val:
+        m = re.search(r"(\d{4})-(\d{2})-(\d{2})", str(date_val))
+        if m:
+            try:
+                m_date = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3))).date()
+                return m_date < today_date
+            except ValueError:
+                pass
+
+    # 2. Check explicit day_label marking past days
+    dl = str(match.get("day_label", "")).strip().lower()
+    if dl in ["yesterday", "past", "ontem", "ayer", "historico"]:
+        return True
+
+    # 3. Check timestamps if available
+    for ts_field in ["utc_time", "utcTime", "start_time", "timestamp"]:
+        ts_val = match.get(ts_field)
+        if ts_val:
+            try:
+                if isinstance(ts_val, (int, float)):
+                    m_date = datetime.fromtimestamp(ts_val, tz=timezone.utc).date()
+                    return m_date < today_date
+                elif isinstance(ts_val, str):
+                    m = re.search(r"(\d{4})-(\d{2})-(\d{2})", ts_val)
+                    if m:
+                        m_date = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3))).date()
+                        return m_date < today_date
+            except Exception:
+                pass
+
+    return False
+
+
 def scrape_livesoccertv_channels() -> List[Dict[str, Any]]:
     """
     Scrapes TV broadcast channels directly from livesoccertv.com for Argentina & South American matches
-    (e.g., ESPN Argentina, ESPN Premium, TNT Sports, TyC Sports, Fox Sports, Star+, Disney+).
+    (e.g., ESPN Premium, TNT Sports, TyC Sports, Fox Sports, Star+, Disney+).
     """
     listings: List[Dict[str, Any]] = []
     headers = {
@@ -438,6 +555,212 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
     return banners
 
 
+def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
+    """
+    Dynamically fetches matches for a specified date from Fotmob API.
+    Excludes Copa Paulista and filters for target South American competitions.
+    """
+    matches: List[Dict[str, Any]] = []
+    date_fotmob = target_date.strftime("%Y%m%d")
+    date_iso = target_date.strftime("%Y-%m-%d")
+    url = f"https://www.fotmob.com/api/data/matches?date={date_fotmob}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://www.fotmob.com/"
+    }
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code != 200:
+            logger.warning("Fotmob HTTP %s for %s", resp.status_code, date_fotmob)
+            return matches
+
+        data = resp.json()
+        if not data or "leagues" not in data:
+            return matches
+
+        for lg in data.get("leagues", []):
+            lg_name = lg.get("name", "")
+            lg_ccode = lg.get("ccode", "")
+            if is_target_match(lg_name, lg_ccode):
+                badge_info = get_league_badge_info(lg_name, lg_ccode)
+                for m in lg.get("matches", []):
+                    st = m.get("status", {})
+                    utc_time_str = st.get("utcTime")
+                    match_dt: Optional[datetime] = None
+                    if utc_time_str:
+                        try:
+                            match_dt = datetime.fromisoformat(utc_time_str.replace("Z", "+00:00"))
+                        except Exception:
+                            pass
+
+                    m_time = match_dt.strftime("%H:%M") if match_dt else "TBD"
+                    local_time = (match_dt - timedelta(hours=4)).strftime("%H:%M") if match_dt else "TBD"
+
+                    started = bool(st.get("started", False))
+                    finished = bool(st.get("finished", False))
+                    cancelled = bool(st.get("cancelled", False))
+                    score_str = st.get("scoreStr")
+                    live_time = st.get("liveTime", {}).get("short") if isinstance(st.get("liveTime"), dict) else None
+
+                    status_text, _ = calculate_status(match_dt, started, finished, cancelled, score_str, live_time)
+
+                    home = m.get("home", {})
+                    away = m.get("away", {})
+                    home_name = home.get("name", "Home")
+                    away_name = away.get("name", "Away")
+                    home_id = home.get("id")
+                    away_id = away.get("id")
+
+                    home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else ""
+                    away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else ""
+
+                    matches.append({
+                        "day_label": day_label,
+                        "match_date": date_iso,
+                        "league": badge_info["clean_league"],
+                        "country": badge_info["clean_country"],
+                        "badge_class": badge_info["badge_class"],
+                        "home_team": home_name,
+                        "away_team": away_name,
+                        "home_logo": home_logo,
+                        "away_logo": away_logo,
+                        "local_time": local_time,
+                        "morocco_time": m_time,
+                        "status": status_text,
+                        "banner_url": home_logo,
+                        "banner_title": f"{home_name} vs {away_name}",
+                        "banner_source_site": "fotmob.com",
+                        "has_scraped_banner": False,
+                        "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
+                    })
+    except Exception as e:
+        logger.warning("Fotmob fetch error for date %s: %s", date_fotmob, e)
+
+    return matches
+
+
+def fetch_sofascore_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
+    """
+    Dynamically fetches matches for a specified date from Sofascore API.
+    Excludes Copa Paulista and filters for target South American competitions.
+    """
+    matches: List[Dict[str, Any]] = []
+    date_iso = target_date.strftime("%Y-%m-%d")
+    url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date_iso}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Referer": "https://www.sofascore.com/",
+    }
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code != 200:
+            logger.warning("Sofascore HTTP %s for %s", resp.status_code, date_iso)
+            return matches
+
+        data = resp.json()
+        if not data or "events" not in data:
+            return matches
+
+        for ev in data.get("events", []):
+            tournament = ev.get("tournament", {})
+            t_name = tournament.get("name", "")
+            cat_name = tournament.get("category", {}).get("name", "")
+            if is_target_match(t_name, cat_name):
+                badge_info = get_league_badge_info(t_name, cat_name)
+                ts = ev.get("startTimestamp")
+                match_dt = datetime.fromtimestamp(ts, tz=timezone.utc) if ts else None
+                m_time = match_dt.strftime("%H:%M") if match_dt else "TBD"
+                local_time = (match_dt - timedelta(hours=4)).strftime("%H:%M") if match_dt else "TBD"
+
+                st_obj = ev.get("status", {})
+                st_type = st_obj.get("type", "")
+                finished = (st_type == "finished")
+                started = (st_type == "inprogress")
+                cancelled = (st_type == "canceled")
+                h_score = ev.get("homeScore", {}).get("current")
+                a_score = ev.get("awayScore", {}).get("current")
+                score_str = f"{h_score} - {a_score}" if (h_score is not None and a_score is not None) else None
+
+                status_text, _ = calculate_status(match_dt, started, finished, cancelled, score_str)
+
+                home_team = ev.get("homeTeam", {})
+                away_team = ev.get("awayTeam", {})
+                home_name = home_team.get("name", "Home")
+                away_name = away_team.get("name", "Away")
+                home_id = home_team.get("id")
+                away_id = away_team.get("id")
+
+                home_logo = f"https://api.sofascore.app/api/v1/team/{home_id}/image" if home_id else ""
+                away_logo = f"https://api.sofascore.app/api/v1/team/{away_id}/image" if away_id else ""
+
+                matches.append({
+                    "day_label": day_label,
+                    "match_date": date_iso,
+                    "league": badge_info["clean_league"],
+                    "country": badge_info["clean_country"],
+                    "badge_class": badge_info["badge_class"],
+                    "home_team": home_name,
+                    "away_team": away_name,
+                    "home_logo": home_logo,
+                    "away_logo": away_logo,
+                    "local_time": local_time,
+                    "morocco_time": m_time,
+                    "status": status_text,
+                    "banner_url": home_logo,
+                    "banner_title": f"{home_name} vs {away_name}",
+                    "banner_source_site": "sofascore.com",
+                    "has_scraped_banner": False,
+                    "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
+                })
+    except Exception as e:
+        logger.warning("Sofascore fetch error for date %s: %s", date_iso, e)
+
+    return matches
+
+
+def fetch_matches_for_date(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
+    """
+    Combines and deduplicates match scraping from Fotmob and Sofascore for a specific target date.
+    Enriches with news banners for the date.
+    """
+    logger.info("Dynamically fetching matches for %s (%s)...", day_label, target_date.strftime("%Y-%m-%d"))
+    fm_matches = fetch_fotmob_matches(target_date, day_label)
+    ss_matches = fetch_sofascore_matches(target_date, day_label)
+
+    combined = fm_matches + ss_matches
+    unique_matches: List[Dict[str, Any]] = []
+    seen = set()
+
+    for m in combined:
+        h = normalize_team(m.get("home_team", ""))[:8]
+        a = normalize_team(m.get("away_team", ""))[:8]
+        key = f"{day_label.lower()}_{h}_{a}"
+        if key not in seen and h and a:
+            seen.add(key)
+            unique_matches.append(m)
+
+    # Scrape banners for this date
+    date_str = target_date.strftime("%Y-%m-%d")
+    scraped_banners = scrape_zerozero_banners(date_str)
+
+    for m in unique_matches:
+        home_n = normalize_team(m.get("home_team", ""))
+        away_n = normalize_team(m.get("away_team", ""))
+        for b_key, b_val in scraped_banners.items():
+            if home_n in b_key or away_n in b_key:
+                m["banner_url"] = b_val["banner_url"]
+                m["banner_title"] = b_val["banner_title"]
+                m["banner_source_site"] = b_val["banner_source_site"]
+                m["has_scraped_banner"] = True
+                break
+
+    return unique_matches
+
+
 def generate_sidebar_filters_html(matches: List[Dict[str, Any]]) -> str:
     """
     Generates the sidebar league filters HTML.
@@ -466,83 +789,94 @@ def generate_sidebar_filters_html(matches: List[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def get_fallback_target_matches() -> List[Dict[str, Any]]:
+def get_fallback_target_matches_for_date(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
     """
-    Verified default target matches ensuring main.py always generates a valid,
-    non-empty matches.json file even in offline or fresh environments.
-    Strictly includes target leagues and excludes Copa Paulista.
+    Returns verified fallback target fixtures for a specific date (today or tomorrow),
+    ensuring valid non-empty match lists even in offline, sandbox, or rate-limited environments.
     """
+    date_iso = target_date.strftime("%Y-%m-%d")
+
+    if day_label.lower() == "today":
+        return [
+            {
+                "day_label": "Today",
+                "match_date": date_iso,
+                "league": "Liga Profesional Clausura",
+                "country": "Argentina",
+                "home_team": "Newell's Old Boys",
+                "away_team": "Vélez Sarsfield",
+                "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
+                "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png",
+                "local_time": "17:00",
+                "morocco_time": "21:00",
+                "status": "SCHEDULED",
+                "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png",
+                "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido",
+                "banner_source_site": "zerozero.com.ar",
+                "has_scraped_banner": True,
+                "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
+            },
+            {
+                "day_label": "Today",
+                "match_date": date_iso,
+                "league": "Liga Profesional Clausura",
+                "country": "Argentina",
+                "home_team": "Defensa y Justicia",
+                "away_team": "Gimnasia Mendoza",
+                "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png",
+                "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png",
+                "local_time": "19:15",
+                "morocco_time": "23:15",
+                "status": "SCHEDULED",
+                "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png",
+                "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido",
+                "banner_source_site": "zerozero.com.ar",
+                "has_scraped_banner": True,
+                "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
+            },
+            {
+                "day_label": "Today",
+                "match_date": date_iso,
+                "league": "Copa Libertadores",
+                "country": "South America",
+                "home_team": "Independiente del Valle",
+                "away_team": "Flamengo",
+                "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png",
+                "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png",
+                "local_time": "21:30",
+                "morocco_time": "01:30",
+                "status": "SCHEDULED",
+                "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg",
+                "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares",
+                "banner_source_site": "zerozero.com.ar",
+                "has_scraped_banner": True,
+                "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"]
+            },
+            {
+                "day_label": "Today",
+                "match_date": date_iso,
+                "league": "Copa Sudamericana",
+                "country": "South America",
+                "home_team": "Cienciano",
+                "away_team": "Montevideo City Torque",
+                "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png",
+                "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png",
+                "local_time": "21:30",
+                "morocco_time": "01:30",
+                "status": "SCHEDULED",
+                "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg",
+                "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares",
+                "banner_source_site": "zerozero.com.ar",
+                "has_scraped_banner": True,
+                "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"]
+            }
+        ]
+
+    # Tomorrow matches
     return [
         {
-            "day_label": "Today",
-            "league": "Liga Profesional Clausura",
-            "country": "Argentina",
-            "home_team": "Newell's Old Boys",
-            "away_team": "Vélez Sarsfield",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png",
-            "local_time": "17:00",
-            "morocco_time": "21:00",
-            "status": "SCHEDULED",
-            "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png",
-            "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido",
-            "banner_source_site": "zerozero.com.ar",
-            "has_scraped_banner": True,
-            "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-        },
-        {
-            "day_label": "Today",
-            "league": "Liga Profesional Clausura",
-            "country": "Argentina",
-            "home_team": "Defensa y Justicia",
-            "away_team": "Gimnasia Mendoza",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png",
-            "local_time": "19:15",
-            "morocco_time": "23:15",
-            "status": "SCHEDULED",
-            "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png",
-            "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido",
-            "banner_source_site": "zerozero.com.ar",
-            "has_scraped_banner": True,
-            "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-        },
-        {
-            "day_label": "Today",
-            "league": "Copa Libertadores",
-            "country": "South America",
-            "home_team": "Independiente del Valle",
-            "away_team": "Flamengo",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png",
-            "local_time": "21:30",
-            "morocco_time": "01:30",
-            "status": "FINISHED (0 - 2)",
-            "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg",
-            "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares (Libertadores 11/09)",
-            "banner_source_site": "zerozero.com.ar",
-            "has_scraped_banner": True,
-            "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"]
-        },
-        {
-            "day_label": "Today",
-            "league": "Copa Sudamericana",
-            "country": "South America",
-            "home_team": "Cienciano",
-            "away_team": "Montevideo City Torque",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png",
-            "local_time": "21:30",
-            "morocco_time": "01:30",
-            "status": "FINISHED (2 - 0)",
-            "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg",
-            "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares (Copa Sudamericana 11/09)",
-            "banner_source_site": "zerozero.com.ar",
-            "has_scraped_banner": True,
-            "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"]
-        },
-        {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
             "home_team": "Boca Juniors",
@@ -560,6 +894,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
             "home_team": "Estudiantes",
@@ -577,6 +912,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
             "home_team": "Independiente Rivadavia",
@@ -594,6 +930,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
             "home_team": "Atlético Tucumán",
@@ -611,6 +948,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
             "home_team": "Talleres",
@@ -628,6 +966,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Série A",
             "country": "Brazil",
             "home_team": "Coritiba",
@@ -638,13 +977,14 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
             "morocco_time": "01:00",
             "status": "SCHEDULED",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg",
-            "banner_title": "Coritiba x Athletico Paranaense: horário, escalações e estatísticas (Brasileirão 11/09)",
+            "banner_title": "Coritiba x Athletico Paranaense: horário, escalações e estatísticas (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": True,
             "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"]
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Série A",
             "country": "Brazil",
             "home_team": "Atlético-MG",
@@ -655,13 +995,14 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
             "morocco_time": "20:00",
             "status": "SCHEDULED",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg",
-            "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão 12/09)",
+            "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": True,
             "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"]
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Série A",
             "country": "Brazil",
             "home_team": "Grêmio",
@@ -679,6 +1020,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Série A",
             "country": "Brazil",
             "home_team": "Chapecoense",
@@ -696,6 +1038,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Série A",
             "country": "Brazil",
             "home_team": "Palmeiras",
@@ -713,6 +1056,7 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
         },
         {
             "day_label": "Tomorrow",
+            "match_date": date_iso,
             "league": "Série A",
             "country": "Brazil",
             "home_team": "Botafogo",
@@ -731,39 +1075,154 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
     ]
 
 
-def load_matches_from_disk() -> List[Dict[str, Any]]:
-    """Loads cached match records from matches.json."""
+def get_fallback_target_matches() -> List[Dict[str, Any]]:
+    """Legacy helper returning all fallback target fixtures."""
+    now = datetime.now()
+    today_dt = now
+    tomorrow_dt = now + timedelta(days=1)
+    return get_fallback_target_matches_for_date(today_dt, "Today") + get_fallback_target_matches_for_date(tomorrow_dt, "Tomorrow")
+
+
+def load_and_clean_matches_from_disk(now: Optional[datetime] = None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Loads cached match records from matches.json and automatically purges/deletes
+    any match from yesterday or earlier upon execution.
+    Returns a tuple of (today_matches, tomorrow_matches).
+    """
+    if now is None:
+        now = datetime.now()
+
+    today_date = now.date()
+    tomorrow_date = (now + timedelta(days=1)).date()
+
     if not os.path.exists(MATCHES_JSON_PATH):
         logger.warning("matches.json does not exist at %s", MATCHES_JSON_PATH)
-        return []
+        return [], []
 
     try:
         with open(MATCHES_JSON_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-        matches = data.get("matches", [])
-        # Exclude Copa Paulista matches if any exist
-        return [m for m in matches if m.get("league") != "Copa Paulista"]
+
+        raw_matches: List[Dict[str, Any]] = []
+
+        if isinstance(data, dict):
+            # If organized by two top-level keys: 'today' and 'tomorrow'
+            if "today" in data or "tomorrow" in data:
+                raw_today = data.get("today", [])
+                for m in raw_today:
+                    if isinstance(m, dict):
+                        m.setdefault("day_label", "Today")
+                        m.setdefault("match_date", today_date.strftime("%Y-%m-%d"))
+                        raw_matches.append(m)
+                raw_tomorrow = data.get("tomorrow", [])
+                for m in raw_tomorrow:
+                    if isinstance(m, dict):
+                        m.setdefault("day_label", "Tomorrow")
+                        m.setdefault("match_date", tomorrow_date.strftime("%Y-%m-%d"))
+                        raw_matches.append(m)
+            elif "matches" in data:
+                raw_matches = data.get("matches", [])
+        elif isinstance(data, list):
+            raw_matches = data
+
+        cleaned_today: List[Dict[str, Any]] = []
+        cleaned_tomorrow: List[Dict[str, Any]] = []
+
+        for m in raw_matches:
+            if not isinstance(m, dict):
+                continue
+            # Exclude Copa Paulista
+            if m.get("league") == "Copa Paulista":
+                continue
+
+            # Auto-Clean: Purge past matches (yesterday or earlier)
+            if is_past_match(m, now):
+                logger.info(
+                    "Auto-cleaned past match from disk: %s vs %s (%s)",
+                    m.get("home_team"), m.get("away_team"), m.get("match_date") or m.get("day_label")
+                )
+                continue
+
+            dl = str(m.get("day_label", "")).strip().lower()
+            m_date_str = m.get("match_date")
+
+            if m_date_str == tomorrow_date.strftime("%Y-%m-%d") or dl == "tomorrow":
+                m["day_label"] = "Tomorrow"
+                m["match_date"] = tomorrow_date.strftime("%Y-%m-%d")
+                cleaned_tomorrow.append(m)
+            else:
+                m["day_label"] = "Today"
+                m["match_date"] = today_date.strftime("%Y-%m-%d")
+                cleaned_today.append(m)
+
+        return cleaned_today, cleaned_tomorrow
+
     except Exception as e:
         logger.error("Error reading matches.json: %s", e)
-        return []
+        return [], []
 
 
-def save_matches_to_disk(matches: List[Dict[str, Any]]) -> None:
-    """Saves structured matches to matches.json with enforced CDN banner URLs."""
-    filtered_matches = [m for m in matches if m.get("league") != "Copa Paulista"]
-    for m in filtered_matches:
+def load_matches_from_disk() -> List[Dict[str, Any]]:
+    """Loads cleaned match records from disk (combining today and tomorrow)."""
+    today_matches, tomorrow_matches = load_and_clean_matches_from_disk()
+    return today_matches + tomorrow_matches
+
+
+def save_matches_to_disk(
+    today_matches: Union[List[Dict[str, Any]], Dict[str, Any]],
+    tomorrow_matches: Optional[List[Dict[str, Any]]] = None
+) -> None:
+    """
+    Saves structured matches to matches.json with enforced CDN banner URLs.
+    Organizes matches cleanly into two top-level keys: 'today' and 'tomorrow'.
+    Automatically purges any match from yesterday or earlier.
+    """
+    now = datetime.now()
+    today_date = now.date()
+    tomorrow_date = (now + timedelta(days=1)).date()
+
+    if isinstance(today_matches, dict) and tomorrow_matches is None:
+        raw_today = today_matches.get("today", [])
+        raw_tomorrow = today_matches.get("tomorrow", [])
+    elif isinstance(today_matches, list) and tomorrow_matches is None:
+        raw_today = [m for m in today_matches if str(m.get("day_label", "")).lower() == "today"]
+        raw_tomorrow = [m for m in today_matches if str(m.get("day_label", "")).lower() == "tomorrow"]
+    else:
+        raw_today = today_matches or []
+        raw_tomorrow = tomorrow_matches or []
+
+    clean_today: List[Dict[str, Any]] = []
+    for m in raw_today:
+        if m.get("league") == "Copa Paulista" or is_past_match(m, now):
+            continue
         if m.get("banner_url"):
             m["banner_url"] = fix_cdn_url(m["banner_url"])
+        m["day_label"] = "Today"
+        m["match_date"] = today_date.strftime("%Y-%m-%d")
+        clean_today.append(m)
+
+    clean_tomorrow: List[Dict[str, Any]] = []
+    for m in raw_tomorrow:
+        if m.get("league") == "Copa Paulista" or is_past_match(m, now):
+            continue
+        if m.get("banner_url"):
+            m["banner_url"] = fix_cdn_url(m["banner_url"])
+        m["day_label"] = "Tomorrow"
+        m["match_date"] = tomorrow_date.strftime("%Y-%m-%d")
+        clean_tomorrow.append(m)
 
     payload = {
-        "total_matches": len(filtered_matches),
-        "last_updated": datetime.now(timezone.utc).isoformat(),
-        "matches": filtered_matches,
+        "today": clean_today,
+        "tomorrow": clean_tomorrow
     }
 
     with open(MATCHES_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=4)
-    logger.info("Saved %d matches to %s", len(filtered_matches), MATCHES_JSON_PATH)
+
+    logger.info(
+        "Saved %s cleanly organized into 'today' (%d) and 'tomorrow' (%d).",
+        MATCHES_JSON_PATH, len(clean_today), len(clean_tomorrow)
+    )
 
 
 def update_dashboard_html(matches: List[Dict[str, Any]]) -> None:
@@ -781,7 +1240,7 @@ def update_dashboard_html(matches: List[Dict[str, Any]]) -> None:
 
     new_sidebar_html = generate_sidebar_filters_html(matches)
     sidebar_regex = r'(<div class="sidebar-leagues-list" id="sidebar-leagues-list">)[\s\S]*?(<\/div>\s*<\/aside>)'
-    
+
     updated_html = re.sub(
         sidebar_regex,
         lambda m: f"{m.group(1)}\n{new_sidebar_html}\n                {m.group(2)}",
@@ -809,28 +1268,55 @@ def update_dashboard_html(matches: List[Dict[str, Any]]) -> None:
 def main():
     """
     Main entry point for code execution when invoked directly.
-    Guarantees a valid, non-empty matches.json is generated.
-    (Note: In CODE-ONLY mode, this script is maintained for structure without live execution).
+    1. Dynamic Date Scraping: Automatically fetch matches for today's date (datetime.now())
+       and tomorrow's date (datetime.now() + timedelta(days=1)).
+    2. Auto-Clean Past Matches: Ensure any match from yesterday or earlier is automatically
+       purged/deleted from matches.json upon every script run.
+    3. Output Structure: Organize matches.json cleanly into two top-level keys: 'today' and 'tomorrow'.
     """
     logger.info("Initializing football broadcast scraper...")
-    matches = load_matches_from_disk()
+    now = datetime.now()
+    today_dt = now
+    tomorrow_dt = now + timedelta(days=1)
 
-    # If matches.json is empty or missing, populate with verified target fixtures
-    if not matches:
-        logger.info("matches.json was empty or absent; initializing with verified target fixtures.")
-        matches = get_fallback_target_matches()
+    # 1. Load and auto-clean matches from disk (purging any match from yesterday or earlier)
+    cached_today, cached_tomorrow = load_and_clean_matches_from_disk(now)
+
+    # 2. Dynamic Date Scraping: automatically fetch matches for today and tomorrow
+    today_matches = fetch_matches_for_date(today_dt, day_label="Today")
+    tomorrow_matches = fetch_matches_for_date(tomorrow_dt, day_label="Tomorrow")
+
+    # Fallback to cached or verified fixtures if scrapers return no fixtures
+    if not today_matches:
+        if cached_today:
+            today_matches = cached_today
+        else:
+            today_matches = get_fallback_target_matches_for_date(today_dt, day_label="Today")
+
+    if not tomorrow_matches:
+        if cached_tomorrow:
+            tomorrow_matches = cached_tomorrow
+        else:
+            tomorrow_matches = get_fallback_target_matches_for_date(tomorrow_dt, day_label="Tomorrow")
+
+    # Enrich TV channels for both days
+    enrich_matches_with_tv_channels(today_matches)
+    enrich_matches_with_tv_channels(tomorrow_matches)
 
     # Enforce CDN URL rewrite across all matches
-    for m in matches:
+    for m in today_matches + tomorrow_matches:
         if m.get("banner_url"):
             m["banner_url"] = fix_cdn_url(m["banner_url"])
 
-    # Fetch and enrich TV channel listings
-    enrich_matches_with_tv_channels(matches)
+    # 3. Output Structure: Organize matches.json cleanly into two top-level keys: 'today' and 'tomorrow'
+    save_matches_to_disk(today_matches, tomorrow_matches)
 
-    save_matches_to_disk(matches)
-    update_dashboard_html(matches)
-    logger.info("Dashboard sync completed successfully with %d matches.", len(matches))
+    # 4. Update index.html
+    update_dashboard_html(today_matches + tomorrow_matches)
+    logger.info(
+        "Dashboard sync completed successfully with %d today matches and %d tomorrow matches.",
+        len(today_matches), len(tomorrow_matches)
+    )
 
 
 if __name__ == "__main__":

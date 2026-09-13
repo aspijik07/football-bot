@@ -2099,7 +2099,7 @@
                         if (rawText && rawText.trim().startsWith('{')) {
                             try {
                                 const result = JSON.parse(rawText);
-                                const matches = result.matches || (Array.isArray(result) ? result : null);
+                                const matches = result.matches || (result.today || result.tomorrow ? [...(result.today || []), ...(result.tomorrow || [])] : (Array.isArray(result) ? result : null));
                                 if (Array.isArray(matches) && matches.length > 0) {
                                     applyUpdatedMatches(matches, result.last_updated);
                                     showToast(`✅ Synced ${matches.length} matches from Fotmob & Sofascore!`);

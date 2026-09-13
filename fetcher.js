@@ -346,7 +346,7 @@ export function loadCachedMatches() {
     try {
       const raw = fs.readFileSync(matchesPath, 'utf8');
       const parsed = JSON.parse(raw);
-      const list = parsed.matches || [];
+      const list = parsed.matches || [...(parsed.today || []), ...(parsed.tomorrow || [])];
       return list.map(item => ({
         day: (item.day_label || 'Today').toLowerCase(),
         league: item.league || 'Liga Profesional',
