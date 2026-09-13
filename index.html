@@ -2331,7 +2331,7 @@
         async function autoRefreshMatches(silent = true) {
             updateDateHeaders();
             try {
-                const resp = await fetch('matches.json?t=' + Date.now(), {
+                const resp = await fetch('matches.json?t=' + new Date().getTime(), {
                     headers: { 'Accept': 'application/json' }
                 });
                 if (resp && resp.ok) {
@@ -2383,7 +2383,7 @@
                 // If API was not ok, fetch matches.json directly
                 if (!response || !response.ok) {
                     try {
-                        response = await fetch('matches.json?t=' + Date.now(), {
+                        response = await fetch('matches.json?t=' + new Date().getTime(), {
                             headers: { 'Accept': 'application/json' }
                         });
                     } catch (jsonErr) {
