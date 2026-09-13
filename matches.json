@@ -1,10 +1,12 @@
 {
     "today": [
         {
+            "day": "today",
             "day_label": "Today",
             "match_date": "2026-09-13",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Newell's Old Boys",
             "away_team": "Vélez Sarsfield",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
@@ -12,10 +14,18 @@
             "local_time": "17:00",
             "morocco_time": "21:00",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png",
             "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -24,10 +34,12 @@
             ]
         },
         {
+            "day": "today",
             "day_label": "Today",
             "match_date": "2026-09-13",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Defensa y Justicia",
             "away_team": "Gimnasia Mendoza",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png",
@@ -35,10 +47,18 @@
             "local_time": "19:15",
             "morocco_time": "23:15",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png",
             "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -47,10 +67,12 @@
             ]
         },
         {
+            "day": "today",
             "day_label": "Today",
             "match_date": "2026-09-13",
             "league": "Copa Libertadores",
             "country": "South America",
+            "badge_class": "badge-libertadores",
             "home_team": "Independiente del Valle",
             "away_team": "Flamengo",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png",
@@ -58,10 +80,18 @@
             "local_time": "21:30",
             "morocco_time": "01:30",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg",
             "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN",
+                "Fox Sports",
+                "Star+",
+                "Globo"
+            ],
             "all_unique_channels": [
                 "ESPN",
                 "Fox Sports",
@@ -70,10 +100,12 @@
             ]
         },
         {
+            "day": "today",
             "day_label": "Today",
             "match_date": "2026-09-13",
             "league": "Copa Sudamericana",
             "country": "South America",
+            "badge_class": "badge-sudamericana",
             "home_team": "Cienciano",
             "away_team": "Montevideo City Torque",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png",
@@ -81,10 +113,18 @@
             "local_time": "21:30",
             "morocco_time": "01:30",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg",
             "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN 3",
+                "Star+",
+                "DSports",
+                "Paramount+"
+            ],
             "all_unique_channels": [
                 "ESPN 3",
                 "Star+",
@@ -95,10 +135,12 @@
     ],
     "tomorrow": [
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Boca Juniors",
             "away_team": "Central Córdoba de Santiago",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png",
@@ -106,10 +148,18 @@
             "local_time": "21:30",
             "morocco_time": "01:30",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png",
             "banner_title": "Boca Juniors vs Central Córdoba S.Estero: 12 curiosidades y estadísticas antes del partido",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -118,10 +168,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Estudiantes",
             "away_team": "Club Atlético Platense",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png",
@@ -129,10 +181,18 @@
             "local_time": "14:45",
             "morocco_time": "18:45",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg",
             "banner_title": "Estudiantes vs Platense: Previa, ausencias y probables alineaciones titulares",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -141,10 +201,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Independiente Rivadavia",
             "away_team": "Aldosivi",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png",
@@ -152,10 +214,18 @@
             "local_time": "14:45",
             "morocco_time": "18:45",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg",
             "banner_title": "Independiente Rivadavia vs Aldosivi: Previa, ausencias y probables alineaciones titulares",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -164,10 +234,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Atlético Tucumán",
             "away_team": "River Plate",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png",
@@ -175,10 +247,18 @@
             "local_time": "17:30",
             "morocco_time": "21:30",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg",
             "banner_title": "Atlético Tucumán vs River Plate: Previa, ausencias y probables alineaciones titulares",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -187,10 +267,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
+            "badge_class": "badge-argentina",
             "home_team": "Talleres",
             "away_team": "Unión",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png",
@@ -198,10 +280,18 @@
             "local_time": "20:00",
             "morocco_time": "00:00",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg",
             "banner_title": "Talleres vs Unión: Previa, ausencias y probables alineaciones titulares",
             "banner_source_site": "zerozero.com.ar",
             "has_scraped_banner": true,
+            "channels": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Star+"
+            ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
@@ -210,10 +300,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Série A",
             "country": "Brazil",
+            "badge_class": "badge-brazil",
             "home_team": "Coritiba",
             "away_team": "Athletico Paranaense",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png",
@@ -221,10 +313,18 @@
             "local_time": "21:00",
             "morocco_time": "01:00",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg",
             "banner_title": "Coritiba x Athletico Paranaense: horário, escalações e estatísticas (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": true,
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
             "all_unique_channels": [
                 "Premiere",
                 "Globo",
@@ -233,10 +333,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Série A",
             "country": "Brazil",
+            "badge_class": "badge-brazil",
             "home_team": "Atlético-MG",
             "away_team": "Fluminense",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png",
@@ -244,10 +346,18 @@
             "local_time": "16:00",
             "morocco_time": "20:00",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg",
             "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": true,
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
             "all_unique_channels": [
                 "Premiere",
                 "Globo",
@@ -256,10 +366,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Série A",
             "country": "Brazil",
+            "badge_class": "badge-brazil",
             "home_team": "Grêmio",
             "away_team": "Vasco da Gama",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png",
@@ -267,10 +379,18 @@
             "local_time": "16:00",
             "morocco_time": "20:00",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111520.jpg",
             "banner_title": "Grêmio vs Vasco da Gama: Prévia e escalações (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": true,
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
             "all_unique_channels": [
                 "Premiere",
                 "Globo",
@@ -279,10 +399,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Série A",
             "country": "Brazil",
+            "badge_class": "badge-brazil",
             "home_team": "Chapecoense",
             "away_team": "Internacional",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png",
@@ -290,10 +412,18 @@
             "local_time": "17:00",
             "morocco_time": "21:00",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg",
             "banner_title": "Chapecoense vs Internacional: Prévia e escalações (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": true,
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
             "all_unique_channels": [
                 "Premiere",
                 "Globo",
@@ -302,10 +432,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Série A",
             "country": "Brazil",
+            "badge_class": "badge-brazil",
             "home_team": "Palmeiras",
             "away_team": "São Paulo",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png",
@@ -313,10 +445,18 @@
             "local_time": "18:30",
             "morocco_time": "22:30",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg",
             "banner_title": "Palmeiras vs São Paulo: Choque-Rei pelo Brasileirão",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": true,
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
             "all_unique_channels": [
                 "Premiere",
                 "Globo",
@@ -325,10 +465,12 @@
             ]
         },
         {
+            "day": "tomorrow",
             "day_label": "Tomorrow",
             "match_date": "2026-09-14",
             "league": "Série A",
             "country": "Brazil",
+            "badge_class": "badge-brazil",
             "home_team": "Botafogo",
             "away_team": "RB Bragantino",
             "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png",
@@ -336,10 +478,18 @@
             "local_time": "20:30",
             "morocco_time": "00:30",
             "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
             "banner_url": "https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg",
             "banner_title": "Botafogo vs RB Bragantino: Prévia e escalações (Brasileirão)",
             "banner_source_site": "ogol.com.br",
             "has_scraped_banner": true,
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
             "all_unique_channels": [
                 "Premiere",
                 "Globo",

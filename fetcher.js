@@ -347,26 +347,37 @@ export function loadCachedMatches() {
       const raw = fs.readFileSync(matchesPath, 'utf8');
       const parsed = JSON.parse(raw);
       const list = parsed.matches || [...(parsed.today || []), ...(parsed.tomorrow || [])];
-      return list.map(item => ({
-        day: (item.day_label || 'Today').toLowerCase(),
-        league: item.league || 'Liga Profesional',
-        country: item.country || 'Argentina',
-        badge_class: item.badge_class || getLeagueBadgeInfo(item.league, item.country).badgeClass,
-        home_team: item.home_team || '',
-        away_team: item.away_team || '',
-        home_logo: item.home_logo || '',
-        away_logo: item.away_logo || '',
-        local_time: item.local_time || '20:00',
-        morocco_time: item.morocco_time || '00:00',
-        status_text: item.status || 'SCHEDULED',
-        status_class: 'status-scheduled',
-        channels: item.all_unique_channels || ['TNT Sports', 'ESPN Premium'],
-        banner_url: rewriteCdnImageUrl(item.banner_url || item.home_logo || ''),
-        banner_title: item.banner_title || `${item.home_team} vs ${item.away_team}`,
-        banner_source_site: item.banner_source_site || 'zerozero.com.ar',
-        has_scraped_banner: item.has_scraped_banner ?? true,
-        source: 'cache'
-      }));
+      return list.map(item => {
+        const rawDay = String(item.day || item.day_label || 'Today').toLowerCase();
+        const day = (rawDay === 'tomorrow' || rawDay === 'amanha' || rawDay === 'mañana') ? 'tomorrow' : 'today';
+        const stText = (item.status_text || item.status || 'SCHEDULED');
+        const cleanStText = (stText.toUpperCase() === 'UNDEFINED' || !stText) ? 'SCHEDULED' : stText;
+        const stClass = item.status_class || (cleanStText.includes('LIVE') ? 'status-live' : (cleanStText.includes('SOON') ? 'status-soon' : (cleanStText.includes('FINISHED') ? 'status-finished' : 'status-scheduled')));
+
+        return {
+          day: day,
+          day_label: day === 'tomorrow' ? 'Tomorrow' : 'Today',
+          match_date: item.match_date,
+          league: item.league || 'Liga Profesional',
+          country: item.country || 'Argentina',
+          badge_class: item.badge_class || getLeagueBadgeInfo(item.league, item.country).badgeClass,
+          home_team: item.home_team || '',
+          away_team: item.away_team || '',
+          home_logo: item.home_logo || '',
+          away_logo: item.away_logo || '',
+          local_time: item.local_time || '20:00',
+          morocco_time: item.morocco_time || '00:00',
+          status: cleanStText,
+          status_text: cleanStText,
+          status_class: stClass,
+          channels: (item.channels && item.channels.length > 0) ? item.channels : (item.all_unique_channels || ['TNT Sports', 'ESPN Premium']),
+          banner_url: rewriteCdnImageUrl(item.banner_url || item.home_logo || ''),
+          banner_title: item.banner_title || `${item.home_team} vs ${item.away_team}`,
+          banner_source_site: item.banner_source_site || 'zerozero.com.ar',
+          has_scraped_banner: item.has_scraped_banner ?? true,
+          source: 'cache'
+        };
+      });
     } catch (e) {
       console.warn('Error reading matches.json:', e);
     }
