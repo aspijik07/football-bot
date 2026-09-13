@@ -71,17 +71,20 @@ STOP_WORDS = {
 }
 
 
-def get_current_utc_dates() -> Tuple[datetime, datetime, str, str]:
+def get_current_dates() -> Tuple[datetime, datetime, str, str]:
     """
-    Returns (now_utc, tomorrow_utc, today_str, tomorrow_str).
-    All date logic is strictly anchored to dynamic datetime.now(timezone.utc).
+    Returns (now, tomorrow, today_str, tomorrow_str).
+    All date logic strictly uses datetime.now() to get current date dynamically (YYYY-MM-DD).
     No hardcoded date strings are used.
     """
-    now_utc = datetime.now(timezone.utc)
-    tomorrow_utc = now_utc + timedelta(days=1)
-    today_str = now_utc.strftime("%Y-%m-%d")
-    tomorrow_str = tomorrow_utc.strftime("%Y-%m-%d")
-    return now_utc, tomorrow_utc, today_str, tomorrow_str
+    now = datetime.now()
+    tomorrow = now + timedelta(days=1)
+    today_str = now.strftime("%Y-%m-%d")
+    tomorrow_str = tomorrow.strftime("%Y-%m-%d")
+    return now, tomorrow, today_str, tomorrow_str
+
+
+get_current_utc_dates = get_current_dates
 
 
 def fix_cdn_url(url: Optional[str]) -> str:
@@ -250,14 +253,15 @@ def calculate_status(
         return "SCHEDULED", "status-scheduled"
 
 
-def is_past_match(match: Dict[str, Any], current_utc: Optional[datetime] = None) -> bool:
+def is_past_match(match: Dict[str, Any], current_dt: Optional[datetime] = None) -> bool:
     """
-    Determines whether a match record is from before the current UTC date.
-    Strictly excludes and purges any fixture older than current UTC date (YYYY-MM-DD).
+    Strict Date Comparison:
+    Uses datetime.now() to get current date dynamically (YYYY-MM-DD).
+    If a match date is before current_date, strictly marks as past (True) to be dropped/purged.
     """
-    if current_utc is None:
-        current_utc = datetime.now(timezone.utc)
-    today_utc_date = current_utc.date()
+    if current_dt is None:
+        current_dt = datetime.now()
+    current_date_str = current_dt.strftime("%Y-%m-%d")
 
     # 1. Check match_date or date string
     for date_key in ["match_date", "date"]:
@@ -265,16 +269,13 @@ def is_past_match(match: Dict[str, Any], current_utc: Optional[datetime] = None)
         if val:
             m = re.search(r"(\d{4})-(\d{2})-(\d{2})", str(val))
             if m:
-                try:
-                    m_date = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), tzinfo=timezone.utc).date()
-                    if m_date < today_utc_date:
-                        return True
-                except ValueError:
-                    pass
+                match_date_str = m.group(1)
+                if match_date_str < current_date_str:
+                    return True
 
     # 2. Check explicit day_label marking past days
     dl = str(match.get("day_label", "")).strip().lower()
-    if dl in ["yesterday", "past", "ontem", "ayer", "historico"]:
+    if dl in ["yesterday", "past", "ontem", "ayer", "historico", "anterior"]:
         return True
 
     # 3. Check timestamps (utc_time, timestamp, start_time)
@@ -283,19 +284,79 @@ def is_past_match(match: Dict[str, Any], current_utc: Optional[datetime] = None)
         if ts_val:
             try:
                 if isinstance(ts_val, (int, float)):
-                    m_date = datetime.fromtimestamp(ts_val, tz=timezone.utc).date()
-                    if m_date < today_utc_date:
+                    m_date_str = datetime.fromtimestamp(ts_val).strftime("%Y-%m-%d")
+                    if m_date_str < current_date_str:
                         return True
                 elif isinstance(ts_val, str):
                     m = re.search(r"(\d{4})-(\d{2})-(\d{2})", ts_val)
-                    if m:
-                        m_date = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), tzinfo=timezone.utc).date()
-                        if m_date < today_utc_date:
-                            return True
+                    if m and m.group(1) < current_date_str:
+                        return True
             except Exception:
                 pass
 
     return False
+
+
+def filter_and_split_matches_by_date(
+    matches: List[Dict[str, Any]],
+    current_dt: Optional[datetime] = None
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Strict Real-Time Date Validation & Purge:
+    1. Strict Date Comparison: Use datetime.now() to get current date dynamically (YYYY-MM-DD).
+       Compare every match date against today and tomorrow ONLY.
+    2. Auto-Purge Outdated Matches: If a match date is before current_date,
+       strictly drop/delete it from the output dataset. Do NOT save old/historical matches to matches.json.
+    3. Output Schema: Separates strictly into today and tomorrow lists.
+    """
+    if current_dt is None:
+        current_dt = datetime.now()
+
+    today_str = current_dt.strftime("%Y-%m-%d")
+    tomorrow_str = (current_dt + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    clean_today: List[Dict[str, Any]] = []
+    clean_tomorrow: List[Dict[str, Any]] = []
+
+    for m in matches:
+        if not isinstance(m, dict):
+            continue
+
+        # Exclude Copa Paulista
+        if m.get("league") == "Copa Paulista":
+            continue
+
+        # Auto-Purge Outdated Matches: Drop if before current_date
+        if is_past_match(m, current_dt):
+            logger.info(
+                "Auto-purged outdated match: %s vs %s (date: %s)",
+                m.get("home_team"), m.get("away_team"), m.get("match_date")
+            )
+            continue
+
+        m_date = str(m.get("match_date", "")).strip()
+        day_label = str(m.get("day_label", "")).strip().lower()
+        day_prop = str(m.get("day", "")).strip().lower()
+
+        # Compare every match date against today and tomorrow ONLY
+        if m_date == today_str or (not m_date and (day_label == "today" or day_prop == "today")):
+            m["day"] = "today"
+            m["day_label"] = "Today"
+            m["match_date"] = today_str
+            clean_today.append(m)
+        elif m_date == tomorrow_str or (not m_date and (day_label == "tomorrow" or day_prop == "tomorrow")):
+            m["day"] = "tomorrow"
+            m["day_label"] = "Tomorrow"
+            m["match_date"] = tomorrow_str
+            clean_tomorrow.append(m)
+        else:
+            # Exclude matches outside today and tomorrow window
+            logger.debug(
+                "Excluded match outside today/tomorrow window: %s vs %s (%s)",
+                m.get("home_team"), m.get("away_team"), m_date
+            )
+
+    return clean_today, clean_tomorrow
 
 
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
@@ -1164,17 +1225,18 @@ def get_fallback_target_matches() -> List[Dict[str, Any]]:
     return get_fallback_target_matches_for_date(now_utc, "Today") + get_fallback_target_matches_for_date(tomorrow_utc, "Tomorrow")
 
 
-def load_and_clean_matches_from_disk(now_utc: Optional[datetime] = None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def load_and_clean_matches_from_disk(current_dt: Optional[datetime] = None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Loads cached match records from matches.json and strictly purges/deletes
-    any match from yesterday or earlier relative to current UTC date.
+    any match from yesterday or earlier relative to current date (datetime.now()).
+    Compares every match date against today and tomorrow ONLY.
     Returns a tuple of (today_matches, tomorrow_matches).
     """
-    if now_utc is None:
-        now_utc = datetime.now(timezone.utc)
+    if current_dt is None:
+        current_dt = datetime.now()
 
-    today_date_str = now_utc.strftime("%Y-%m-%d")
-    tomorrow_date_str = (now_utc + timedelta(days=1)).strftime("%Y-%m-%d")
+    today_str = current_dt.strftime("%Y-%m-%d")
+    tomorrow_str = (current_dt + timedelta(days=1)).strftime("%Y-%m-%d")
 
     if not os.path.exists(MATCHES_JSON_PATH):
         logger.warning("matches.json does not exist at %s", MATCHES_JSON_PATH)
@@ -1184,81 +1246,30 @@ def load_and_clean_matches_from_disk(now_utc: Optional[datetime] = None) -> Tupl
         with open(MATCHES_JSON_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        raw_matches: List[Dict[str, Any]] = []
+        raw_candidates: List[Dict[str, Any]] = []
 
         if isinstance(data, dict):
-            # If organized by two top-level keys: 'today' and 'tomorrow'
             if "today" in data or "tomorrow" in data:
                 raw_today = data.get("today", [])
                 for m in raw_today:
                     if isinstance(m, dict):
                         m.setdefault("day", "today")
                         m.setdefault("day_label", "Today")
-                        m.setdefault("match_date", today_date_str)
-                        raw_matches.append(m)
+                        m.setdefault("match_date", today_str)
+                        raw_candidates.append(m)
                 raw_tomorrow = data.get("tomorrow", [])
                 for m in raw_tomorrow:
                     if isinstance(m, dict):
                         m.setdefault("day", "tomorrow")
                         m.setdefault("day_label", "Tomorrow")
-                        m.setdefault("match_date", tomorrow_date_str)
-                        raw_matches.append(m)
+                        m.setdefault("match_date", tomorrow_str)
+                        raw_candidates.append(m)
             elif "matches" in data:
-                raw_matches = data.get("matches", [])
+                raw_candidates = data.get("matches", [])
         elif isinstance(data, list):
-            raw_matches = data
+            raw_candidates = data
 
-        cleaned_today: List[Dict[str, Any]] = []
-        cleaned_tomorrow: List[Dict[str, Any]] = []
-
-        for m in raw_matches:
-            if not isinstance(m, dict):
-                continue
-            # Exclude Copa Paulista
-            if m.get("league") == "Copa Paulista":
-                continue
-
-            # Auto-Clean: Purge past matches (older than current UTC date)
-            if is_past_match(m, now_utc):
-                logger.info(
-                    "Auto-purged past match from disk: %s vs %s (%s)",
-                    m.get("home_team"), m.get("away_team"), m.get("match_date") or m.get("day_label")
-                )
-                continue
-
-            # Fix status guarantees
-            st_text = m.get("status_text") or m.get("status") or "SCHEDULED"
-            if st_text.upper() in ["UNDEFINED", "NONE", "NULL", ""]:
-                st_text = "SCHEDULED"
-            st_class = m.get("status_class")
-            if not st_class:
-                if "LIVE" in st_text:
-                    st_class = "status-live"
-                elif "SOON" in st_text:
-                    st_class = "status-soon"
-                elif "FINISHED" in st_text:
-                    st_class = "status-finished"
-                else:
-                    st_class = "status-scheduled"
-            m["status"] = st_text
-            m["status_text"] = st_text
-            m["status_class"] = st_class
-
-            dl = str(m.get("day_label", "")).strip().lower()
-            m_date_str = m.get("match_date")
-
-            if m_date_str == tomorrow_date_str or dl == "tomorrow":
-                m["day"] = "tomorrow"
-                m["day_label"] = "Tomorrow"
-                m["match_date"] = tomorrow_date_str
-                cleaned_tomorrow.append(m)
-            else:
-                m["day"] = "today"
-                m["day_label"] = "Today"
-                m["match_date"] = today_date_str
-                cleaned_today.append(m)
-
-        return cleaned_today, cleaned_tomorrow
+        return filter_and_split_matches_by_date(raw_candidates, current_dt)
 
     except Exception as e:
         logger.error("Error reading matches.json: %s", e)
@@ -1277,10 +1288,12 @@ def save_matches_to_disk(
 ) -> None:
     """
     Saves structured matches to matches.json with enforced CDN banner URLs.
-    Organizes matches cleanly into two top-level keys: 'today' and 'tomorrow'.
-    Automatically purges any match from yesterday or earlier relative to current UTC date.
+    Output Schema: Ensure matches.json contains two strict keys: 'today' and 'tomorrow',
+    each containing only valid, up-to-date fixture objects.
+    Auto-Purge Outdated Matches: If a match date is before current_date, strictly drop/delete it.
+    Do NOT save old/historical matches to matches.json.
     """
-    now_utc, tomorrow_utc, today_date_str, tomorrow_date_str = get_current_utc_dates()
+    now, tomorrow, today_date_str, tomorrow_date_str = get_current_dates()
 
     if isinstance(today_matches, dict) and tomorrow_matches is None:
         raw_today = today_matches.get("today", [])
@@ -1294,7 +1307,11 @@ def save_matches_to_disk(
 
     clean_today: List[Dict[str, Any]] = []
     for m in raw_today:
-        if m.get("league") == "Copa Paulista" or is_past_match(m, now_utc):
+        if not isinstance(m, dict) or m.get("league") == "Copa Paulista" or is_past_match(m, now):
+            continue
+        # Compare against today ONLY
+        m_date = str(m.get("match_date", "")).strip()
+        if m_date and m_date < today_date_str:
             continue
         if m.get("banner_url"):
             m["banner_url"] = fix_cdn_url(m["banner_url"])
@@ -1321,7 +1338,11 @@ def save_matches_to_disk(
 
     clean_tomorrow: List[Dict[str, Any]] = []
     for m in raw_tomorrow:
-        if m.get("league") == "Copa Paulista" or is_past_match(m, now_utc):
+        if not isinstance(m, dict) or m.get("league") == "Copa Paulista" or is_past_match(m, now):
+            continue
+        # Compare against tomorrow ONLY
+        m_date = str(m.get("match_date", "")).strip()
+        if m_date and m_date < today_date_str:
             continue
         if m.get("banner_url"):
             m["banner_url"] = fix_cdn_url(m["banner_url"])
@@ -1346,6 +1367,7 @@ def save_matches_to_disk(
         m["status_class"] = st_class
         clean_tomorrow.append(m)
 
+    # Output Schema: strictly two keys: 'today' and 'tomorrow'
     payload = {
         "today": clean_today,
         "tomorrow": clean_tomorrow
@@ -1355,7 +1377,7 @@ def save_matches_to_disk(
         json.dump(payload, f, ensure_ascii=False, indent=4)
 
     logger.info(
-        "Saved %s cleanly organized into 'today' (%d) and 'tomorrow' (%d).",
+        "Saved %s strictly organized into 'today' (%d) and 'tomorrow' (%d).",
         MATCHES_JSON_PATH, len(clean_today), len(clean_tomorrow)
     )
 
@@ -1555,41 +1577,70 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
 def main():
     """
-    Main entry point for code execution when invoked directly.
-    1. Dynamic Real-Time Date: Strictly uses datetime.now(timezone.utc) for today and tomorrow.
-    2. Strict Filter & Auto-Purge: Purges any match older than current UTC date from matches.json.
-    3. Sourcing: Scrapes fresh broadcast fixtures dynamically from livesoccertv.com,
-       futebolnatv.com.br, Fotmob, and Sofascore.
-    4. Status Guarantees: Automatically computes proper status (LIVE, FINISHED, SCHEDULED),
-       strictly preventing any 'UNDEFINED' status.
-    5. Output Structure: Organizes matches.json cleanly into 'today' and 'tomorrow'.
+    Main entry point for execution.
+    1. Strict Date Comparison: Uses datetime.now() to get the current date dynamically (YYYY-MM-DD).
+       Compares every match date against today and tomorrow ONLY.
+    2. Auto-Purge Outdated Matches: If a match date is before current_date, strictly drop/delete it
+       from the output dataset. Do NOT save old/historical matches to matches.json.
+    3. Fresh Scraping Trigger: If fetched matches for today are empty or outdated, fallback to live
+       dynamic scraping for target leagues (Argentina, Brazil, Libertadores, Sudamericana) for current
+       and next date only.
+    4. Output Schema: Ensures matches.json contains two strict keys: 'today' and 'tomorrow', each
+       containing only valid, up-to-date fixture objects.
     """
-    logger.info("Initializing football broadcast scraper...")
-    now_utc, tomorrow_utc, today_str, tomorrow_str = get_current_utc_dates()
+    logger.info("Initializing football broadcast scraper with strict real-time date validation...")
+    now, tomorrow, today_str, tomorrow_str = get_current_dates()
 
-    # 1. Load and auto-clean matches from disk (strictly purges any match older than current UTC date)
-    cached_today, cached_tomorrow = load_and_clean_matches_from_disk(now_utc)
+    # 1. Load and auto-clean matches from disk (strictly purges any match older than current date)
+    cached_today, cached_tomorrow = load_and_clean_matches_from_disk(now)
 
-    # 2. Dynamic Broadcast Sourcing: Scrape broadcast fixture listings
+    # 2. Fresh Scraping Trigger:
+    # Check if cached matches for today or tomorrow are empty or outdated
+    is_today_outdated = (
+        not cached_today or
+        all(is_past_match(m, now) or m.get("match_date", "") != today_str for m in cached_today)
+    )
+    is_tomorrow_outdated = (
+        not cached_tomorrow or
+        all(is_past_match(m, now) or m.get("match_date", "") != tomorrow_str for m in cached_tomorrow)
+    )
+
+    today_matches: List[Dict[str, Any]] = []
+    tomorrow_matches: List[Dict[str, Any]] = []
+
+    # Dynamic Broadcast Sourcing: Scrape broadcast fixture listings for live channels
     livesoccertv_listings = scrape_livesoccertv_fixtures_and_channels()
     futebolnatv_listings = scrape_futebolnatv_fixtures_and_channels()
 
-    # 3. Dynamic Date Scraping: Automatically fetch matches for today and tomorrow
-    today_matches = fetch_matches_for_date(now_utc, day_label="Today")
-    tomorrow_matches = fetch_matches_for_date(tomorrow_utc, day_label="Tomorrow")
-
-    # Fallback to cached or verified fixtures if scrapers return no fixtures
-    if not today_matches:
-        if cached_today:
+    # 3. Dynamic Date Scraping for today if empty or outdated
+    if is_today_outdated:
+        logger.info("Today matches empty or outdated. Triggering live dynamic scraping for today (%s)...", today_str)
+        scraped_today = fetch_matches_for_date(now, day_label="Today")
+        valid_scraped_today, _ = filter_and_split_matches_by_date(scraped_today, now)
+        if valid_scraped_today:
+            today_matches = valid_scraped_today
+        elif cached_today:
             today_matches = cached_today
         else:
-            today_matches = get_fallback_target_matches_for_date(now_utc, day_label="Today")
+            logger.info("Fallback to live dynamic target league fixtures for today (%s)...", today_str)
+            today_matches = get_fallback_target_matches_for_date(now, day_label="Today")
+    else:
+        today_matches = cached_today
 
-    if not tomorrow_matches:
-        if cached_tomorrow:
+    # Dynamic Date Scraping for tomorrow if empty or outdated
+    if is_tomorrow_outdated:
+        logger.info("Tomorrow matches empty or outdated. Triggering live dynamic scraping for tomorrow (%s)...", tomorrow_str)
+        scraped_tomorrow = fetch_matches_for_date(tomorrow, day_label="Tomorrow")
+        _, valid_scraped_tomorrow = filter_and_split_matches_by_date(scraped_tomorrow, now)
+        if valid_scraped_tomorrow:
+            tomorrow_matches = valid_scraped_tomorrow
+        elif cached_tomorrow:
             tomorrow_matches = cached_tomorrow
         else:
-            tomorrow_matches = get_fallback_target_matches_for_date(tomorrow_utc, day_label="Tomorrow")
+            logger.info("Fallback to live dynamic target league fixtures for tomorrow (%s)...", tomorrow_str)
+            tomorrow_matches = get_fallback_target_matches_for_date(tomorrow, day_label="Tomorrow")
+    else:
+        tomorrow_matches = cached_tomorrow
 
     # Enrich TV channels for both days from live scraped listings
     enrich_matches_with_tv_channels(today_matches, livesoccertv_listings, futebolnatv_listings)
@@ -1616,7 +1667,7 @@ def main():
         m["status_text"] = st_text
         m["status_class"] = st_class
 
-    # 4. Output Structure: Organize matches.json cleanly into two top-level keys: 'today' and 'tomorrow'
+    # 4. Output Schema: Ensure matches.json contains two strict keys: 'today' and 'tomorrow'
     save_matches_to_disk(today_matches, tomorrow_matches)
 
     # 5. Update index.html dynamically

@@ -288,6 +288,43 @@
             color: #38bdf8 !important;
             border-top-color: #38bdf8;
         }
+        .section-hdr.past {
+            background: #111a2e !important;
+            color: #94a3b8 !important;
+            border-top: 1px dashed #475569;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.82em;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .section-hdr.past:hover {
+            color: #f1f5f9 !important;
+            background: #1a253d !important;
+        }
+        .row-past-match {
+            opacity: 0.7;
+            background-color: rgba(15, 23, 42, 0.45);
+            transition: opacity 0.2s ease;
+        }
+        .row-past-match:hover {
+            opacity: 0.95;
+        }
+        .status-expired {
+            background: #475569;
+            color: #f1f5f9;
+        }
+        .expired-flag-badge {
+            background: rgba(100, 116, 139, 0.25);
+            color: #94a3b8;
+            border: 1px solid #475569;
+            padding: 2px 6px;
+            font-size: 0.68em;
+            font-weight: 700;
+            border-radius: 4px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
 
         /* Badges League Colors - Distinct Brazilian Light/Soft Green */
         .badge {
@@ -934,8 +971,8 @@
                         </thead>
                         <tbody>
                             <!-- Today Section Header -->
-                            <tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — 11/09/2026 (<span id="hdr-today-count">4</span>)</td></tr>
-                            <tr id="empty-today-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for today.</td></tr>
+                            <tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — <span id="hdr-today-date">--/--/----</span> (<span id="hdr-today-count">4</span>)</td></tr>
+                            <tr id="empty-today-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No active or upcoming matches remaining for today.</td></tr>
                             
         <tr data-league="Liga Profesional Clausura" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_newellsold_vélezsarsf_0">
             <td>
@@ -1094,8 +1131,12 @@
             <td><span class="channel-tag">ESPN 3</span><span class="channel-tag">Star+</span><span class="channel-tag">DSports</span><span class="channel-tag">Paramount+</span></td>
         </tr>
 
+                            <!-- Past Matches Section (Concluded Matches Today) -->
+                            <tr id="hdr-past" style="display:none;" onclick="togglePastMatchesSection()"><td colspan="6" class="section-hdr past" title="Click to collapse / expand past matches">⏱️ PAST / CONCLUDED MATCHES TODAY (<span id="hdr-past-count">0</span>) <small id="past-toggle-label" style="font-size:0.8em; color:#38bdf8; font-weight:600; margin-left:8px;">[Click to collapse]</small></td></tr>
+                            <tr id="empty-past-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:14px; font-style:italic;">No concluded matches today.</td></tr>
+
                             <!-- Tomorrow Section Header -->
-                            <tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — 12/09/2026 (<span id="hdr-tomorrow-count">13</span>)</td></tr>
+                            <tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — <span id="hdr-tomorrow-date">--/--/----</span> (<span id="hdr-tomorrow-count">13</span>)</td></tr>
                             <tr id="empty-tomorrow-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>
                             
         <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_bocajunior_centralcór_0">
@@ -1712,7 +1753,7 @@
 
     <script>
         // Pre-loaded Match Data Store
-        const MATCHES_DATA = {"today_newellsold_vélezsarsf_0": {"home_team": "Newell's Old Boys", "away_team": "Vélez Sarsfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png", "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_defensayju_gimnasiame_1": {"home_team": "Defensa y Justicia", "away_team": "Gimnasia Mendoza", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png", "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "19:15", "morocco_time": "23:15", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_independie_flamengo_2": {"home_team": "Independiente del Valle", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg", "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares (Libertadores 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (0 - 2)", "status_class": "status-finished", "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "day": "today"}, "today_cienciano_montevideo_3": {"home_team": "Cienciano", "away_team": "Montevideo City Torque", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg", "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares (Copa Sudamericana 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "local_time": "21:30", "morocco_time": "01:30", "status_text": "FINISHED (2 - 0)", "status_class": "status-finished", "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "day": "today"}, "tomorrow_bocajunior_centralcór_0": {"home_team": "Boca Juniors", "away_team": "Central Córdoba de Santiago", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png", "banner_title": "Boca Juniors vs Central Córdoba S.Estero: 12 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_estudiante_platense_1": {"home_team": "Estudiantes", "away_team": "Club Atlético Platense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg", "banner_title": "Estudiantes vs Platense: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_independie_aldosivi_2": {"home_team": "Independiente Rivadavia", "away_team": "Aldosivi", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg", "banner_title": "Independiente Rivadavia vs Aldosivi: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_atléticotu_riverplate_3": {"home_team": "Atlético Tucumán", "away_team": "River Plate", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg", "banner_title": "Atlético Tucumán vs River Plate: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "17:30", "morocco_time": "21:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_talleres_unión_4": {"home_team": "Talleres", "away_team": "Unión", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg", "banner_title": "Talleres vs Unión: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  13/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "local_time": "20:00", "morocco_time": "00:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_coritiba_athleticop_7": {"home_team": "Coritiba", "away_team": "Athletico Paranaense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg", "banner_title": "Coritiba x Athletico Paranaense: horário, escalações e estatísticas (Brasileirão 11/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "21:00", "morocco_time": "01:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_atléticomg_fluminense_8": {"home_team": "Atlético-MG", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg", "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão 12/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_grêmio_vascodagam_9": {"home_team": "Grêmio", "away_team": "Vasco da Gama", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111532.jpg", "banner_title": "Grêmio vs Vasco da Gama", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_chapecoens_internacio_10": {"home_team": "Chapecoense", "away_team": "Internacional", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8702.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg", "banner_title": "Chapecoense vs Internacional", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_palmeiras_sãopaulo_11": {"home_team": "Palmeiras", "away_team": "São Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg", "banner_title": "Palmeiras vs São Paulo", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "18:30", "morocco_time": "22:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_botafogo_rbbraganti_12": {"home_team": "Botafogo", "away_team": "RB Bragantino", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg", "banner_title": "Botafogo vs RB Bragantino", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "local_time": "20:30", "morocco_time": "00:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}};
+        const MATCHES_DATA = {"today_newellsold_vélezsarsf_0": {"home_team": "Newell's Old Boys", "away_team": "Vélez Sarsfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png", "banner_title": "Newell´s Old Boys vs Vélez Sarsfield: 22 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-13", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_defensayju_gimnasiame_1": {"home_team": "Defensa y Justicia", "away_team": "Gimnasia Mendoza", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png", "banner_title": "Defensa y Justicia vs Gimnasia Mendoza: 16 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-13", "local_time": "19:15", "morocco_time": "23:15", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "today"}, "today_independie_flamengo_2": {"home_team": "Independiente del Valle", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg", "banner_title": "Independiente del Valle vs Flamengo: Previa, ausencias y probables alineaciones titulares (Libertadores 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "match_date": "2026-09-13", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "day": "today"}, "today_cienciano_montevideo_3": {"home_team": "Cienciano", "away_team": "Montevideo City Torque", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg", "banner_title": "Cienciano vs Montevideo City: Previa, ausencias y probables alineaciones titulares (Copa Sudamericana 11/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "match_date": "2026-09-13", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "day": "today"}, "tomorrow_bocajunior_centralcór_0": {"home_team": "Boca Juniors", "away_team": "Central Córdoba de Santiago", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png", "banner_title": "Boca Juniors vs Central Córdoba S.Estero: 12 curiosidades y estadísticas antes del partido", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-14", "local_time": "21:30", "morocco_time": "01:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_estudiante_platense_1": {"home_team": "Estudiantes", "away_team": "Club Atlético Platense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg", "banner_title": "Estudiantes vs Platense: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-14", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_independie_aldosivi_2": {"home_team": "Independiente Rivadavia", "away_team": "Aldosivi", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg", "banner_title": "Independiente Rivadavia vs Aldosivi: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-14", "local_time": "14:45", "morocco_time": "18:45", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_atléticotu_riverplate_3": {"home_team": "Atlético Tucumán", "away_team": "River Plate", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg", "banner_title": "Atlético Tucumán vs River Plate: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  12/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-14", "local_time": "17:30", "morocco_time": "21:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_talleres_unión_4": {"home_team": "Talleres", "away_team": "Unión", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg", "banner_title": "Talleres vs Unión: Previa, ausencias y probables alineaciones titulares (Primera División Argentina  13/09)", "banner_source_site": "zerozero.com.ar", "has_scraped_banner": true, "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "match_date": "2026-09-14", "local_time": "20:00", "morocco_time": "00:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "day": "tomorrow"}, "tomorrow_coritiba_athleticop_7": {"home_team": "Coritiba", "away_team": "Athletico Paranaense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg", "banner_title": "Coritiba x Athletico Paranaense: horário, escalações e estatísticas (Brasileirão 11/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "match_date": "2026-09-14", "local_time": "21:00", "morocco_time": "01:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_atléticomg_fluminense_8": {"home_team": "Atlético-MG", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg", "banner_title": "Atlético Mineiro x Fluminense: horário, escalações e estatísticas (Brasileirão 12/09)", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "match_date": "2026-09-14", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_grêmio_vascodagam_9": {"home_team": "Grêmio", "away_team": "Vasco da Gama", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111532.jpg", "banner_title": "Grêmio vs Vasco da Gama", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "match_date": "2026-09-14", "local_time": "16:00", "morocco_time": "20:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_chapecoens_internacio_10": {"home_team": "Chapecoense", "away_team": "Internacional", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/197693.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8702.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg", "banner_title": "Chapecoense vs Internacional", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "match_date": "2026-09-14", "local_time": "17:00", "morocco_time": "21:00", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_palmeiras_sãopaulo_11": {"home_team": "Palmeiras", "away_team": "São Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg", "banner_title": "Palmeiras vs São Paulo", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "match_date": "2026-09-14", "local_time": "18:30", "morocco_time": "22:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}, "tomorrow_botafogo_rbbraganti_12": {"home_team": "Botafogo", "away_team": "RB Bragantino", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png", "banner_url": "https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg", "banner_title": "Botafogo vs RB Bragantino", "banner_source_site": "ogol.com.br", "has_scraped_banner": true, "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "match_date": "2026-09-14", "local_time": "20:30", "morocco_time": "00:30", "status_text": "SCHEDULED", "status_class": "status-scheduled", "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "day": "tomorrow"}};
 
         // Fallback SVG Crest
         const DEFAULT_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>";
@@ -1831,54 +1872,221 @@
             }
         }
 
-        // Sidebar League Filters
+        // Date Formatting & Real System Date Helpers
+        function getSystemFormattedDates() {
+            const now = new Date();
+            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            const pad = (n) => String(n).padStart(2, '0');
+            const todayStr = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+            const tomorrowStr = `${pad(tomorrow.getDate())}/${pad(tomorrow.getMonth() + 1)}/${tomorrow.getFullYear()}`;
+            return { now, tomorrow, todayStr, tomorrowStr };
+        }
+
+        function updateDateHeaders(todayCount, tomorrowCount, pastCount) {
+            const { todayStr, tomorrowStr } = getSystemFormattedDates();
+
+            const dateSpanToday = document.getElementById('hdr-today-date');
+            if (dateSpanToday) {
+                dateSpanToday.textContent = todayStr;
+            }
+            const countSpanToday = document.getElementById('hdr-today-count');
+            if (countSpanToday && todayCount !== undefined) {
+                countSpanToday.textContent = todayCount;
+            }
+
+            const dateSpanTomorrow = document.getElementById('hdr-tomorrow-date');
+            if (dateSpanTomorrow) {
+                dateSpanTomorrow.textContent = tomorrowStr;
+            }
+            const countSpanTomorrow = document.getElementById('hdr-tomorrow-count');
+            if (countSpanTomorrow && tomorrowCount !== undefined) {
+                countSpanTomorrow.textContent = tomorrowCount;
+            }
+
+            const countSpanPast = document.getElementById('hdr-past-count');
+            if (countSpanPast && pastCount !== undefined) {
+                countSpanPast.textContent = pastCount;
+            }
+        }
+
+        // Expired Match Filter (Kickoff + 3 hours passed today)
+        function getMatchKickoffMs(m) {
+            if (!m) return null;
+            if (m.timestamp) {
+                const ts = Number(m.timestamp);
+                if (!isNaN(ts) && ts > 0) return ts > 1e11 ? ts : ts * 1000;
+            }
+            if (m.utc_time) {
+                const parsed = Date.parse(m.utc_time);
+                if (!isNaN(parsed)) return parsed;
+            }
+
+            // Resolve date component (YYYY-MM-DD)
+            let dateStr = m.match_date;
+            if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const rawDay = String(m.day || m.day_label || 'today').toLowerCase();
+                const targetDate = (rawDay === 'tomorrow') ? new Date(now.getTime() + 86400000) : now;
+                dateStr = `${targetDate.getFullYear()}-${pad(targetDate.getMonth() + 1)}-${pad(targetDate.getDate())}`;
+            }
+
+            // Check Morocco Time (GMT+1 / UTC+01:00)
+            if (m.morocco_time && /^\d{1,2}:\d{2}$/.test(m.morocco_time.trim())) {
+                const [h, min] = m.morocco_time.trim().split(':');
+                const iso = `${dateStr}T${h.padStart(2, '0')}:${min}:00+01:00`;
+                const ms = Date.parse(iso);
+                if (!isNaN(ms)) return ms;
+            }
+
+            // Check Local Time (GMT-3 / UTC-03:00)
+            if (m.local_time && /^\d{1,2}:\d{2}$/.test(m.local_time.trim())) {
+                const [h, min] = m.local_time.trim().split(':');
+                const iso = `${dateStr}T${h.padStart(2, '0')}:${min}:00-03:00`;
+                const ms = Date.parse(iso);
+                if (!isNaN(ms)) return ms;
+            }
+
+            return null;
+        }
+
+        function isMatchExpiredToday(m, nowMs = Date.now()) {
+            const day = String(m.day || m.day_label || 'today').toLowerCase();
+            // Tomorrow matches are active upcoming fixtures
+            if (day === 'tomorrow') return false;
+
+            const statusText = String(m.status_text || m.status || '').toUpperCase();
+            const isExplicitFinished = statusText.includes('FINISHED') || statusText.includes('FINALIZADO') || statusText.includes('ENCERRADO') || statusText.includes('TERMINADO');
+
+            const kickoffMs = getMatchKickoffMs(m);
+            if (kickoffMs) {
+                const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
+                // Check if match time + 3 hours has already passed today
+                if (nowMs >= kickoffMs + THREE_HOURS_MS) {
+                    return true;
+                }
+                // If explicitly finished and match already kicked off
+                if (isExplicitFinished && nowMs >= kickoffMs) {
+                    return true;
+                }
+            } else if (isExplicitFinished) {
+                return true;
+            }
+
+            return false;
+        }
+
+        let pastMatchesCollapsed = false;
+        function togglePastMatchesSection() {
+            pastMatchesCollapsed = !pastMatchesCollapsed;
+            const pastRows = document.querySelectorAll('tr[data-day="today"][data-is-past="true"]');
+            const checkedBoxes = Array.from(document.querySelectorAll('.league-checkbox:checked'));
+            const checkedLeagues = new Set(checkedBoxes.map(cb => cb.value));
+
+            pastRows.forEach(row => {
+                if (pastMatchesCollapsed) {
+                    row.style.display = 'none';
+                } else {
+                    const lg = row.getAttribute('data-league');
+                    row.style.display = checkedLeagues.has(lg) ? '' : 'none';
+                }
+            });
+
+            const toggleLabel = document.getElementById('past-toggle-label');
+            if (toggleLabel) {
+                toggleLabel.textContent = pastMatchesCollapsed ? '[Click to expand]' : '[Click to collapse]';
+            }
+        }
+
+        // Sidebar League Filters & Live Counters
         function filterLeagues() {
             const checkedBoxes = Array.from(document.querySelectorAll('.league-checkbox:checked'));
             const checkedLeagues = new Set(checkedBoxes.map(cb => cb.value));
 
-            // Update active pill
+            // Update active count pill
             const activePill = document.getElementById('sidebar-active-pill');
             const btnActiveCount = document.getElementById('btn-active-count');
             if (activePill) activePill.textContent = checkedLeagues.size + ' active';
             if (btnActiveCount) btnActiveCount.textContent = checkedLeagues.size;
 
-            let totalVisible = 0;
+            let totalActiveVisible = 0;
             let liveVisible = 0;
             let soonVisible = 0;
-            let todayVisible = 0;
+            let todayActiveVisible = 0;
+            let todayPastVisible = 0;
             let tomorrowVisible = 0;
+
+            const leagueCounts = {};
 
             document.querySelectorAll('tr[data-league]').forEach(row => {
                 const lg = row.getAttribute('data-league');
                 const day = row.getAttribute('data-day');
+                const isPast = row.getAttribute('data-is-past') === 'true';
                 const isLive = row.getAttribute('data-is-live') === 'true';
                 const isSoon = row.getAttribute('data-is-soon') === 'true';
 
+                // Accumulate league counts for active fixtures
+                if (!isPast) {
+                    leagueCounts[lg] = (leagueCounts[lg] || 0) + 1;
+                }
+
                 if (checkedLeagues.has(lg)) {
-                    row.style.display = '';
-                    totalVisible++;
-                    if (day === 'today') todayVisible++;
-                    if (day === 'tomorrow') tomorrowVisible++;
-                    if (isLive) liveVisible++;
-                    if (isSoon) soonVisible++;
+                    if (isPast && pastMatchesCollapsed) {
+                        row.style.display = 'none';
+                    } else {
+                        row.style.display = '';
+                    }
+
+                    if (day === 'today') {
+                        if (isPast) {
+                            todayPastVisible++;
+                        } else {
+                            todayActiveVisible++;
+                            totalActiveVisible++;
+                            if (isLive) liveVisible++;
+                            if (isSoon) soonVisible++;
+                        }
+                    } else if (day === 'tomorrow') {
+                        tomorrowVisible++;
+                        totalActiveVisible++;
+                        if (isLive) liveVisible++;
+                        if (isSoon) soonVisible++;
+                    }
                 } else {
                     row.style.display = 'none';
                 }
             });
 
+            // Update league count tags in sidebar
+            document.querySelectorAll('.sidebar-league-item').forEach(item => {
+                const cb = item.querySelector('.league-checkbox');
+                const countTag = item.querySelector('.league-count-tag');
+                if (cb && countTag) {
+                    const lgVal = cb.value;
+                    if (leagueCounts[lgVal] !== undefined) {
+                        countTag.textContent = leagueCounts[lgVal];
+                    }
+                }
+            });
+
             // Section headers and empty rows
             const hdrToday = document.getElementById('hdr-today');
+            const hdrPast = document.getElementById('hdr-past');
             const hdrTomorrow = document.getElementById('hdr-tomorrow');
             const emptyToday = document.getElementById('empty-today-row');
             const emptyTomorrow = document.getElementById('empty-tomorrow-row');
 
             const hdrTodayCount = document.getElementById('hdr-today-count');
+            const hdrPastCount = document.getElementById('hdr-past-count');
             const hdrTomorrowCount = document.getElementById('hdr-tomorrow-count');
-            if (hdrTodayCount) hdrTodayCount.textContent = todayVisible;
+            if (hdrTodayCount) hdrTodayCount.textContent = todayActiveVisible;
+            if (hdrPastCount) hdrPastCount.textContent = todayPastVisible;
             if (hdrTomorrowCount) hdrTomorrowCount.textContent = tomorrowVisible;
 
-            if (hdrToday) hdrToday.style.display = (todayVisible > 0 || checkedLeagues.size === 0) ? '' : 'none';
-            if (emptyToday) emptyToday.style.display = (todayVisible === 0 && checkedLeagues.size > 0) ? '' : 'none';
+            if (hdrToday) hdrToday.style.display = (todayActiveVisible > 0 || checkedLeagues.size === 0) ? '' : 'none';
+            if (emptyToday) emptyToday.style.display = (todayActiveVisible === 0 && checkedLeagues.size > 0) ? '' : 'none';
+
+            if (hdrPast) hdrPast.style.display = (todayPastVisible > 0) ? '' : 'none';
 
             if (hdrTomorrow) hdrTomorrow.style.display = (tomorrowVisible > 0 || checkedLeagues.size === 0) ? '' : 'none';
             if (emptyTomorrow) emptyTomorrow.style.display = (tomorrowVisible === 0 && checkedLeagues.size > 0) ? '' : 'none';
@@ -1889,10 +2097,10 @@
             const statSoon = document.getElementById('stat-soon-val');
             const statSplit = document.getElementById('stat-split-val');
 
-            if (statTotal) statTotal.textContent = totalVisible;
+            if (statTotal) statTotal.textContent = totalActiveVisible;
             if (statLive) statLive.textContent = liveVisible;
             if (statSoon) statSoon.textContent = soonVisible;
-            if (statSplit) statSplit.textContent = todayVisible + ' / ' + tomorrowVisible;
+            if (statSplit) statSplit.textContent = todayActiveVisible + ' / ' + tomorrowVisible;
         }
 
         function selectAllLeagues(selectAll) {
@@ -1909,21 +2117,24 @@
             }
         }
 
+        // Render Banner Cell: CDN Banner URL Parsing & Fallback Display
         function renderBannerCellHtml(m, matchId, homeTeam, awayTeam, homeLogo, awayLogo, homeUrlBtn, awayUrlBtn, copyBtn) {
-            if (m.has_scraped_banner && m.banner_url) {
+            const rawBannerUrl = (m.banner_url || '').trim();
+            const isCdnOrValid = rawBannerUrl.includes('cdn-img.staticzz.com') || /^https?:\/\//i.test(rawBannerUrl);
+            if (m.has_scraped_banner && isCdnOrValid) {
                 return `
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
                     <div class="banner-image-container" onclick="openMatchBanner('${matchId}')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="${m.banner_url}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                        <img src="${rawBannerUrl}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
-                            <span class="banner-source-pill">${m.banner_source_site || 'news'}</span>
+                            <span class="banner-source-pill">${m.banner_source_site || 'zerozero.com.ar'}</span>
                         </div>
                     </div>
                     <div class="banner-actions-subrow">
-                        <a href="${m.banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${m.banner_url}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                        <a href="${rawBannerUrl}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${rawBannerUrl}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>`;
             }
@@ -1952,10 +2163,9 @@
             </div>`;
         }
 
-        function renderRowsHtml(matches) {
-            if (!matches || matches.length === 0) {
-                return '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:22px; font-style:italic;">🚫 No matches scheduled for these leagues.</td></tr>';
-            }
+        // Render Match Table Rows (Single-line team names preserved)
+        function renderRowsHtml(matches, isPast = false) {
+            if (!matches || matches.length === 0) return '';
             return matches.map((m, idx) => {
                 const badgeClass = m.badge_class || 'badge-default';
                 const league = m.league || '';
@@ -1966,9 +2176,9 @@
                 const homeLogo = m.home_logo || DEFAULT_CREST;
                 const awayLogo = m.away_logo || DEFAULT_CREST;
                 const statusText = m.status_text || m.status || 'SCHEDULED';
-                const isLive = statusText.includes('LIVE');
-                const isSoon = statusText.includes('SOON');
-                const statusClass = m.status_class || (isLive ? 'status-live' : (isSoon ? 'status-soon' : (statusText.includes('FINISHED') ? 'status-finished' : 'status-scheduled')));
+                const isLive = statusText.toUpperCase().includes('LIVE');
+                const isSoon = statusText.toUpperCase().includes('SOON');
+                const statusClass = m.status_class || (isLive ? 'status-live' : (isSoon ? 'status-soon' : (statusText.toUpperCase().includes('FINISHED') ? 'status-finished' : 'status-scheduled')));
                 const matchId = m.match_id || `${day}_${idx}`;
 
                 let homeUrlBtn = '';
@@ -1984,8 +2194,11 @@
                 const channelsList = (m.channels && m.channels.length > 0) ? m.channels : (m.all_unique_channels || []);
                 const channelsHtml = channelsList.map(c => `<span class="channel-tag">${c}</span>`).join('');
 
+                const rowPastClass = isPast ? ' row-past-match' : '';
+                const pastFlagBadge = isPast ? '<span class="expired-flag-badge">PAST</span>' : '';
+
                 return `
-                <tr data-league="${leagueEsc}" data-day="${day}" data-is-live="${isLive}" data-is-soon="${isSoon}" data-id="${matchId}">
+                <tr class="${rowPastClass}" data-league="${leagueEsc}" data-day="${day}" data-is-past="${isPast ? 'true' : 'false'}" data-is-live="${isLive}" data-is-soon="${isSoon}" data-id="${matchId}">
                     <td>
                         <span class="badge ${badgeClass}">${league}</span><br>
                         <small style="color:#94a3b8; font-weight:500;">${m.country}</small>
@@ -2001,6 +2214,7 @@
                                 <strong class="team-title">${awayTeam}</strong>
                                 <img src="${awayLogo}" alt="${awayTeam}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
                             </span>
+                            ${pastFlagBadge}
                         </div>
                         ${renderBannerCellHtml(m, matchId, homeTeam, awayTeam, homeLogo, awayLogo, homeUrlBtn, awayUrlBtn, copyBtn)}
                     </td>
@@ -2012,18 +2226,16 @@
             }).join('');
         }
 
+        // Apply updated match list, compute dates, expired filters, and re-render table
         function applyUpdatedMatches(matchesList, lastUpdatedStr) {
             if (!Array.isArray(matchesList) || matchesList.length === 0) return;
-            const todayM = [];
-            const tomorrowM = [];
 
             for (const key in MATCHES_DATA) delete MATCHES_DATA[key];
 
-            const now = new Date();
-            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-            const fmtDate = (d) => String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0') + '/' + d.getUTCFullYear();
-            const todayStr = fmtDate(now);
-            const tomorrowStr = fmtDate(tomorrow);
+            const nowMs = Date.now();
+            const activeTodayM = [];
+            const pastTodayM = [];
+            const tomorrowM = [];
 
             matchesList.forEach((m, idx) => {
                 const rawDay = String(m.day || m.day_label || '').trim().toLowerCase();
@@ -2034,45 +2246,78 @@
                 m.match_id = matchId;
                 m.day = day;
                 m.day_label = day === 'tomorrow' ? 'Tomorrow' : 'Today';
-                const stText = m.status_text || m.status || 'SCHEDULED';
+
+                const stText = (m.status_text || m.status || 'SCHEDULED').trim();
                 m.status_text = (stText.toUpperCase() === 'UNDEFINED' || !stText) ? 'SCHEDULED' : stText;
                 m.status = m.status_text;
-                m.status_class = m.status_class || (m.status_text.includes('LIVE') ? 'status-live' : (m.status_text.includes('SOON') ? 'status-soon' : (m.status_text.includes('FINISHED') ? 'status-finished' : 'status-scheduled')));
+
+                // Expired Match Check (Match time + 3 hours has already passed today)
+                const isExpired = (day === 'today') && isMatchExpiredToday(m, nowMs);
+                m.is_past = isExpired;
+
+                const isLive = m.status_text.toUpperCase().includes('LIVE');
+                const isSoon = m.status_text.toUpperCase().includes('SOON');
+                const isFinished = isExpired || m.status_text.toUpperCase().includes('FINISHED');
+
+                m.status_class = isLive ? 'status-live' : (isSoon ? 'status-soon' : (isFinished ? 'status-finished' : 'status-scheduled'));
+
                 if (!m.channels && m.all_unique_channels) {
                     m.channels = m.all_unique_channels;
                 }
+
                 MATCHES_DATA[matchId] = m;
-                if (day === 'today') todayM.push(m);
-                else tomorrowM.push(m);
+
+                if (day === 'tomorrow') {
+                    tomorrowM.push(m);
+                } else if (isExpired) {
+                    pastTodayM.push(m);
+                } else {
+                    activeTodayM.push(m);
+                }
             });
+
+            // Dynamic User System Date Header
+            const { todayStr, tomorrowStr } = getSystemFormattedDates();
 
             const tbody = document.querySelector('#matches-table tbody');
             if (tbody) {
-                const todayHeaderHtml = `<tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — ${todayStr} (<span id="hdr-today-count">${todayM.length}</span>)</td></tr>`;
-                const emptyTodayHtml = '<tr id="empty-today-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for today.</td></tr>';
-                const tomorrowHeaderHtml = `<tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — ${tomorrowStr} (<span id="hdr-tomorrow-count">${tomorrowM.length}</span>)</td></tr>`;
-                const emptyTomorrowHtml = '<tr id="empty-tomorrow-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>';
+                const todayHeaderHtml = `<tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — <span id="hdr-today-date">${todayStr}</span> (<span id="hdr-today-count">${activeTodayM.length}</span>)</td></tr>`;
+                const emptyTodayHtml = `<tr id="empty-today-row" style="${activeTodayM.length === 0 ? '' : 'display:none;'}"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No active or upcoming matches remaining for today.</td></tr>`;
+
+                const pastHeaderHtml = `<tr id="hdr-past" style="${pastTodayM.length > 0 ? '' : 'display:none;'}" onclick="togglePastMatchesSection()"><td colspan="6" class="section-hdr past" title="Click to collapse / expand past matches">⏱️ PAST / CONCLUDED MATCHES TODAY (<span id="hdr-past-count">${pastTodayM.length}</span>) <small id="past-toggle-label" style="font-size:0.8em; color:#38bdf8; font-weight:600; margin-left:8px;">[Click to collapse]</small></td></tr>`;
+                const emptyPastHtml = `<tr id="empty-past-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:14px; font-style:italic;">No concluded matches today.</td></tr>`;
+
+                const tomorrowHeaderHtml = `<tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — <span id="hdr-tomorrow-date">${tomorrowStr}</span> (<span id="hdr-tomorrow-count">${tomorrowM.length}</span>)</td></tr>`;
+                const emptyTomorrowHtml = `<tr id="empty-tomorrow-row" style="${tomorrowM.length === 0 ? '' : 'display:none;'}"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>`;
 
                 tbody.innerHTML = `
                     ${todayHeaderHtml}
                     ${emptyTodayHtml}
-                    ${renderRowsHtml(todayM)}
+                    ${renderRowsHtml(activeTodayM, false)}
+                    ${pastHeaderHtml}
+                    ${emptyPastHtml}
+                    ${renderRowsHtml(pastTodayM, true)}
                     ${tomorrowHeaderHtml}
                     ${emptyTomorrowHtml}
-                    ${renderRowsHtml(tomorrowM)}
+                    ${renderRowsHtml(tomorrowM, false)}
                 `;
             }
 
-            // Update stats
-            const totalEl = document.getElementById('stat-total-val');
-            if (totalEl) totalEl.textContent = matchesList.length;
-            const splitEl = document.getElementById('stat-split-val');
-            if (splitEl) splitEl.textContent = `${todayM.length} / ${tomorrowM.length}`;
-            const liveEl = document.getElementById('stat-live-val');
-            if (liveEl) liveEl.textContent = matchesList.filter(m => (m.status_text || '').includes('LIVE')).length;
-            const soonEl = document.getElementById('stat-soon-val');
-            if (soonEl) soonEl.textContent = matchesList.filter(m => (m.status_text || '').includes('SOON')).length;
+            // Update stats bar (strictly active + tomorrow)
+            const activeTotal = activeTodayM.length + tomorrowM.length;
+            const statTotal = document.getElementById('stat-total-val');
+            if (statTotal) statTotal.textContent = activeTotal;
 
+            const statSplit = document.getElementById('stat-split-val');
+            if (statSplit) statSplit.textContent = `${activeTodayM.length} / ${tomorrowM.length}`;
+
+            const statLive = document.getElementById('stat-live-val');
+            if (statLive) statLive.textContent = [...activeTodayM, ...tomorrowM].filter(m => (m.status_text || '').includes('LIVE')).length;
+
+            const statSoon = document.getElementById('stat-soon-val');
+            if (statSoon) statSoon.textContent = [...activeTodayM, ...tomorrowM].filter(m => (m.status_text || '').includes('SOON')).length;
+
+            // Update footer timestamp
             const footer = document.querySelector('.footer');
             if (footer) {
                 const dateText = lastUpdatedStr ? new Date(lastUpdatedStr).toUTCString() : new Date().toUTCString();
@@ -2082,7 +2327,39 @@
             filterLeagues();
         }
 
-        // Trigger Live Match Data Update
+        // Auto-Refresh Logic (Polls matches.json periodically and updates UI)
+        async function autoRefreshMatches(silent = true) {
+            updateDateHeaders();
+            try {
+                const resp = await fetch('matches.json?t=' + Date.now(), {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (resp && resp.ok) {
+                    const text = await resp.text();
+                    if (text && text.trim().startsWith('{')) {
+                        const data = JSON.parse(text);
+                        const matches = data.matches || (data.today || data.tomorrow ? [...(data.today || []), ...(data.tomorrow || [])] : (Array.isArray(data) ? data : null));
+                        if (Array.isArray(matches) && matches.length > 0) {
+                            applyUpdatedMatches(matches, data.last_updated);
+                            if (!silent) {
+                                showToast(`✅ Synced ${matches.length} matches!`);
+                            }
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Auto-refresh poll notice:', e);
+            }
+
+            // Fallback: re-evaluate in-memory MATCHES_DATA with current system clock & expired filter
+            const existing = Object.values(MATCHES_DATA);
+            if (existing.length > 0) {
+                applyUpdatedMatches(existing);
+            }
+        }
+
+        // Trigger Live Match Data Update (Manual Button)
         async function triggerWorkflow() {
             const btn = document.querySelector('.btn-update');
             const originalText = btn ? btn.textContent : '▶ START UPDATE';
@@ -2103,7 +2380,7 @@
                     console.warn('API refresh request notice:', netErr);
                 }
 
-                // If API was not ok, try fetching matches.json directly
+                // If API was not ok, fetch matches.json directly
                 if (!response || !response.ok) {
                     try {
                         response = await fetch('matches.json?t=' + Date.now(), {
@@ -2114,7 +2391,7 @@
                     }
                 }
 
-                // Check response.ok and verify content-type is JSON before attempting parse
+                // Check response and parse
                 if (response && response.ok) {
                     const contentType = response.headers.get('content-type') || '';
                     if (contentType.includes('application/json') || contentType.includes('text/plain')) {
@@ -2134,12 +2411,8 @@
                         }
                     }
                 }
-
-                // If response is not ok, returns 404, or returns HTML error page:
-                // Suppress error banner completely and retain the existing list
                 console.info('Workflow: retained existing fixtures list.');
             } catch (err) {
-                // Suppress error banner completely
                 console.warn('Workflow notice suppressed:', err);
             } finally {
                 if (btn) {
@@ -2147,6 +2420,18 @@
                     btn.disabled = false;
                 }
             }
+        }
+
+        // Initialize dashboard: immediate system date render & 60s auto-refresh interval
+        updateDateHeaders();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                autoRefreshMatches(true);
+                setInterval(() => autoRefreshMatches(true), 60000);
+            });
+        } else {
+            autoRefreshMatches(true);
+            setInterval(() => autoRefreshMatches(true), 60000);
         }
     </script>
 </body>
