@@ -1541,8 +1541,19 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
     )
 
     # 4. Generate Table Rows
-    today_rows = [render_match_row_html(m, i, "today") for i, m in enumerate(today_matches)]
-    tomorrow_rows = [render_match_row_html(m, i, "tomorrow") for i, m in enumerate(tomorrow_matches)]
+    today_rows = []
+    for i, m in enumerate(today_matches):
+        m["match_id"] = f"today_{normalize_team(m.get('home_team', ''))[:8]}_{normalize_team(m.get('away_team', ''))[:8]}_{i}"
+        m["day"] = "today"
+        m["day_label"] = "Today"
+        today_rows.append(render_match_row_html(m, i, "today"))
+
+    tomorrow_rows = []
+    for i, m in enumerate(tomorrow_matches):
+        m["match_id"] = f"tomorrow_{normalize_team(m.get('home_team', ''))[:8]}_{normalize_team(m.get('away_team', ''))[:8]}_{i}"
+        m["day"] = "tomorrow"
+        m["day_label"] = "Tomorrow"
+        tomorrow_rows.append(render_match_row_html(m, i, "tomorrow"))
 
     tbody_content = f"""                            <!-- Today Section Header -->
                             <tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — {today_display_date} (<span id="hdr-today-count">{today_count}</span>)</td></tr>
@@ -1567,6 +1578,37 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
         f'<div class="footer">\n                    {footer_text}\n                </div>',
         html_content
     )
+
+    # 6. Embed/Inject generated JSON directly into <script id="embedded-initial-matches"> (window.INITIAL_MATCHES = {...})
+    embedded_payload = {
+        "total_matches": total_count,
+        "last_updated": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "today": today_matches,
+        "tomorrow": tomorrow_matches,
+        "matches": all_matches
+    }
+    json_str = json.dumps(embedded_payload, ensure_ascii=False)
+    injected_block = (
+        '    <!-- Hard Fallback: Injected by main.py -->\n'
+        '    <script id="embedded-initial-matches">\n'
+        f'        window.INITIAL_MATCHES = {json_str};\n'
+        '    </script>'
+    )
+
+    if '<script id="embedded-initial-matches">' in html_content:
+        html_content = re.sub(
+            r'(?:<!--\s*Hard Fallback:[^\n]*-->\s*)?<script id="embedded-initial-matches">[\s\S]*?<\/script>',
+            injected_block,
+            html_content
+        )
+    elif 'window.INITIAL_MATCHES' in html_content:
+        html_content = re.sub(
+            r'window\.INITIAL_MATCHES\s*=\s*[\s\S]*?;\s*<\/script>',
+            f'window.INITIAL_MATCHES = {json_str};\n    </script>',
+            html_content
+        )
+    else:
+        html_content = html_content.replace('<script>', f"{injected_block}\n    <script>", 1)
 
     with open(INDEX_HTML_PATH, "w", encoding="utf-8") as f:
         f.write(html_content)
