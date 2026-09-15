@@ -2,7 +2,10 @@ name: Run Football Broadcast Scraper
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */3 * * *'
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -35,11 +38,12 @@ jobs:
       - name: Commit and push updated matches.json and index.html
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add matches.json index.html
           if git diff --staged --quiet; then
             echo "No changes detected in matches.json or index.html."
           else
-            git commit -m "chore(data): auto-update matches.json & index.html [skip ci]"
+            git commit -m "Auto-update live matches [skip ci]"
             git push origin main
           fi
+

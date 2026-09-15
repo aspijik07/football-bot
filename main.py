@@ -333,9 +333,9 @@ def is_past_match(match: Dict[str, Any], current_dt: Optional[datetime] = None) 
     for date_key in ["match_date", "date"]:
         val = match.get(date_key)
         if val:
-            m = re.search(r"(\d{4})-(\d{2})-(\d{2})", str(val))
+            m = re.search(r"\d{4}-\d{2}-\d{2}", str(val))
             if m:
-                match_date_str = m.group(1)
+                match_date_str = m.group(0)
                 if match_date_str < current_date_str:
                     return True
 
@@ -354,8 +354,8 @@ def is_past_match(match: Dict[str, Any], current_dt: Optional[datetime] = None) 
                     if m_date_str < current_date_str:
                         return True
                 elif isinstance(ts_val, str):
-                    m = re.search(r"(\d{4})-(\d{2})-(\d{2})", ts_val)
-                    if m and m.group(1) < current_date_str:
+                    m = re.search(r"\d{4}-\d{2}-\d{2}", ts_val)
+                    if m and m.group(0) < current_date_str:
                         return True
             except Exception:
                 pass
