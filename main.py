@@ -31,7 +31,7 @@ import json
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Tuple, Union
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 import requests
 from bs4 import BeautifulSoup
@@ -197,6 +197,21 @@ def fix_cdn_url(url: Optional[str]) -> str:
     return f"https://cdn-img.staticzz.com/{clean_url}"
 
 
+def wrap_wsrv_proxy(url: Optional[str]) -> str:
+    """
+    Wraps scraped banner image URLs using wsrv.nl proxy to bypass CDN hotlink protection:
+    https://wsrv.nl/?url=[ENCODED_URL]
+    """
+    if not url:
+        return ""
+    clean_url = str(url).strip()
+    if not clean_url:
+        return ""
+    if clean_url.startswith("data:") or "wsrv.nl" in clean_url:
+        return clean_url
+    return f"https://wsrv.nl/?url={quote(clean_url, safe='')}"
+
+
 # Maintain backwards compatibility
 rewrite_cdn_image_url = fix_cdn_url
 
@@ -298,6 +313,118 @@ def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> b
     return home_matched and away_matched
 
 
+def evaluate_match_state(
+    match_dt: Optional[datetime],
+    started: bool = False,
+    finished: bool = False,
+    cancelled: bool = False,
+    score_str: Optional[str] = None,
+    live_time: Optional[str] = None,
+    current_utc: Optional[datetime] = None
+) -> Dict[str, Any]:
+    """
+    Computes status_text, status_class, is_live, live_minute, and clean score.
+    Guarantees valid status strings (LIVE 🔴, FINISHED, SOON, or SCHEDULED).
+    """
+    clean_score = score_str.strip() if score_str and score_str.strip() not in ["-", "vs", "undefined", "null", "None"] else None
+    if current_utc is None:
+        current_utc = datetime.now(timezone.utc)
+
+    if cancelled:
+        return {
+            "status_text": "CANCELLED",
+            "status_class": "status-cancelled",
+            "is_live": False,
+            "live_minute": None,
+            "score": clean_score
+        }
+
+    if finished:
+        text = f"FINISHED ({clean_score})" if clean_score else "FINISHED"
+        return {
+            "status_text": text,
+            "status_class": "status-finished",
+            "is_live": False,
+            "live_minute": "FT",
+            "score": clean_score
+        }
+
+    if started:
+        min_disp = live_time.strip() if live_time else "LIVE"
+        text = f"LIVE 🔴 {min_disp}" if min_disp != "LIVE" else "LIVE 🔴"
+        if clean_score:
+            text = f"{text} ({clean_score})"
+        return {
+            "status_text": text,
+            "status_class": "status-live",
+            "is_live": True,
+            "live_minute": min_disp,
+            "score": clean_score
+        }
+
+    if not match_dt:
+        return {
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
+            "is_live": False,
+            "live_minute": None,
+            "score": clean_score
+        }
+
+    match_utc = match_dt if match_dt.tzinfo else match_dt.replace(tzinfo=timezone.utc)
+    diff_sec = (current_utc - match_utc).total_seconds()
+
+    if diff_sec > 7200:  # > 2 hours past kickoff -> Finished
+        text = f"FINISHED ({clean_score})" if clean_score else "FINISHED"
+        return {
+            "status_text": text,
+            "status_class": "status-finished",
+            "is_live": False,
+            "live_minute": "FT",
+            "score": clean_score
+        }
+    elif diff_sec >= 0:  # 0 to 120 mins past kickoff -> Currently Live
+        min_elapsed = max(1, int(diff_sec // 60))
+        if live_time:
+            min_disp = live_time
+        elif min_elapsed <= 45:
+            min_disp = f"{min_elapsed}'"
+        elif min_elapsed <= 60:
+            min_disp = "HT"
+        elif min_elapsed <= 105:
+            min_disp = f"{min_elapsed - 15}'"
+        else:
+            min_disp = "90+'"
+
+        text = f"LIVE 🔴 {min_disp}"
+        if clean_score:
+            text = f"{text} ({clean_score})"
+        return {
+            "status_text": text,
+            "status_class": "status-live",
+            "is_live": True,
+            "live_minute": min_disp,
+            "score": clean_score
+        }
+    elif -diff_sec <= 3600:  # Starts within the next 60 minutes
+        mins = max(1, int((-diff_sec) // 60))
+        return {
+            "status_text": f"SOON ({mins}m)",
+            "status_class": "status-soon",
+            "is_live": False,
+            "live_minute": None,
+            "score": clean_score
+        }
+    else:
+        return {
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
+            "is_live": False,
+            "live_minute": None,
+            "score": clean_score
+        }
+
+
 def calculate_status(
     match_dt: Optional[datetime],
     started: bool = False,
@@ -311,45 +438,17 @@ def calculate_status(
     Calculates display status text and CSS class for match status badge.
     Guarantees a valid status string (LIVE, FINISHED, SOON, or SCHEDULED),
     never None, empty, or 'UNDEFINED'.
-    If a match is past its start time, calculates proper LIVE or FINISHED status.
     """
-    if cancelled:
-        return "CANCELLED", "status-cancelled"
-    if finished:
-        text = f"FINISHED ({score_str})" if score_str else "FINISHED"
-        return text, "status-finished"
-    if started:
-        text = f"LIVE 🔴 {live_time}" if live_time else (f"LIVE 🔴 ({score_str})" if score_str else "LIVE 🔴")
-        return text, "status-live"
-    if not match_dt:
-        return "SCHEDULED", "status-scheduled"
-
-    if current_utc is None:
-        current_utc = datetime.now(timezone.utc)
-
-    match_utc = match_dt if match_dt.tzinfo else match_dt.replace(tzinfo=timezone.utc)
-    diff_sec = (current_utc - match_utc).total_seconds()
-
-    # If match start time is reached/passed
-    if diff_sec > 7200:  # > 2 hours past kickoff -> Finished
-        text = f"FINISHED ({score_str})" if score_str else "FINISHED"
-        return text, "status-finished"
-    elif diff_sec >= 0:  # 0 to 120 mins past kickoff -> Currently Live
-        min_elapsed = max(1, int(diff_sec // 60))
-        if live_time:
-            text = f"LIVE 🔴 {live_time}"
-        elif min_elapsed <= 90:
-            text = f"LIVE 🔴 {min_elapsed}'"
-        else:
-            text = "LIVE 🔴 90+'"
-        if score_str:
-            text = f"{text} ({score_str})"
-        return text, "status-live"
-    elif -diff_sec <= 3600:  # Starts within the next 60 minutes
-        mins = max(1, int((-diff_sec) // 60))
-        return f"SOON ({mins}m)", "status-soon"
-    else:
-        return "SCHEDULED", "status-scheduled"
+    res = evaluate_match_state(
+        match_dt=match_dt,
+        started=started,
+        finished=finished,
+        cancelled=cancelled,
+        score_str=score_str,
+        live_time=live_time,
+        current_utc=current_utc
+    )
+    return res["status_text"], res["status_class"]
 
 
 def is_past_match(match: Dict[str, Any], current_dt: Optional[datetime] = None) -> bool:
@@ -800,12 +899,140 @@ def cross_verify_matches_with_sources(
     return verified
 
 
+def parse_live_match_state_text(text: str) -> Tuple[str, Optional[str], Optional[str], bool]:
+    """
+    Parses live match indicators from raw zerozero/ogol text:
+    Returns (status, live_minute, score, is_live).
+    """
+    score_match = re.search(r"(\b\d{1,2}\b)\s*[-:]\s*(\b\d{1,2}\b)", text)
+    score = f"{score_match.group(1)} - {score_match.group(2)}" if score_match else None
+
+    min_match = re.search(r"(\b\d{1,2}(?:\+\d{1,2})?)\s*['’]", text)
+    minute = f"{min_match.group(1)}'" if min_match else None
+
+    is_ht = bool(re.search(r"\b(INT|Intervalo|Descanso|HT)\b", text, re.I))
+    is_ft = bool(re.search(r"\b(FT|Fim|Terminado|Finalizado|Encerrado)\b", text, re.I))
+    is_live_flag = bool(re.search(r"\b(Ao Vivo|En Vivo|Live|Em Jogo|1P|2P)\b", text, re.I)) or bool(minute) or is_ht
+
+    if is_ht:
+        return "HT", "HT", score, True
+    elif is_ft:
+        return "FT", "FT", score, False
+    elif is_live_flag or minute:
+        return "LIVE", (minute or "LIVE"), score, True
+    else:
+        return "SCHEDULED", None, score, False
+
+
+def scrape_zerozero_live_tracker(match_date_str: str = "") -> Dict[str, Dict[str, Any]]:
+    """
+    Scrapes live match states, current minutes, status, and scores from:
+    - zerozero.com.ar (for Argentina / South American continental matches)
+    - ogol.com.br (for Brazil matches)
+    Parses:
+    - current minute (e.g., '75'')
+    - status ('LIVE', 'HT', 'FT', 'SCHEDULED')
+    - current score (e.g., '1 - 0')
+    - is_live (bool)
+    """
+    live_fixtures: Dict[str, Dict[str, Any]] = {}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    }
+
+    endpoints = [
+        {"domain": "zerozero.com.ar", "url": "https://www.zerozero.com.ar/aovivo"},
+        {"domain": "ogol.com.br", "url": "https://www.ogol.com.br/aovivo"},
+    ]
+    if match_date_str:
+        endpoints.append({"domain": "zerozero.com.ar", "url": f"https://www.zerozero.com.ar/jogos?data={match_date_str}"})
+        endpoints.append({"domain": "ogol.com.br", "url": f"https://www.ogol.com.br/jogos?data={match_date_str}"})
+
+    for ep in endpoints:
+        try:
+            resp = requests.get(ep["url"], headers=headers, timeout=8)
+            if resp.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+            rows = soup.select(
+                "tr.zz-match, tr.match, div.match, tr[id*='match'], div.game-box, "
+                "table.zztable tr, div.match-row, .microlive, tr[class*='jogo'], div[class*='jogo']"
+            )
+            for row in rows:
+                full_text = row.get_text(" ", strip=True)
+                teams = row.select(".team, .home-team, .away-team, .home, .away, .text a, td a, .equipa, span.team-name")
+                team_names = [t.get_text(strip=True) for t in teams if len(t.get_text(strip=True)) > 2]
+                if len(team_names) < 2:
+                    continue
+
+                home_raw = team_names[0]
+                away_raw = team_names[1]
+                h_norm = normalize_team(home_raw)
+                a_norm = normalize_team(away_raw)
+                if not h_norm or not a_norm:
+                    continue
+
+                status, live_minute, score, is_live = parse_live_match_state_text(full_text)
+                fixture_key = f"{h_norm[:8]}_{a_norm[:8]}"
+
+                live_fixtures[fixture_key] = {
+                    "home_team": home_raw,
+                    "away_team": away_raw,
+                    "status": status,
+                    "live_minute": live_minute,
+                    "score": score,
+                    "is_live": is_live,
+                    "source": ep["domain"]
+                }
+        except Exception as e:
+            logger.debug("Live tracker scraping notice for %s: %s", ep["domain"], e)
+
+    return live_fixtures
+
+
+def fetch_fixture_live_state(home_team: str, away_team: str, domain: str = "zerozero.com.ar") -> Optional[Dict[str, Any]]:
+    """
+    Directly queries search / match tracker on zerozero.com.ar or ogol.com.br to parse
+    current minute, status ('LIVE', 'HT', 'FT'), and current score for a specific fixture.
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    }
+    search_url = f"https://www.{domain}/pesquisa?search_txt={quote(home_team + ' ' + away_team)}"
+    try:
+        resp = requests.get(search_url, headers=headers, timeout=8)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            for item in soup.select("div.noticia, div.news-item, tr.zz-match, div.game-box, a[href*='edition_match.php']"):
+                txt = item.get_text(" ", strip=True)
+                h_norm = normalize_team(home_team)
+                a_norm = normalize_team(away_team)
+                t_norm = normalize_team(txt)
+                if (h_norm and h_norm in t_norm) or (a_norm and a_norm in t_norm):
+                    status, live_minute, score, is_live = parse_live_match_state_text(txt)
+                    if is_live or score:
+                        return {
+                            "status": status,
+                            "live_minute": live_minute,
+                            "score": score,
+                            "is_live": is_live,
+                            "source": domain
+                        }
+    except Exception as e:
+        logger.debug("Fixture live state fetch error on %s: %s", domain, e)
+    return None
+
+
 def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
     """
     Scrapes match preview news banners exclusively from:
     - zerozero.com.ar (for Argentina / South American continental matches)
     - ogol.com.br (for Brazil matches)
     Ensures all extracted banner URLs are rewritten to cdn-img.staticzz.com/img/noticias/...
+    Also parses live match states (minute, status, score) from preview headlines and summaries.
     """
     banners = {}
     headers = {
@@ -839,12 +1066,19 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
                 title_text = title_elem.get_text(strip=True)
                 norm_key = re.sub(r"[^a-z0-9]", "", title_text.lower())
 
+                # Also parse live score or minute mentioned in headline
+                status, live_minute, score, is_live = parse_live_match_state_text(title_text)
+
                 if norm_key and cdn_banner_url:
                     banners[norm_key] = {
                         "banner_url": cdn_banner_url,
                         "banner_title": title_text,
                         "banner_source_site": src["domain"],
                         "has_scraped_banner": True,
+                        "status": status,
+                        "live_minute": live_minute,
+                        "score": score,
+                        "is_live": is_live,
                     }
         except Exception as e:
             logger.warning("Banner scrape warning for %s: %s", src["domain"], e)
@@ -1115,9 +1349,10 @@ def fetch_matches_for_date(target_date: datetime, day_label: str) -> List[Dict[s
             seen.add(key)
             unique_matches.append(m)
 
-    # Scrape banners for this date
+    # Scrape banners and live match states for this date
     date_str = target_date.strftime("%Y-%m-%d")
     scraped_banners = scrape_zerozero_banners(date_str)
+    live_tracker_data = scrape_zerozero_live_tracker(date_str)
 
     for m in unique_matches:
         home_n = normalize_team(m.get("home_team", ""))
@@ -1152,6 +1387,10 @@ def fetch_matches_for_date(target_date: datetime, day_label: str) -> List[Dict[s
             m["banner_title"] = matched_banner["banner_title"]
             m["banner_source_site"] = matched_banner.get("banner_source_site", target_domain)
             m["has_scraped_banner"] = True
+            if matched_banner.get("is_live"):
+                m["is_live"] = True
+                m["live_minute"] = matched_banner.get("live_minute")
+                m["score"] = matched_banner.get("score")
         else:
             h_clean = normalize_team(m.get("home_team", ""))[:10]
             a_clean = normalize_team(m.get("away_team", ""))[:10]
@@ -1159,6 +1398,35 @@ def fetch_matches_for_date(target_date: datetime, day_label: str) -> List[Dict[s
             m["banner_title"] = f"{m.get('home_team')} vs {m.get('away_team')}"
             m["banner_source_site"] = target_domain
             m["has_scraped_banner"] = True
+
+        # Check live tracker from zerozero/ogol
+        matched_live = None
+        for lt_key, lt_val in live_tracker_data.items():
+            if (home_n and home_n[:8] in lt_key) or (away_n and away_n[:8] in lt_key):
+                matched_live = lt_val
+                break
+
+        if not matched_live and m.get("is_live"):
+            matched_live = fetch_fixture_live_state(m.get("home_team", ""), m.get("away_team", ""), target_domain)
+
+        if matched_live:
+            if matched_live.get("is_live"):
+                m["is_live"] = True
+                m["live_minute"] = matched_live.get("live_minute") or m.get("live_minute") or "LIVE"
+                m["score"] = matched_live.get("score") or m.get("score")
+                min_part = f" {m['live_minute']}" if m.get("live_minute") else ""
+                sc_part = f" ({m['score']})" if m.get("score") else ""
+                m["status_text"] = f"LIVE 🔴{min_part}{sc_part}".strip()
+                m["status"] = m["status_text"]
+                m["status_class"] = "status-live"
+            elif matched_live.get("status") == "FT":
+                m["is_live"] = False
+                m["live_minute"] = "FT"
+                m["score"] = matched_live.get("score") or m.get("score")
+                sc_part = f" ({m['score']})" if m.get("score") else ""
+                m["status_text"] = f"FINISHED{sc_part}".strip()
+                m["status"] = m["status_text"]
+                m["status_class"] = "status-finished"
 
     return [m for m in unique_matches if is_valid_fixture(m)]
 
@@ -1597,9 +1865,20 @@ def save_matches_to_disk(
                 st_class = "status-finished"
             else:
                 st_class = "status-scheduled"
+        is_live = bool(m.get("is_live", False)) or "LIVE" in st_text.upper()
+        live_minute = m.get("live_minute")
+        score = m.get("score")
+        if is_live:
+            st_class = "status-live"
+            min_str = f" {live_minute}" if live_minute else ""
+            sc_str = f" ({score})" if score else ""
+            st_text = f"LIVE 🔴{min_str}{sc_str}".strip()
         m["status"] = st_text
         m["status_text"] = st_text
         m["status_class"] = st_class
+        m["is_live"] = is_live
+        m["live_minute"] = live_minute
+        m["score"] = score
         clean_today.append(m)
 
     clean_tomorrow: List[Dict[str, Any]] = []
@@ -1628,9 +1907,20 @@ def save_matches_to_disk(
                 st_class = "status-finished"
             else:
                 st_class = "status-scheduled"
+        is_live = bool(m.get("is_live", False)) or "LIVE" in st_text.upper()
+        live_minute = m.get("live_minute")
+        score = m.get("score")
+        if is_live:
+            st_class = "status-live"
+            min_str = f" {live_minute}" if live_minute else ""
+            sc_str = f" ({score})" if score else ""
+            st_text = f"LIVE 🔴{min_str}{sc_str}".strip()
         m["status"] = st_text
         m["status_text"] = st_text
         m["status_class"] = st_class
+        m["is_live"] = is_live
+        m["live_minute"] = live_minute
+        m["score"] = score
         clean_tomorrow.append(m)
 
     # Output Schema: strictly two keys: 'today' and 'tomorrow'
@@ -1664,7 +1954,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
         status_text = "SCHEDULED"
     status_class = m.get("status_class") or "status-scheduled"
 
-    is_live = "LIVE" in status_text
+    is_live = bool(m.get("is_live", False)) or "LIVE" in status_text
     is_soon = "SOON" in status_text
     match_id = f"{day_tag}_{normalize_team(home_team)[:8]}_{normalize_team(away_team)[:8]}_{idx}"
 
@@ -1686,9 +1976,11 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
 
     home_team_esc = home_team.replace("'", "\\'")
     away_team_esc = away_team.replace("'", "\\'")
+    home_logo_esc = (home_logo or "").replace("'", "\\'")
+    away_logo_esc = (away_logo or "").replace("'", "\\'")
 
     fixture_svg = f"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>{home_team} vs {away_team}</text></svg>"
-    display_banner_url = banner_url if banner_url else fixture_svg
+    display_banner_url = wrap_wsrv_proxy(banner_url) if banner_url else fixture_svg
 
     if banner_url:
         banner_actions = (
@@ -1702,7 +1994,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
                     <div class="banner-image-container" onclick="openMatchBanner('{match_id}')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="{display_banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, '{home_team_esc}', '{away_team_esc}')">
+                        <img src="{display_banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, '{home_team_esc}', '{away_team_esc}', '{home_logo_esc}', '{away_logo_esc}', '{match_id}')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">{banner_site}</span>
@@ -1712,6 +2004,24 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
                         {banner_actions}
                     </div>
                 </div>"""
+
+    score_val = m.get("score")
+    live_minute = m.get("live_minute")
+
+    if is_live and score_val:
+        mid_headline = f'<span class="live-score-pill"><span class="pulse-dot-red"></span>{score_val}</span>'
+    elif score_val:
+        mid_headline = f'<span class="score-pill">{score_val}</span>'
+    else:
+        mid_headline = '<span class="vs-glow">VS</span>'
+
+    if is_live:
+        status_class = "status-live"
+        min_str = f" {live_minute}" if live_minute else ""
+        sc_str = f" ({score_val})" if score_val else ""
+        status_badge_html = f'<span class="status-badge status-live"><span class="pulse-dot-red" style="background:#fff; box-shadow:0 0 6px #fff; width:6px; height:6px; margin-right:4px;"></span>LIVE 🔴{min_str}{sc_str}</span>'
+    else:
+        status_badge_html = f'<span class="status-badge {status_class}">{status_text}</span>'
 
     return f"""        <tr data-league="{league}" data-day="{day_tag}" data-is-live="{str(is_live).lower()}" data-is-soon="{str(is_soon).lower()}" data-id="{match_id}">
             <td>
@@ -1724,7 +2034,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
                         <img src="{home_logo}" alt="{home_team}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">{home_team}</strong>
                     </span>
-                    <span class="vs-glow">VS</span>
+                    {mid_headline}
                     <span class="team-item">
                         <strong class="team-title">{away_team}</strong>
                         <img src="{away_logo}" alt="{away_team}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
@@ -1734,7 +2044,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
             </td>
             <td style="color:#cbd5e1; font-weight:500;">{local_time} <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">{morocco_time}</strong></td>
-            <td><span class="status-badge {status_class}">{status_text}</span></td>
+            <td>{status_badge_html}</td>
             <td>{channels_html}</td>
         </tr>"""
 
@@ -1759,7 +2069,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
     today_count = len(today_matches)
     tomorrow_count = len(tomorrow_matches)
 
-    live_count = sum(1 for m in all_matches if "LIVE" in (m.get("status_text") or m.get("status") or ""))
+    live_count = sum(1 for m in all_matches if bool(m.get("is_live")) or "LIVE" in (m.get("status_text") or m.get("status") or ""))
     soon_count = sum(1 for m in all_matches if "SOON" in (m.get("status_text") or m.get("status") or ""))
 
     with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
@@ -1789,23 +2099,23 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
     # 3. Update Metrics Bar
     html_content = re.sub(
-        r'<div class="metric-val" id="stat-total-val">\d+</div>',
-        f'<div class="metric-val" id="stat-total-val">{total_count}</div>',
+        r'<div class="[^"]*" id="stat-total-val"[^>]*>\d+</div>',
+        f'<div class="value" id="stat-total-val">{total_count}</div>',
         html_content
     )
     html_content = re.sub(
-        r'<div class="metric-val text-live" id="stat-live-val">\d+</div>',
-        f'<div class="metric-val text-live" id="stat-live-val">{live_count}</div>',
+        r'<div class="[^"]*" id="stat-live-val"[^>]*>\d+</div>',
+        f'<div class="value" id="stat-live-val" style="color: #ef4444;">{live_count}</div>',
         html_content
     )
     html_content = re.sub(
-        r'<div class="metric-val text-soon" id="stat-soon-val">\d+</div>',
-        f'<div class="metric-val text-soon" id="stat-soon-val">{soon_count}</div>',
+        r'<div class="[^"]*" id="stat-soon-val"[^>]*>\d+</div>',
+        f'<div class="value" id="stat-soon-val" style="color: #f97316;">{soon_count}</div>',
         html_content
     )
     html_content = re.sub(
-        r'<div class="metric-val text-split" id="stat-split-val">\d+\s*\/\s*\d+</div>',
-        f'<div class="metric-val text-split" id="stat-split-val">{today_count} / {tomorrow_count}</div>',
+        r'<div class="[^"]*" id="stat-split-val"[^>]*>[\d\s\/]+</div>',
+        f'<div class="value" id="stat-split-val" style="color: #38bdf8;">{today_count} / {tomorrow_count}</div>',
         html_content
     )
 
