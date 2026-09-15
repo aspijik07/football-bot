@@ -227,6 +227,12 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
           const homeLogo = homeId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${homeId}.png` : '';
           const awayLogo = awayId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${awayId}.png` : '';
 
+          const isBrazil = (cleanCountry === 'Brazil');
+          const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
+          const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+          const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+          const defaultCdnBanner = `https://cdn-img.staticzz.com/img/noticias/jogos/${hNorm}_${aNorm}.jpg`;
+
           matches.push({
             day: dayLabel,
             league: cleanLeague,
@@ -241,7 +247,10 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
             status_text: statusText,
             status_class: statusClass,
             channels: getChannelsForMatch(cleanLeague, cleanCountry),
-            banner_url: homeLogo,
+            banner_url: defaultCdnBanner,
+            banner_title: `${homeName} vs ${awayName}`,
+            banner_source_site: bannerSite,
+            has_scraped_banner: true,
             source: 'fotmob'
           });
         }
@@ -314,6 +323,12 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
         const homeLogo = homeId ? `https://api.sofascore.app/api/v1/team/${homeId}/image` : '';
         const awayLogo = awayId ? `https://api.sofascore.app/api/v1/team/${awayId}/image` : '';
 
+        const isBrazil = (cleanCountry === 'Brazil');
+        const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
+        const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+        const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+        const defaultCdnBanner = `https://cdn-img.staticzz.com/img/noticias/jogos/${hNorm}_${aNorm}.jpg`;
+
         matches.push({
           day: dayLabel,
           league: cleanLeague,
@@ -328,7 +343,10 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
           status_text: statusText,
           status_class: statusClass,
           channels: getChannelsForMatch(cleanLeague, cleanCountry),
-          banner_url: homeLogo,
+          banner_url: defaultCdnBanner,
+          banner_title: `${homeName} vs ${awayName}`,
+          banner_source_site: bannerSite,
+          has_scraped_banner: true,
           source: 'sofascore'
         });
       }
