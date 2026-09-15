@@ -1478,18 +1478,28 @@
             const bannerImg = document.getElementById('modal-banner-img');
             const boxBanner = document.getElementById('box-banner-url');
 
-            scrapedStage.style.display = 'block';
-            bannerImg.src = bannerUrl;
-            bannerImg.onerror = function() {
-                this.onerror = null;
-                this.src = 'https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png';
-            };
-            fallbackStage.style.display = 'none';
-            document.getElementById('modal-banner-source-tag').textContent = '📰 Source: ' + (m.banner_source_site || (bannerUrl.includes('ogol') ? 'ogol.com.br' : 'zerozero.com.ar'));
+            const fixtureSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>${m.home_team || 'Home'} vs ${m.away_team || 'Away'}</text></svg>`;
 
-            boxBanner.style.display = 'flex';
-            document.getElementById('modal-banner-url-input').value = bannerUrl;
-            document.getElementById('modal-banner-url-btn').href = bannerUrl;
+            if (bannerUrl) {
+                scrapedStage.style.display = 'block';
+                bannerImg.src = bannerUrl;
+                bannerImg.onerror = function() {
+                    this.onerror = null;
+                    this.src = fixtureSvg;
+                };
+                fallbackStage.style.display = 'none';
+                document.getElementById('modal-banner-source-tag').textContent = '📰 Source: ' + (m.banner_source_site || (bannerUrl.includes('ogol') ? 'ogol.com.br' : (bannerUrl.includes('livesoccertv') ? 'livesoccertv.com' : 'zerozero.com.ar')));
+
+                boxBanner.style.display = 'flex';
+                document.getElementById('modal-banner-url-input').value = bannerUrl;
+                document.getElementById('modal-banner-url-btn').href = bannerUrl;
+            } else {
+                scrapedStage.style.display = 'block';
+                bannerImg.src = fixtureSvg;
+                fallbackStage.style.display = 'none';
+                document.getElementById('modal-banner-source-tag').textContent = '📰 Match Preview Card';
+                boxBanner.style.display = 'none';
+            }
 
             // Set up direct crest image URLs
             const homeUrl = m.home_logo || '';
@@ -1772,6 +1782,7 @@
         // Banner Image Normalization: Ensure all banner <img> tags process image sources using https://cdn-img.staticzz.com
         function normalizeCdnBannerUrl(rawUrl, matchId, homeTeam, awayTeam, league) {
             let url = (rawUrl || '').trim();
+            if (!url) return '';
 
             // If already on cdn-img.staticzz.com, enforce HTTPS
             if (url.includes('cdn-img.staticzz.com')) {
@@ -1819,45 +1830,37 @@
                 }
             }
 
-            // High-resolution CDN banner fallback by competition to guarantee https://cdn-img.staticzz.com
-            const lg = (league || '').toLowerCase();
-            if (lg.includes('libertadores')) {
-                return 'https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg';
-            }
-            if (lg.includes('sudamericana')) {
-                return 'https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg';
-            }
-            if (lg.includes('série a') || lg.includes('serie a') || lg.includes('paulista') || lg.includes('brazil') || lg.includes('brasil')) {
-                return 'https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg';
-            }
-
-            // Default Liga Profesional Argentina preview banner
-            return 'https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png';
+            return url;
         }
 
         // Full Preview Banner Layout: Replaces small "View Card" with the full image preview banner inside each table row
         function renderBannerCellHtml(m, matchId, homeTeam, awayTeam, homeLogo, awayLogo, homeUrlBtn, awayUrlBtn, copyBtn) {
             const bannerUrl = normalizeCdnBannerUrl(m.banner_url, matchId, homeTeam, awayTeam, m.league);
-            const sourceSite = m.banner_source_site || (bannerUrl.includes('ogol') ? 'ogol.com.br' : 'zerozero.com.ar');
+            const sourceSite = m.banner_source_site || (bannerUrl.includes('ogol') ? 'ogol.com.br' : (bannerUrl.includes('livesoccertv') ? 'livesoccertv.com' : 'zerozero.com.ar'));
 
             // Store back normalized CDN banner info on match object
             m.banner_url = bannerUrl;
-            m.has_scraped_banner = true;
+            m.has_scraped_banner = Boolean(bannerUrl);
             if (!m.banner_source_site) m.banner_source_site = sourceSite;
+
+            const fixtureSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>${homeTeam} vs ${awayTeam}</text></svg>`;
+            const displayImgSrc = bannerUrl || fixtureSvg;
 
             return `
             <!-- Large Match Preview Banner -->
             <div class="banner-preview-box">
                 <div class="banner-image-container" onclick="openMatchBanner('${matchId}')" title="Click to open full 16:9 match preview banner in modal">
-                    <img src="${bannerUrl}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png';">
+                    <img src="${displayImgSrc}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='${fixtureSvg}';">
                     <div class="banner-hover-overlay">
                         <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                         <span class="banner-source-pill">${sourceSite}</span>
                     </div>
                 </div>
                 <div class="banner-actions-subrow">
-                    <a href="${bannerUrl}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${bannerUrl}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    ${bannerUrl ? `
+                        <a href="${bannerUrl}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${bannerUrl}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    ` : `<span class="direct-img-chip" style="opacity:0.6;">⚡ Match Card</span>`}
                 </div>
             </div>`;
         }

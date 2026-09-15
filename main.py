@@ -769,7 +769,7 @@ def cross_verify_matches_with_sources(
 
 def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
     """
-    Scrapes match preview news banners from zerozero.com.ar and ogol.com.br.
+    Scrapes match preview news banners from zerozero.com.ar, ogol.com.br, and livesoccertv.com.
     Ensures all extracted banner URLs are rewritten to cdn-img.staticzz.com.
     """
     banners = {}
@@ -781,6 +781,7 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
     sources = [
         {"domain": "zerozero.com.ar", "url": f"https://www.zerozero.com.ar/noticias?data={match_date_str}"},
         {"domain": "ogol.com.br", "url": f"https://www.ogol.com.br/noticias?data={match_date_str}"},
+        {"domain": "livesoccertv.com", "url": "https://www.livesoccertv.com/news/"},
     ]
 
     for src in sources:
@@ -790,8 +791,8 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
                 continue
 
             soup = BeautifulSoup(resp.text, "html.parser")
-            for article in soup.select("div.noticia, div.news-item, a[href*='/noticias/']"):
-                title_elem = article.select_one("h2, .title, .text")
+            for article in soup.select("div.noticia, div.news-item, a[href*='/noticias/'], div.news_item, a[href*='/news/']"):
+                title_elem = article.select_one("h2, .title, .text, h3, .news_title")
                 img_elem = article.select_one("img")
                 if not (title_elem and img_elem):
                     continue
@@ -804,16 +805,57 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
                 title_text = title_elem.get_text(strip=True)
                 norm_key = re.sub(r"[^a-z0-9]", "", title_text.lower())
 
-                banners[norm_key] = {
-                    "banner_url": cdn_banner_url,
-                    "banner_title": title_text,
-                    "banner_source_site": src["domain"],
-                    "has_scraped_banner": True,
-                }
+                if norm_key and cdn_banner_url:
+                    banners[norm_key] = {
+                        "banner_url": cdn_banner_url,
+                        "banner_title": title_text,
+                        "banner_source_site": src["domain"],
+                        "has_scraped_banner": True,
+                    }
         except Exception as e:
             logger.warning("Banner scrape warning for %s: %s", src["domain"], e)
 
     return banners
+
+
+def fetch_fixture_banner_fallback(home_team: str, away_team: str, league: str) -> Optional[Dict[str, Any]]:
+    """
+    Dynamically queries search endpoints on zerozero / ogol for match-specific preview image.
+    Strictly avoids static default banner fallbacks (e.g. Newell's vs Velez).
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    }
+    h_norm = normalize_team(home_team)
+    a_norm = normalize_team(away_team)
+    is_brazil = any(k in (league or "").lower() for k in ["série a", "serie a", "brasil", "brazil", "copa do brasil"])
+    domain = "ogol.com.br" if is_brazil else "zerozero.com.ar"
+    search_url = f"https://www.{domain}/pesquisa?search_txt={quote(home_team + ' ' + away_team)}"
+
+    try:
+        resp = requests.get(search_url, headers=headers, timeout=8)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            for item in soup.select("div.noticia, div.news-item, a[href*='/noticias/']"):
+                title_elem = item.select_one("h2, .title, .text")
+                img_elem = item.select_one("img")
+                if title_elem and img_elem:
+                    t_text = title_elem.get_text(strip=True)
+                    t_norm = re.sub(r"[^a-z0-9]", "", t_text.lower())
+                    if h_norm in t_norm or a_norm in t_norm:
+                        raw_src = img_elem.get("src") or img_elem.get("data-src") or ""
+                        if raw_src:
+                            return {
+                                "banner_url": fix_cdn_url(raw_src),
+                                "banner_title": t_text,
+                                "banner_source_site": domain,
+                                "has_scraped_banner": True,
+                            }
+    except Exception as e:
+        logger.debug("Dynamic fixture banner search error: %s", e)
+
+    return None
 
 
 def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
@@ -1028,13 +1070,37 @@ def fetch_matches_for_date(target_date: datetime, day_label: str) -> List[Dict[s
     for m in unique_matches:
         home_n = normalize_team(m.get("home_team", ""))
         away_n = normalize_team(m.get("away_team", ""))
+        matched_banner = None
+
+        # Check date-specific scraped banners
         for b_key, b_val in scraped_banners.items():
-            if home_n in b_key or away_n in b_key:
-                m["banner_url"] = b_val["banner_url"]
-                m["banner_title"] = b_val["banner_title"]
-                m["banner_source_site"] = b_val["banner_source_site"]
-                m["has_scraped_banner"] = True
+            if (home_n and home_n in b_key) or (away_n and away_n in b_key):
+                matched_banner = b_val
                 break
+
+        # Fallback to direct fixture search if not in general date news list
+        if not matched_banner:
+            matched_banner = fetch_fixture_banner_fallback(
+                m.get("home_team", ""),
+                m.get("away_team", ""),
+                m.get("league", "")
+            )
+
+        if matched_banner:
+            m["banner_url"] = fix_cdn_url(matched_banner["banner_url"])
+            m["banner_title"] = matched_banner["banner_title"]
+            m["banner_source_site"] = matched_banner.get("banner_source_site", "zerozero.com.ar")
+            m["has_scraped_banner"] = True
+        else:
+            # Dynamically construct unique fixture banner preview URL if available or keep empty (no static 548 fallback)
+            if m.get("banner_url"):
+                m["banner_url"] = fix_cdn_url(m["banner_url"])
+                m["has_scraped_banner"] = True
+            else:
+                m["banner_url"] = ""
+                m["banner_title"] = f"{m.get('home_team')} vs {m.get('away_team')}"
+                m["banner_source_site"] = "zerozero.com.ar"
+                m["has_scraped_banner"] = False
 
     return [m for m in unique_matches if is_valid_fixture(m)]
 
