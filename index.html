@@ -8,6 +8,27 @@
     <meta name="description" content="Automated dashboard fetching real live match data from Fotmob and Sofascore for South American football leagues.">
     <meta property="og:title" content="Football Broadcast Dashboard">
     <meta property="og:description" content="Automated dashboard fetching real live match data from Fotmob and Sofascore for South American football leagues.">
+    <script>
+        const DEFAULT_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>";
+
+        function handleCrestError(img) {
+            if (!img) return;
+            img.onerror = null;
+            img.src = DEFAULT_CREST;
+        }
+
+        function getFixtureSvg(homeTeam, awayTeam) {
+            const h = (homeTeam || 'Home').replace(/["'<>]/g, '');
+            const a = (awayTeam || 'Away').replace(/["'<>]/g, '');
+            return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>${h} vs ${a}</text></svg>`;
+        }
+
+        function handleBannerError(img, homeTeam, awayTeam) {
+            if (!img) return;
+            img.onerror = null;
+            img.src = getFixtureSvg(homeTeam, awayTeam);
+        }
+    </script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -980,30 +1001,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10089.png" alt="Club Atlético Platense" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10089.png" alt="Club Atlético Platense" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">Club Atlético Platense</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Fluminense</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9863.png" alt="Fluminense" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9863.png" alt="Fluminense" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('today_platense_fluminen_0')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10089.png" alt="Club Atlético Platense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Club Atlético Platense</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('today_platense_fluminen_0')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png" alt="Club Atlético Platense vs Fluminense" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'Club Atlético Platense', 'Fluminense')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Fluminense</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9863.png" alt="Fluminense" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1020,30 +1038,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">Vasco da Gama</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Santa Fe</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/7818.png" alt="Santa Fe" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/7818.png" alt="Santa Fe" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('today_vascodag_santafe_1')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Vasco da Gama</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('today_vascodag_santafe_1')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama vs Santa Fe" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'Vasco da Gama', 'Santa Fe')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Santa Fe</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/7818.png" alt="Santa Fe" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1060,30 +1075,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10090.png" alt="Instituto" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10090.png" alt="Instituto" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">Instituto</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Estudiantes de Río Cuarto</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/213591.png" alt="Estudiantes de Río Cuarto" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/213591.png" alt="Estudiantes de Río Cuarto" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('today_institut_estudian_2')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10090.png" alt="Instituto" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Instituto</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('today_institut_estudian_2')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png" alt="Instituto vs Estudiantes de Río Cuarto" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'Instituto', 'Estudiantes de Río Cuarto')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Estudiantes de Río Cuarto</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/213591.png" alt="Estudiantes de Río Cuarto" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1103,30 +1115,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6721.png" alt="LDU de Quito" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6721.png" alt="LDU de Quito" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">LDU de Quito</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Palmeiras</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_ldudequi_palmeira_0')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/6721.png" alt="LDU de Quito" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">LDU de Quito</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_ldudequi_palmeira_0')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png" alt="LDU de Quito vs Palmeiras" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'LDU de Quito', 'Palmeiras')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Palmeiras</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10283.png" alt="Palmeiras" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1143,30 +1152,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161729.png" alt="Independiente Rivadavia" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161729.png" alt="Independiente Rivadavia" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">Independiente Rivadavia</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Atlético Tucumán</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161727.png" alt="Atlético Tucumán" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161727.png" alt="Atlético Tucumán" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_independ_atlticot_1')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161729.png" alt="Independiente Rivadavia" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Independiente Rivadavia</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_independ_atlticot_1')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png" alt="Independiente Rivadavia vs Atlético Tucumán" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'Independiente Rivadavia', 'Atlético Tucumán')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Atlético Tucumán</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161727.png" alt="Atlético Tucumán" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1183,30 +1189,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">São Paulo</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Boca Juniors</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10077.png" alt="Boca Juniors" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10077.png" alt="Boca Juniors" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_sopaulo_bocajuni_2')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">São Paulo</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_sopaulo_bocajuni_2')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo vs Boca Juniors" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'São Paulo', 'Boca Juniors')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Boca Juniors</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10077.png" alt="Boca Juniors" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1223,30 +1226,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">Atlético-MG</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Santos</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8514.png" alt="Santos" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8514.png" alt="Santos" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_atlticom_santos_3')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Atlético-MG</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_atlticom_santos_3')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG vs Santos" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'Atlético-MG', 'Santos')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Santos</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8514.png" alt="Santos" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1263,30 +1263,27 @@
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">Botafogo</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">Grêmio</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 
+                <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('tomorrow_botafogo_grmio_4')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                            <span class="thumb-team-label">Botafogo</span>
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_botafogo_grmio_4')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png" alt="Botafogo vs Grêmio" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, 'Botafogo', 'Grêmio')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">fotmob.com</span>
                         </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">Grêmio</span>
-                            <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9769.png" alt="Grêmio" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>';">
-                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                     </div>
                 </div>
             </td>
@@ -1300,7 +1297,7 @@
                 </div>
 
                 <div class="footer">
-                    Last Updated: 2026-09-15 18:44:27 UTC • Fotmob & Sofascore Synced
+                    Last Updated: 2026-09-15 19:32:23 UTC • Fotmob & Sofascore Synced
                 </div>
             </main>
         </div>
@@ -1384,9 +1381,9 @@
     <!-- Toast Notification for Copy Feedback -->
     <div id="toast">Copied to clipboard!</div>
 
-            <!-- Hard Fallback: Injected by main.py -->
+                <!-- Hard Fallback: Injected by main.py -->
     <script id="embedded-initial-matches">
-        window.INITIAL_MATCHES = {"total_matches": 8, "last_updated": "2026-09-15T18:44:27Z", "today": [{"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "Club Atlético Platense", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png", "banner_title": "Club Atlético Platense vs Fluminense", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "today_platense_fluminen_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Vasco da Gama", "away_team": "Santa Fe", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7818.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png", "banner_title": "Vasco da Gama vs Santa Fe", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "today_vascodag_santafe_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Estudiantes de Río Cuarto", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213591.png", "local_time": "20:15", "morocco_time": "00:15", "status": "FINISHED (2 - 1)", "status_text": "FINISHED (2 - 1)", "status_class": "status-finished", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png", "banner_title": "Instituto vs Estudiantes de Río Cuarto", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "today_institut_estudian_2"}], "tomorrow": [{"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "LDU de Quito", "away_team": "Palmeiras", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6721.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png", "banner_title": "LDU de Quito vs Palmeiras", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "tomorrow_ldudequi_palmeira_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Argentina", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Independiente Rivadavia", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png", "banner_title": "Independiente Rivadavia vs Atlético Tucumán", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "tomorrow_independ_atlticot_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "São Paulo", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "20:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png", "banner_title": "São Paulo vs Boca Juniors", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_sopaulo_bocajuni_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Atlético-MG", "away_team": "Santos", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png", "banner_title": "Atlético-MG vs Santos", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_atlticom_santos_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Botafogo", "away_team": "Grêmio", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "local_time": "18:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png", "banner_title": "Botafogo vs Grêmio", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_id": "tomorrow_botafogo_grmio_4"}], "matches": [{"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "Club Atlético Platense", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png", "banner_title": "Club Atlético Platense vs Fluminense", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "today_platense_fluminen_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Vasco da Gama", "away_team": "Santa Fe", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7818.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png", "banner_title": "Vasco da Gama vs Santa Fe", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "today_vascodag_santafe_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Estudiantes de Río Cuarto", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213591.png", "local_time": "20:15", "morocco_time": "00:15", "status": "FINISHED (2 - 1)", "status_text": "FINISHED (2 - 1)", "status_class": "status-finished", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png", "banner_title": "Instituto vs Estudiantes de Río Cuarto", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "today_institut_estudian_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "LDU de Quito", "away_team": "Palmeiras", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6721.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png", "banner_title": "LDU de Quito vs Palmeiras", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "tomorrow_ldudequi_palmeira_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Argentina", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Independiente Rivadavia", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png", "banner_title": "Independiente Rivadavia vs Atlético Tucumán", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "tomorrow_independ_atlticot_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "São Paulo", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "20:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png", "banner_title": "São Paulo vs Boca Juniors", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_sopaulo_bocajuni_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Atlético-MG", "away_team": "Santos", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png", "banner_title": "Atlético-MG vs Santos", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_atlticom_santos_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Botafogo", "away_team": "Grêmio", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "local_time": "18:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png", "banner_title": "Botafogo vs Grêmio", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_id": "tomorrow_botafogo_grmio_4"}]};
+        window.INITIAL_MATCHES = {"total_matches": 8, "last_updated": "2026-09-15T19:32:23Z", "today": [{"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "Club Atlético Platense", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png", "banner_title": "Club Atlético Platense vs Fluminense", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "today_platense_fluminen_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Vasco da Gama", "away_team": "Santa Fe", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7818.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png", "banner_title": "Vasco da Gama vs Santa Fe", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "today_vascodag_santafe_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Estudiantes de Río Cuarto", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213591.png", "local_time": "20:15", "morocco_time": "00:15", "status": "FINISHED (2 - 1)", "status_text": "FINISHED (2 - 1)", "status_class": "status-finished", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png", "banner_title": "Instituto vs Estudiantes de Río Cuarto", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "today_institut_estudian_2"}], "tomorrow": [{"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "LDU de Quito", "away_team": "Palmeiras", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6721.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png", "banner_title": "LDU de Quito vs Palmeiras", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "tomorrow_ldudequi_palmeira_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Argentina", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Independiente Rivadavia", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png", "banner_title": "Independiente Rivadavia vs Atlético Tucumán", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "tomorrow_independ_atlticot_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "São Paulo", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "20:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png", "banner_title": "São Paulo vs Boca Juniors", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_sopaulo_bocajuni_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Atlético-MG", "away_team": "Santos", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png", "banner_title": "Atlético-MG vs Santos", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_atlticom_santos_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Botafogo", "away_team": "Grêmio", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "local_time": "18:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png", "banner_title": "Botafogo vs Grêmio", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_id": "tomorrow_botafogo_grmio_4"}], "matches": [{"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "Club Atlético Platense", "away_team": "Fluminense", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10089.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10089.png", "banner_title": "Club Atlético Platense vs Fluminense", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "today_platense_fluminen_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Vasco da Gama", "away_team": "Santa Fe", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7818.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10276.png", "banner_title": "Vasco da Gama vs Santa Fe", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "today_vascodag_santafe_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-09-15", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Estudiantes de Río Cuarto", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213591.png", "local_time": "20:15", "morocco_time": "00:15", "status": "FINISHED (2 - 1)", "status_text": "FINISHED (2 - 1)", "status_class": "status-finished", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10090.png", "banner_title": "Instituto vs Estudiantes de Río Cuarto", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "today_institut_estudian_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Libertadores", "country": "South America", "badge_class": "badge-libertadores", "home_team": "LDU de Quito", "away_team": "Palmeiras", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6721.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/6721.png", "banner_title": "LDU de Quito vs Palmeiras", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "channels": ["ESPN", "Fox Sports", "Star+", "Globo"], "match_id": "tomorrow_ldudequi_palmeira_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Argentina", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Independiente Rivadavia", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/161729.png", "banner_title": "Independiente Rivadavia vs Atlético Tucumán", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"], "match_id": "tomorrow_independ_atlticot_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "São Paulo", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "20:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10277.png", "banner_title": "São Paulo vs Boca Juniors", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_sopaulo_bocajuni_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Atlético-MG", "away_team": "Santos", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png", "local_time": "18:00", "morocco_time": "22:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/10272.png", "banner_title": "Atlético-MG vs Santos", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "channels": ["ESPN 3", "Star+", "DSports", "Paramount+"], "match_id": "tomorrow_atlticom_santos_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-09-16", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Botafogo", "away_team": "Grêmio", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png", "local_time": "18:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "banner_url": "https://cdn-img.staticzz.com/image_resources/logo/teamlogo/8517.png", "banner_title": "Botafogo vs Grêmio", "banner_source_site": "fotmob.com", "has_scraped_banner": false, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_id": "tomorrow_botafogo_grmio_4"}]};
     </script>
 
     <script>
@@ -1412,9 +1409,6 @@
             }
         }
         loadInitialMatches();
-
-        // Fallback SVG Crest
-        const DEFAULT_CREST = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽</text></svg>";
 
         // Toast feedback
         function showToast(msg) {
@@ -1843,14 +1837,16 @@
             m.has_scraped_banner = Boolean(bannerUrl);
             if (!m.banner_source_site) m.banner_source_site = sourceSite;
 
-            const fixtureSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>${homeTeam} vs ${awayTeam}</text></svg>`;
+            const homeEsc = (homeTeam || '').replace(/'/g, "\\'");
+            const awayEsc = (awayTeam || '').replace(/'/g, "\\'");
+            const fixtureSvg = getFixtureSvg(homeTeam, awayTeam);
             const displayImgSrc = bannerUrl || fixtureSvg;
 
             return `
             <!-- Large Match Preview Banner -->
             <div class="banner-preview-box">
                 <div class="banner-image-container" onclick="openMatchBanner('${matchId}')" title="Click to open full 16:9 match preview banner in modal">
-                    <img src="${displayImgSrc}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='${fixtureSvg}';">
+                    <img src="${displayImgSrc}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, '${homeEsc}', '${awayEsc}')">
                     <div class="banner-hover-overlay">
                         <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                         <span class="banner-source-pill">${sourceSite}</span>
@@ -1908,13 +1904,13 @@
                     <td>
                         <div class="match-headline">
                             <span class="team-item">
-                                <img src="${homeLogo}" alt="${homeTeam}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                                <img src="${homeLogo}" alt="${homeTeam}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                                 <strong class="team-title">${homeTeam}</strong>
                             </span>
                             <span class="vs-glow">VS</span>
                             <span class="team-item">
                                 <strong class="team-title">${awayTeam}</strong>
-                                <img src="${awayLogo}" alt="${awayTeam}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='${DEFAULT_CREST}';">
+                                <img src="${awayLogo}" alt="${awayTeam}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                             </span>
                             ${pastFlagBadge}
                         </div>

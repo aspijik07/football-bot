@@ -155,13 +155,46 @@ def is_valid_fixture(m: Any) -> bool:
 
 def fix_cdn_url(url: Optional[str]) -> str:
     """
-    Safely convert banner image URLs to CDN using urllib.parse:
+    Safely convert match banner image URLs to the staticzz CDN pattern:
+    https://cdn-img.staticzz.com/img/noticias/[MATCH_IMAGE_PATH]
     Replaces zerozero, ogol, or relative URLs with cdn-img.staticzz.com.
     """
     if not url:
         return ""
-    p = urlparse(url)
-    return f"https://cdn-img.staticzz.com{p.path}{'?' + p.query if p.query else ''}"
+    clean_url = str(url).strip()
+    if not clean_url:
+        return ""
+
+    # If already on cdn-img.staticzz.com, ensure https
+    if "cdn-img.staticzz.com" in clean_url:
+        return re.sub(r"^http://", "https://", clean_url)
+
+    # Extract noticias path if present (/img/noticias/... or img/noticias/...)
+    noticias_match = re.search(r"/?(img/noticias/.*)$", clean_url)
+    if noticias_match:
+        return f"https://cdn-img.staticzz.com/{noticias_match.group(1).lstrip('/')}"
+
+    # Parse general path for zerozero / ogol / staticzz domains
+    if any(domain in clean_url for domain in ["zerozero.com.ar", "zerozero.pt", "ogol.com.br", "staticzz.com"]):
+        p = urlparse(clean_url if "://" in clean_url else f"https://{clean_url.lstrip('/')}")
+        path = p.path or ""
+        if path:
+            if not path.startswith("/"):
+                path = "/" + path
+            return f"https://cdn-img.staticzz.com{path}{'?' + p.query if p.query else ''}"
+
+    if clean_url.startswith("/img/") or clean_url.startswith("img/"):
+        return f"https://cdn-img.staticzz.com/{clean_url.lstrip('/')}"
+
+    # If relative image path
+    if clean_url.startswith("/"):
+        return f"https://cdn-img.staticzz.com{clean_url}"
+
+    p = urlparse(clean_url)
+    if p.path:
+        return f"https://cdn-img.staticzz.com{p.path}{'?' + p.query if p.query else ''}"
+
+    return f"https://cdn-img.staticzz.com/{clean_url}"
 
 
 # Maintain backwards compatibility
@@ -769,7 +802,7 @@ def cross_verify_matches_with_sources(
 
 def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
     """
-    Scrapes match preview news banners from zerozero.com.ar, ogol.com.br, and livesoccertv.com.
+    Scrapes match preview news banners from zerozero.com.ar, zerozero.pt, ogol.com.br, and livesoccertv.com.
     Ensures all extracted banner URLs are rewritten to cdn-img.staticzz.com.
     """
     banners = {}
@@ -780,6 +813,7 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
 
     sources = [
         {"domain": "zerozero.com.ar", "url": f"https://www.zerozero.com.ar/noticias?data={match_date_str}"},
+        {"domain": "zerozero.pt", "url": f"https://www.zerozero.pt/noticias?data={match_date_str}"},
         {"domain": "ogol.com.br", "url": f"https://www.ogol.com.br/noticias?data={match_date_str}"},
         {"domain": "livesoccertv.com", "url": "https://www.livesoccertv.com/news/"},
     ]
@@ -820,7 +854,7 @@ def scrape_zerozero_banners(match_date_str: str) -> Dict[str, Dict[str, Any]]:
 
 def fetch_fixture_banner_fallback(home_team: str, away_team: str, league: str) -> Optional[Dict[str, Any]]:
     """
-    Dynamically queries search endpoints on zerozero / ogol for match-specific preview image.
+    Dynamically queries search endpoints on zerozero.com.ar, zerozero.pt, or ogol.com.br for match-specific preview image.
     Strictly avoids static default banner fallbacks (e.g. Newell's vs Velez).
     """
     headers = {
@@ -830,30 +864,31 @@ def fetch_fixture_banner_fallback(home_team: str, away_team: str, league: str) -
     h_norm = normalize_team(home_team)
     a_norm = normalize_team(away_team)
     is_brazil = any(k in (league or "").lower() for k in ["série a", "serie a", "brasil", "brazil", "copa do brasil"])
-    domain = "ogol.com.br" if is_brazil else "zerozero.com.ar"
-    search_url = f"https://www.{domain}/pesquisa?search_txt={quote(home_team + ' ' + away_team)}"
+    domains = ["ogol.com.br", "zerozero.pt"] if is_brazil else ["zerozero.com.ar", "zerozero.pt", "ogol.com.br"]
 
-    try:
-        resp = requests.get(search_url, headers=headers, timeout=8)
-        if resp.status_code == 200:
-            soup = BeautifulSoup(resp.text, "html.parser")
-            for item in soup.select("div.noticia, div.news-item, a[href*='/noticias/']"):
-                title_elem = item.select_one("h2, .title, .text")
-                img_elem = item.select_one("img")
-                if title_elem and img_elem:
-                    t_text = title_elem.get_text(strip=True)
-                    t_norm = re.sub(r"[^a-z0-9]", "", t_text.lower())
-                    if h_norm in t_norm or a_norm in t_norm:
-                        raw_src = img_elem.get("src") or img_elem.get("data-src") or ""
-                        if raw_src:
-                            return {
-                                "banner_url": fix_cdn_url(raw_src),
-                                "banner_title": t_text,
-                                "banner_source_site": domain,
-                                "has_scraped_banner": True,
-                            }
-    except Exception as e:
-        logger.debug("Dynamic fixture banner search error: %s", e)
+    for domain in domains:
+        search_url = f"https://www.{domain}/pesquisa?search_txt={quote(home_team + ' ' + away_team)}"
+        try:
+            resp = requests.get(search_url, headers=headers, timeout=8)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, "html.parser")
+                for item in soup.select("div.noticia, div.news-item, a[href*='/noticias/']"):
+                    title_elem = item.select_one("h2, .title, .text")
+                    img_elem = item.select_one("img")
+                    if title_elem and img_elem:
+                        t_text = title_elem.get_text(strip=True)
+                        t_norm = re.sub(r"[^a-z0-9]", "", t_text.lower())
+                        if (h_norm and h_norm in t_norm) or (a_norm and a_norm in t_norm):
+                            raw_src = img_elem.get("src") or img_elem.get("data-src") or ""
+                            if raw_src:
+                                return {
+                                    "banner_url": fix_cdn_url(raw_src),
+                                    "banner_title": t_text,
+                                    "banner_source_site": domain,
+                                    "has_scraped_banner": True,
+                                }
+        except Exception as e:
+            logger.debug("Dynamic fixture banner search error on %s: %s", domain, e)
 
     return None
 
@@ -1617,38 +1652,32 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     banner_title = m.get("banner_title") or f"{home_team} vs {away_team}"
     banner_site = m.get("banner_source_site") or "zerozero.com.ar"
 
-    if m.get("has_scraped_banner") and banner_url:
-        banner_cell = f"""
+    home_team_esc = home_team.replace("'", "\\'")
+    away_team_esc = away_team.replace("'", "\\'")
+
+    fixture_svg = f"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>{home_team} vs {away_team}</text></svg>"
+    display_banner_url = banner_url if banner_url else fixture_svg
+
+    if banner_url:
+        banner_actions = (
+            f'<a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>'
+            f'<button type="button" class="btn-copy-crest" onclick="copyDirectUrl(\'{banner_url}\', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>'
+        )
+    else:
+        banner_actions = '<span class="direct-img-chip" style="opacity:0.6;">⚡ Match Card</span>'
+
+    banner_cell = f"""
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
                     <div class="banner-image-container" onclick="openMatchBanner('{match_id}')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="{banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_CREST}';">
+                        <img src="{display_banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, '{home_team_esc}', '{away_team_esc}')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">{banner_site}</span>
                         </div>
                     </div>
                     <div class="banner-actions-subrow">
-                        <a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('{banner_url}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-                    </div>
-                </div>"""
-    else:
-        banner_cell = f"""
-                <div class="banner-preview-box">
-                    <div class="dual-thumb-card" onclick="openMatchBanner('{match_id}')" title="Click to view match card in modal">
-                        <div class="thumb-team-side">
-                            <img src="{home_logo}" alt="{home_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_CREST}';">
-                            <span class="thumb-team-label">{home_team}</span>
-                        </div>
-                        <div class="thumb-center-vs">
-                            <span class="thumb-vs-text">VS</span>
-                            <span class="thumb-view-badge">🔍 View Card</span>
-                        </div>
-                        <div class="thumb-team-side">
-                            <span class="thumb-team-label">{away_team}</span>
-                            <img src="{away_logo}" alt="{away_team}" class="thumb-logo-img" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_CREST}';">
-                        </div>
+                        {banner_actions}
                     </div>
                 </div>"""
 
@@ -1660,13 +1689,13 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
             <td>
                 <div class="match-headline">
                     <span class="team-item">
-                        <img src="{home_logo}" alt="{home_team}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_CREST}';">
+                        <img src="{home_logo}" alt="{home_team}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">{home_team}</strong>
                     </span>
                     <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">{away_team}</strong>
-                        <img src="{away_logo}" alt="{away_team}" class="team-crest-sm" loading="lazy" onerror="this.onerror=null;this.src='{DEFAULT_CREST}';">
+                        <img src="{away_logo}" alt="{away_team}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                     </span>
                 </div>
 {banner_cell}
