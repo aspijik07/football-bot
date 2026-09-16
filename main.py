@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Football Broadcast Dashboard - Studio Pro Match Banners & Live Score Sync
-With Official League Trophies, Auto-Cleanup of expired matches & Accurate Morocco Time.
+Football Broadcast Dashboard - Studio Pro Match Banners with Local Crest Cache
+Features:
+- Local Crest Cache (assets/crests/) -> 0 Rate Limits, Ultra Fast
+- Local Trophy Cache (assets/trophies/)
+- Auto-Cleanup of expired match banners
+- Accurate Morocco Time (Africa/Casablanca) & Channels Sync
 """
 
 import os
@@ -14,6 +18,7 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Tuple
 
 import requests
+from bs4 import BeautifulSoup
 from PIL import Image, ImageDraw
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -33,10 +38,14 @@ except Exception:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BANNERS_DIR = os.path.join(BASE_DIR, "banners")
+CRESTS_DIR = os.path.join(BASE_DIR, "assets", "crests")
+TROPHIES_DIR = os.path.join(BASE_DIR, "assets", "trophies")
 MATCHES_JSON_PATH = os.path.join(BASE_DIR, "matches.json")
 INDEX_HTML_PATH = os.path.join(BASE_DIR, "index.html")
 
 os.makedirs(BANNERS_DIR, exist_ok=True)
+os.makedirs(CRESTS_DIR, exist_ok=True)
+os.makedirs(TROPHIES_DIR, exist_ok=True)
 
 DEFAULT_CREST = (
     "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' "
@@ -59,7 +68,7 @@ INVALID_PLACEHOLDERS = {
     "team a", "team b", "team 1", "team 2", "time a", "time b", "tbd vs tbd"
 }
 
-# Real HD Trophy Logo URLs
+# Trophy Master CDN sources for auto-caching
 TROPHY_ICONS = {
     "libertadores": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/132.png",
     "sudamericana": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/133.png",
@@ -108,6 +117,92 @@ LEAGUE_THEMES = {
 }
 
 
+# ==========================================
+# ⚡ CREST & TROPHY LOCAL CACHE ENGINE
+# ==========================================
+
+def clean_accents(text: str) -> str:
+    if not text:
+        return ""
+    return unicodedata.normalize('NFKD', str(text)).encode('ASCII', 'ignore').decode('utf-8').lower().strip()
+
+
+def normalize_team(name: str) -> str:
+    if not name:
+        return ""
+    n = clean_accents(name)
+    prefixes = ["club atletico ", "atletico ", "ca ", "cd ", "cf ", "fc ", "ad ", "sc ", "sp ", "clube de regatas "]
+    for p in prefixes:
+        if n.startswith(p):
+            n = n[len(p):]
+            break
+    return re.sub(r"[^a-z0-9]", "", n)
+
+
+def get_cached_team_crest(team_name: str, logo_url: str, target_size: int = 180) -> Optional[Image.Image]:
+    """Retrieves crest from local disk cache, or downloads once and saves locally."""
+    if not team_name:
+        return None
+
+    team_slug = normalize_team(team_name)
+    local_path = os.path.join(CRESTS_DIR, f"{team_slug}.png")
+
+    # 1. Load from local cache if present
+    if os.path.exists(local_path) and os.path.getsize(local_path) > 300:
+        try:
+            img = Image.open(local_path).convert("RGBA")
+            img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
+            return img
+        except Exception:
+            pass
+
+    # 2. Download from remote, cache to disk, and return
+    if logo_url and "svg" not in logo_url:
+        try:
+            resp = requests.get(logo_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
+            if resp.status_code == 200:
+                img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+                # Save master transparent PNG to cache
+                img.save(local_path, "PNG", optimize=True)
+                logger.info("Cached new team crest: %s -> %s", team_name, local_path)
+                img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
+                return img
+        except Exception:
+            pass
+
+    return None
+
+
+def get_cached_trophy(theme_key: str, target_size: int = 55) -> Optional[Image.Image]:
+    """Retrieves tournament trophy from local disk cache, or downloads once."""
+    trophy_path = os.path.join(TROPHIES_DIR, f"{theme_key}.png")
+
+    if os.path.exists(trophy_path) and os.path.getsize(trophy_path) > 300:
+        try:
+            img = Image.open(trophy_path).convert("RGBA")
+            img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
+            return img
+        except Exception:
+            pass
+
+    remote_url = TROPHY_ICONS.get(theme_key, TROPHY_ICONS["libertadores"])
+    try:
+        resp = requests.get(remote_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
+        if resp.status_code == 200:
+            img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+            img.save(trophy_path, "PNG", optimize=True)
+            img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
+            return img
+    except Exception:
+        pass
+
+    return None
+
+
+# ==========================================
+# 🎨 MATCH BANNER COMPOSITOR
+# ==========================================
+
 def create_league_background(width: int, height: int, theme_key: str) -> Image.Image:
     theme = LEAGUE_THEMES.get(theme_key, LEAGUE_THEMES["default"])
     c1, c2 = theme["c_top"], theme["c_bottom"]
@@ -123,30 +218,16 @@ def create_league_background(width: int, height: int, theme_key: str) -> Image.I
     overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     ov_draw = ImageDraw.Draw(overlay)
 
-    # Center spotlight
+    # Central stadium lighting
     cx, cy = width // 2, height // 2
     ov_draw.ellipse([cx - 240, cy - 180, cx + 240, cy + 180], fill=(255, 255, 255, 16))
 
-    # Left Playmaker badge
+    # Pro League Badge Icon (Top Left)
     ov_draw.rectangle([25, 25, 33, 50], fill=(255, 255, 255, 220))
     ov_draw.rectangle([33, 25, 45, 38], fill=(255, 255, 255, 220))
 
     base = Image.alpha_composite(base, overlay)
     return base
-
-
-def fetch_image_from_url(url: str, target_size: int = 175) -> Optional[Image.Image]:
-    if not url or "svg" in url:
-        return None
-    try:
-        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
-        if resp.status_code == 200:
-            img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
-            img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
-            return img
-    except Exception:
-        pass
-    return None
 
 
 def generate_match_banner(
@@ -185,15 +266,14 @@ def generate_match_banner(
     w, h = 640, 380
     banner = create_league_background(w, h, theme_key)
 
-    # Place Trophy in top right corner
-    trophy_url = TROPHY_ICONS.get(theme_key, TROPHY_ICONS["libertadores"])
-    trophy_img = fetch_image_from_url(trophy_url, target_size=55)
+    # Place Trophy in top right from cache
+    trophy_img = get_cached_trophy(theme_key, target_size=55)
     if trophy_img:
         banner.paste(trophy_img, (w - trophy_img.width - 25, 20), trophy_img)
 
-    # Place Home & Away Logos
-    h_img = fetch_image_from_url(home_logo_url, target_size=180)
-    a_img = fetch_image_from_url(away_logo_url, target_size=180)
+    # Place Home and Away Crests from local cache
+    h_img = get_cached_team_crest(home_team, home_logo_url, target_size=180)
+    a_img = get_cached_team_crest(away_team, away_logo_url, target_size=180)
 
     if h_img:
         hx = 185 - (h_img.width // 2)
@@ -211,7 +291,7 @@ def generate_match_banner(
 
 
 def cleanup_expired_banners(active_matches: List[Dict[str, Any]]) -> None:
-    """Deletes old match banners from disk so repository space stays 100% clean."""
+    """Cleans up only temporary match banners, preserving local crest cache."""
     active_filenames = set()
     for m in active_matches:
         h = normalize_team(m.get("home_team", ""))
@@ -228,6 +308,10 @@ def cleanup_expired_banners(active_matches: List[Dict[str, Any]]) -> None:
                 except Exception:
                     pass
 
+
+# ==========================================
+# 🕒 TIME & DATA NORMALIZATION
+# ==========================================
 
 def get_current_dates() -> Tuple[datetime, datetime, str, str]:
     now = datetime.now(TZ_UTC)
@@ -259,24 +343,6 @@ def format_match_times(dt: Optional[datetime], is_brazil: bool = False) -> Tuple
         return morocco_time, local_time
     except Exception:
         return "23:00", "19:00"
-
-
-def clean_accents(text: str) -> str:
-    if not text:
-        return ""
-    return unicodedata.normalize('NFKD', str(text)).encode('ASCII', 'ignore').decode('utf-8').lower().strip()
-
-
-def normalize_team(name: str) -> str:
-    if not name:
-        return ""
-    n = clean_accents(name)
-    prefixes = ["club atletico ", "atletico ", "ca ", "cd ", "cf ", "fc ", "ad ", "sc ", "sp ", "clube de regatas "]
-    for p in prefixes:
-        if n.startswith(p):
-            n = n[len(p):]
-            break
-    return re.sub(r"[^a-z0-9]", "", n)
 
 
 def is_valid_fixture(m: Any) -> bool:
@@ -395,6 +461,10 @@ def calculate_status(match_dt: Optional[datetime], started: bool = False, finish
     res = evaluate_match_state(match_dt, started, finished, cancelled, score_str, live_time, current_utc)
     return res["status_text"], res["status_class"]
 
+
+# ==========================================
+# 📺 BROADCAST CHANNELS SCRAPER
+# ==========================================
 
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     listings: List[Dict[str, Any]] = []
@@ -532,6 +602,10 @@ def get_channels_for_match(home_team: str, away_team: str, league_name: str, cou
     return ["TNT Sports", "ESPN Premium"]
 
 
+# ==========================================
+# ⚽ MATCHES SYNC & DASHBOARD GENERATOR
+# ==========================================
+
 def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
     matches: List[Dict[str, Any]] = []
     date_fotmob = target_date.strftime("%Y%m%d")
@@ -586,6 +660,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else DEFAULT_CREST
                     away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else DEFAULT_CREST
 
+                    # Generate High-Definition Match Banner with Local Crest Caching
                     cdn_banner = generate_match_banner(
                         home_team=home_name,
                         away_team=away_name,
@@ -867,7 +942,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
 
 def main():
-    logger.info("Initializing Auto-Banner Studio & Clean Sync...")
+    logger.info("Initializing Auto-Banner Studio with Local Crest Cache...")
 
     now, tomorrow, _, _ = get_current_dates()
 
@@ -885,7 +960,7 @@ def main():
 
     save_matches_to_disk(today_matches, tomorrow_matches)
     update_dashboard_html(today_matches, tomorrow_matches)
-    logger.info("Complete: Today (%d), Tomorrow (%d), Cleaned expired images.", len(today_matches), len(tomorrow_matches))
+    logger.info("Complete: Synced Today (%d), Tomorrow (%d). Cache active.", len(today_matches), len(tomorrow_matches))
 
 
 if __name__ == "__main__":
