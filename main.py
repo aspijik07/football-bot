@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Football Broadcast Dashboard - Automated Match Banner Studio & Dashboard Generator
-Generates League-Themed Banners (Libertadores, Sudamericana, Brazil, Argentina) with HD Crests automatically!
+Football Broadcast Dashboard - Studio Pro Match Banners & Live Score Sync
+With Official League Trophies, Auto-Cleanup of expired matches & Accurate Morocco Time.
 """
 
 import os
@@ -12,11 +12,9 @@ import logging
 import unicodedata
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Tuple
-from urllib.parse import urlparse, unquote
 
 import requests
-from bs4 import BeautifulSoup
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageDraw
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -61,46 +59,51 @@ INVALID_PLACEHOLDERS = {
     "team a", "team b", "team 1", "team 2", "time a", "time b", "tbd vs tbd"
 }
 
-
-# ==========================================
-# 🎨 BANNER GENERATOR STUDIO ENGINE (PILLOW)
-# ==========================================
+# Real HD Trophy Logo URLs
+TROPHY_ICONS = {
+    "libertadores": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/132.png",
+    "sudamericana": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/133.png",
+    "brazil": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/268.png",
+    "copa_do_brasil": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/315.png",
+    "argentina": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/112.png",
+    "copa_argentina": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/326.png",
+}
 
 LEAGUE_THEMES = {
     "libertadores": {
-        "c_top": (5, 36, 21),       # Deep emerald
-        "c_bottom": (16, 74, 45),   # Rich pitch green
-        "accent": (212, 175, 55),   # Gold
-        "watermark": "CONMEBOL LIBERTADORES",
-        "trophy_color": (230, 190, 70)
+        "c_top": (5, 36, 21),
+        "c_bottom": (16, 74, 45),
+        "trophy_key": "libertadores"
     },
     "sudamericana": {
-        "c_top": (6, 21, 48),       # Deep navy
-        "c_bottom": (14, 52, 108),  # Electric blue
-        "accent": (56, 189, 248),   # Cyan
-        "watermark": "CONMEBOL SUDAMERICANA",
-        "trophy_color": (192, 215, 245)
+        "c_top": (6, 21, 48),
+        "c_bottom": (14, 52, 108),
+        "trophy_key": "sudamericana"
     },
     "brazil": {
-        "c_top": (4, 32, 24),       # Brazilian dark pine
-        "c_bottom": (10, 68, 50),   # Bright stadium emerald
-        "accent": (234, 179, 8),    # Brazilian Gold
-        "watermark": "BRASILEIRÃO BETANO",
-        "trophy_color": (245, 200, 60)
+        "c_top": (4, 32, 24),
+        "c_bottom": (10, 68, 50),
+        "trophy_key": "brazil"
+    },
+    "copa_do_brasil": {
+        "c_top": (8, 40, 30),
+        "c_bottom": (15, 80, 55),
+        "trophy_key": "copa_do_brasil"
     },
     "argentina": {
-        "c_top": (8, 28, 52),       # Sky navy
-        "c_bottom": (18, 65, 110),  # Albiceleste blue
-        "accent": (116, 185, 255),  # Sky blue
-        "watermark": "LIGA PROFESIONAL AFA",
-        "trophy_color": (220, 200, 120)
+        "c_top": (8, 28, 52),
+        "c_bottom": (18, 65, 110),
+        "trophy_key": "argentina"
+    },
+    "copa_argentina": {
+        "c_top": (10, 35, 60),
+        "c_bottom": (20, 75, 120),
+        "trophy_key": "copa_argentina"
     },
     "default": {
-        "c_top": (15, 23, 42),      # Dark Slate
-        "c_bottom": (30, 41, 59),   # Navy Slate
-        "accent": (56, 189, 248),
-        "watermark": "MATCHDAY LIVE",
-        "trophy_color": (200, 200, 200)
+        "c_top": (15, 23, 42),
+        "c_bottom": (30, 41, 59),
+        "trophy_key": "libertadores"
     }
 }
 
@@ -120,19 +123,11 @@ def create_league_background(width: int, height: int, theme_key: str) -> Image.I
     overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     ov_draw = ImageDraw.Draw(overlay)
 
+    # Center spotlight
     cx, cy = width // 2, height // 2
-    ov_draw.ellipse([cx - 240, cy - 180, cx + 240, cy + 180], fill=(255, 255, 255, 18))
+    ov_draw.ellipse([cx - 240, cy - 180, cx + 240, cy + 180], fill=(255, 255, 255, 16))
 
-    tx, ty = width - 55, 45
-    t_color = theme["trophy_color"]
-    
-    # Trophy silhouette
-    ov_draw.ellipse([tx - 18, ty - 22, tx + 18, ty - 10], outline=(t_color[0], t_color[1], t_color[2], 220), width=3)
-    ov_draw.polygon([(tx - 18, ty - 16), (tx + 18, ty - 16), (tx + 10, ty + 12), (tx - 10, ty + 12)], fill=(t_color[0], t_color[1], t_color[2], 180))
-    ov_draw.rectangle([tx - 4, ty + 12, tx + 4, ty + 20], fill=(t_color[0], t_color[1], t_color[2], 200))
-    ov_draw.rectangle([tx - 14, ty + 20, tx + 14, ty + 24], fill=(t_color[0], t_color[1], t_color[2], 220))
-
-    # Left Playmaker / Pro badge
+    # Left Playmaker badge
     ov_draw.rectangle([25, 25, 33, 50], fill=(255, 255, 255, 220))
     ov_draw.rectangle([33, 25, 45, 38], fill=(255, 255, 255, 220))
 
@@ -140,7 +135,7 @@ def create_league_background(width: int, height: int, theme_key: str) -> Image.I
     return base
 
 
-def fetch_and_prepare_crest(url: str, target_size: int = 175) -> Optional[Image.Image]:
+def fetch_image_from_url(url: str, target_size: int = 175) -> Optional[Image.Image]:
     if not url or "svg" in url:
         return None
     try:
@@ -176,7 +171,11 @@ def generate_match_banner(
         theme_key = "libertadores"
     elif "sudamericana" in lg:
         theme_key = "sudamericana"
-    elif "brazil" in cc or "brasil" in cc or "série a" in lg or "copa do brasil" in lg:
+    elif "copa do brasil" in lg or "copa brasil" in lg:
+        theme_key = "copa_do_brasil"
+    elif "copa argentina" in lg:
+        theme_key = "copa_argentina"
+    elif "brazil" in cc or "brasil" in cc or "série a" in lg:
         theme_key = "brazil"
     elif "arg" in cc or "argentina" in lg:
         theme_key = "argentina"
@@ -186,8 +185,15 @@ def generate_match_banner(
     w, h = 640, 380
     banner = create_league_background(w, h, theme_key)
 
-    h_img = fetch_and_prepare_crest(home_logo_url, target_size=180)
-    a_img = fetch_and_prepare_crest(away_logo_url, target_size=180)
+    # Place Trophy in top right corner
+    trophy_url = TROPHY_ICONS.get(theme_key, TROPHY_ICONS["libertadores"])
+    trophy_img = fetch_image_from_url(trophy_url, target_size=55)
+    if trophy_img:
+        banner.paste(trophy_img, (w - trophy_img.width - 25, 20), trophy_img)
+
+    # Place Home & Away Logos
+    h_img = fetch_image_from_url(home_logo_url, target_size=180)
+    a_img = fetch_image_from_url(away_logo_url, target_size=180)
 
     if h_img:
         hx = 185 - (h_img.width // 2)
@@ -201,14 +207,27 @@ def generate_match_banner(
 
     final_img = banner.convert("RGB")
     final_img.save(filepath, "JPEG", quality=92, optimize=True)
-    logger.info("Generated HD Banner: %s", filename)
-
     return f"https://aspijik07.github.io/football-bot/banners/{filename}"
 
 
-# ==========================================
-# 🕒 TIME & DATA NORMALIZATION
-# ==========================================
+def cleanup_expired_banners(active_matches: List[Dict[str, Any]]) -> None:
+    """Deletes old match banners from disk so repository space stays 100% clean."""
+    active_filenames = set()
+    for m in active_matches:
+        h = normalize_team(m.get("home_team", ""))
+        a = normalize_team(m.get("away_team", ""))
+        if h and a:
+            active_filenames.add(f"{h}_{a}.jpg")
+
+    if os.path.exists(BANNERS_DIR):
+        for fname in os.listdir(BANNERS_DIR):
+            if fname.endswith(".jpg") and fname not in active_filenames:
+                try:
+                    os.remove(os.path.join(BANNERS_DIR, fname))
+                    logger.info("Cleaned up expired banner: %s", fname)
+                except Exception:
+                    pass
+
 
 def get_current_dates() -> Tuple[datetime, datetime, str, str]:
     now = datetime.now(TZ_UTC)
@@ -377,13 +396,9 @@ def calculate_status(match_dt: Optional[datetime], started: bool = False, finish
     return res["status_text"], res["status_class"]
 
 
-# ==========================================
-# 📺 BROADCAST CHANNELS SCRAPER
-# ==========================================
-
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     listings: List[Dict[str, Any]] = []
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     urls = [
         "https://www.livesoccertv.com/schedules/",
         "https://www.livesoccertv.com/competitions/argentina/primera-division/",
@@ -437,7 +452,7 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
 
 def scrape_futebolnatv_fixtures_and_channels() -> List[Dict[str, Any]]:
     listings: List[Dict[str, Any]] = []
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     urls = [
         {"url": "https://www.futebolnatv.com.br/jogos-hoje/", "day": "today"},
         {"url": "https://www.futebolnatv.com.br/jogos-amanha/", "day": "tomorrow"},
@@ -517,10 +532,6 @@ def get_channels_for_match(home_team: str, away_team: str, league_name: str, cou
     return ["TNT Sports", "ESPN Premium"]
 
 
-# ==========================================
-# ⚽ MATCHES SYNC & DASHBOARD GENERATOR
-# ==========================================
-
 def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
     matches: List[Dict[str, Any]] = []
     date_fotmob = target_date.strftime("%Y%m%d")
@@ -575,7 +586,6 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else DEFAULT_CREST
                     away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else DEFAULT_CREST
 
-                    # 🎨 AUTO-GENERATE HIGH-DEFINITION MATCH BANNER
                     cdn_banner = generate_match_banner(
                         home_team=home_name,
                         away_team=away_name,
@@ -857,7 +867,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
 
 def main():
-    logger.info("Initializing Auto-Banner Studio Generator & Data Sync...")
+    logger.info("Initializing Auto-Banner Studio & Clean Sync...")
 
     now, tomorrow, _, _ = get_current_dates()
 
@@ -870,9 +880,12 @@ def main():
     today_matches = cross_verify_matches_with_sources(scraped_today, livesoccertv_listings, futebolnatv_listings)
     tomorrow_matches = cross_verify_matches_with_sources(scraped_tomorrow, livesoccertv_listings, futebolnatv_listings)
 
+    all_current_matches = today_matches + tomorrow_matches
+    cleanup_expired_banners(all_current_matches)
+
     save_matches_to_disk(today_matches, tomorrow_matches)
     update_dashboard_html(today_matches, tomorrow_matches)
-    logger.info("Complete! Generated banners and synced: Today (%d), Tomorrow (%d)", len(today_matches), len(tomorrow_matches))
+    logger.info("Complete: Today (%d), Tomorrow (%d), Cleaned expired images.", len(today_matches), len(tomorrow_matches))
 
 
 if __name__ == "__main__":
