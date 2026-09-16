@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Football Broadcast Dashboard Scraper & HTML Generator
-Fixed: Precise Staticzz Banner Matching & Strict Team Matching (No More Wrong Team Images)
+Football Broadcast Dashboard - Automated Match Banner Studio & Dashboard Generator
+Generates League-Themed Banners (Libertadores, Sudamericana, Brazil, Argentina) with HD Crests automatically!
 """
 
 import os
 import re
+import io
 import json
 import logging
 import unicodedata
@@ -15,6 +16,7 @@ from urllib.parse import urlparse, unquote
 
 import requests
 from bs4 import BeautifulSoup
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -32,8 +34,11 @@ except Exception:
     TZ_BRAZIL = timezone(timedelta(hours=-3))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BANNERS_DIR = os.path.join(BASE_DIR, "banners")
 MATCHES_JSON_PATH = os.path.join(BASE_DIR, "matches.json")
 INDEX_HTML_PATH = os.path.join(BASE_DIR, "index.html")
+
+os.makedirs(BANNERS_DIR, exist_ok=True)
 
 DEFAULT_CREST = (
     "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' "
@@ -57,6 +62,154 @@ INVALID_PLACEHOLDERS = {
 }
 
 
+# ==========================================
+# 🎨 BANNER GENERATOR STUDIO ENGINE (PILLOW)
+# ==========================================
+
+LEAGUE_THEMES = {
+    "libertadores": {
+        "c_top": (5, 36, 21),       # Deep emerald
+        "c_bottom": (16, 74, 45),   # Rich pitch green
+        "accent": (212, 175, 55),   # Gold
+        "watermark": "CONMEBOL LIBERTADORES",
+        "trophy_color": (230, 190, 70)
+    },
+    "sudamericana": {
+        "c_top": (6, 21, 48),       # Deep navy
+        "c_bottom": (14, 52, 108),  # Electric blue
+        "accent": (56, 189, 248),   # Cyan
+        "watermark": "CONMEBOL SUDAMERICANA",
+        "trophy_color": (192, 215, 245)
+    },
+    "brazil": {
+        "c_top": (4, 32, 24),       # Brazilian dark pine
+        "c_bottom": (10, 68, 50),   # Bright stadium emerald
+        "accent": (234, 179, 8),    # Brazilian Gold
+        "watermark": "BRASILEIRÃO BETANO",
+        "trophy_color": (245, 200, 60)
+    },
+    "argentina": {
+        "c_top": (8, 28, 52),       # Sky navy
+        "c_bottom": (18, 65, 110),  # Albiceleste blue
+        "accent": (116, 185, 255),  # Sky blue
+        "watermark": "LIGA PROFESIONAL AFA",
+        "trophy_color": (220, 200, 120)
+    },
+    "default": {
+        "c_top": (15, 23, 42),      # Dark Slate
+        "c_bottom": (30, 41, 59),   # Navy Slate
+        "accent": (56, 189, 248),
+        "watermark": "MATCHDAY LIVE",
+        "trophy_color": (200, 200, 200)
+    }
+}
+
+
+def create_league_background(width: int, height: int, theme_key: str) -> Image.Image:
+    theme = LEAGUE_THEMES.get(theme_key, LEAGUE_THEMES["default"])
+    c1, c2 = theme["c_top"], theme["c_bottom"]
+
+    base = Image.new("RGBA", (width, height), (0, 0, 0, 255))
+    draw = ImageDraw.Draw(base)
+    for y in range(height):
+        r = int(c1[0] + (c2[0] - c1[0]) * (y / height))
+        g = int(c1[1] + (c2[1] - c1[1]) * (y / height))
+        b = int(c1[2] + (c2[2] - c1[2]) * (y / height))
+        draw.line([(0, y), (width, y)], fill=(r, g, b, 255))
+
+    overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    ov_draw = ImageDraw.Draw(overlay)
+
+    cx, cy = width // 2, height // 2
+    ov_draw.ellipse([cx - 240, cy - 180, cx + 240, cy + 180], fill=(255, 255, 255, 18))
+
+    tx, ty = width - 55, 45
+    t_color = theme["trophy_color"]
+    
+    # Trophy silhouette
+    ov_draw.ellipse([tx - 18, ty - 22, tx + 18, ty - 10], outline=(t_color[0], t_color[1], t_color[2], 220), width=3)
+    ov_draw.polygon([(tx - 18, ty - 16), (tx + 18, ty - 16), (tx + 10, ty + 12), (tx - 10, ty + 12)], fill=(t_color[0], t_color[1], t_color[2], 180))
+    ov_draw.rectangle([tx - 4, ty + 12, tx + 4, ty + 20], fill=(t_color[0], t_color[1], t_color[2], 200))
+    ov_draw.rectangle([tx - 14, ty + 20, tx + 14, ty + 24], fill=(t_color[0], t_color[1], t_color[2], 220))
+
+    # Left Playmaker / Pro badge
+    ov_draw.rectangle([25, 25, 33, 50], fill=(255, 255, 255, 220))
+    ov_draw.rectangle([33, 25, 45, 38], fill=(255, 255, 255, 220))
+
+    base = Image.alpha_composite(base, overlay)
+    return base
+
+
+def fetch_and_prepare_crest(url: str, target_size: int = 175) -> Optional[Image.Image]:
+    if not url or "svg" in url:
+        return None
+    try:
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
+        if resp.status_code == 200:
+            img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+            img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
+            return img
+    except Exception:
+        pass
+    return None
+
+
+def generate_match_banner(
+    home_team: str,
+    away_team: str,
+    home_logo_url: str,
+    away_logo_url: str,
+    league_name: str,
+    country_name: str
+) -> str:
+    h_norm = normalize_team(home_team)
+    a_norm = normalize_team(away_team)
+    filename = f"{h_norm}_{a_norm}.jpg"
+    filepath = os.path.join(BANNERS_DIR, filename)
+
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 1000:
+        return f"https://aspijik07.github.io/football-bot/banners/{filename}"
+
+    lg = (league_name or "").lower()
+    cc = (country_name or "").lower()
+    if "libertadores" in lg:
+        theme_key = "libertadores"
+    elif "sudamericana" in lg:
+        theme_key = "sudamericana"
+    elif "brazil" in cc or "brasil" in cc or "série a" in lg or "copa do brasil" in lg:
+        theme_key = "brazil"
+    elif "arg" in cc or "argentina" in lg:
+        theme_key = "argentina"
+    else:
+        theme_key = "default"
+
+    w, h = 640, 380
+    banner = create_league_background(w, h, theme_key)
+
+    h_img = fetch_and_prepare_crest(home_logo_url, target_size=180)
+    a_img = fetch_and_prepare_crest(away_logo_url, target_size=180)
+
+    if h_img:
+        hx = 185 - (h_img.width // 2)
+        hy = 190 - (h_img.height // 2)
+        banner.paste(h_img, (hx, hy), h_img)
+
+    if a_img:
+        ax = 455 - (a_img.width // 2)
+        ay = 190 - (a_img.height // 2)
+        banner.paste(a_img, (ax, ay), a_img)
+
+    final_img = banner.convert("RGB")
+    final_img.save(filepath, "JPEG", quality=92, optimize=True)
+    logger.info("Generated HD Banner: %s", filename)
+
+    return f"https://aspijik07.github.io/football-bot/banners/{filename}"
+
+
+# ==========================================
+# 🕒 TIME & DATA NORMALIZATION
+# ==========================================
+
 def get_current_dates() -> Tuple[datetime, datetime, str, str]:
     now = datetime.now(TZ_UTC)
     tomorrow = now + timedelta(days=1)
@@ -70,7 +223,6 @@ def calculate_morocco_from_latam_time(time_str: str) -> str:
         parts = time_str.strip().split(":")
         hh = int(parts[0])
         mm = int(parts[1])
-        # Latam (GMT-3) to Morocco (GMT+1): +4 hours
         morocco_hh = (hh + 4) % 24
         return f"{morocco_hh:02d}:{mm:02d}"
     except Exception:
@@ -105,7 +257,6 @@ def normalize_team(name: str) -> str:
         if n.startswith(p):
             n = n[len(p):]
             break
-    # Remove all non-alphanumeric
     return re.sub(r"[^a-z0-9]", "", n)
 
 
@@ -126,37 +277,6 @@ def is_valid_fixture(m: Any) -> bool:
     return True
 
 
-def fix_cdn_url(url: Optional[str]) -> str:
-    if not url:
-        return ""
-    clean_url = str(url).strip()
-    if not clean_url:
-        return ""
-
-    if "wsrv.nl/?url=" in clean_url:
-        clean_url = unquote(clean_url.split("wsrv.nl/?url=")[-1])
-
-    m = re.search(r"/?(img/noticias/.*)$", clean_url)
-    if m:
-        final_path = m.group(1)
-        final_path = re.sub(r"imgS\d+I", "imgS620I", final_path)
-        return "https://cdn-img.staticzz.com/" + final_path
-
-    for domain in ["zerozero.com.ar", "ogol.com.br", "zerozero.pt", "staticzz.com"]:
-        if domain in clean_url:
-            p = urlparse(clean_url if "://" in clean_url else f"https://{clean_url}")
-            path = p.path.lstrip("/")
-            if path and path.startswith("img/noticias/"):
-                path = re.sub(r"imgS\d+I", "imgS620I", path)
-                return "https://cdn-img.staticzz.com/" + path
-
-    if clean_url.startswith("/img/noticias/"):
-        upgraded_path = re.sub(r"imgS\d+I", "imgS620I", clean_url)
-        return "https://cdn-img.staticzz.com" + upgraded_path
-
-    return clean_url if clean_url.startswith("https://cdn-img.staticzz.com") else ""
-
-
 def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]:
     lg = (league_name or "").lower()
     cc = (country_name or "").lower()
@@ -172,7 +292,7 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
         return {"badge_class": "badge-argentina", "clean_league": "Copa Argentina", "clean_country": "Argentina"}
     if any(k in full for k in ["argentina", "arg", "clausura", "apertura", "liga profesional"]):
         return {"badge_class": "badge-argentina", "clean_league": "Liga Profesional Clausura", "clean_country": "Argentina"}
-    if any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in full for k in ["série a", "serie a", "brasileirão", "brasileiro", "copa do brasil"]):
+    if any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in full for k in ["série a", "serie a", "brasileirão", "brasileiro"]):
         return {"badge_class": "badge-brazil", "clean_league": "Série A", "clean_country": "Brazil"}
 
     return {"badge_class": "badge-default", "clean_league": league_name, "clean_country": country_name or "LATAM"}
@@ -194,13 +314,11 @@ def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> b
 
     if not (h_a_norm and a_a_norm and h_b_norm and a_b_norm):
         return False
-
     if h_a_norm == h_b_norm and a_a_norm == a_b_norm:
         return True
 
     h_match = bool((h_a_norm in h_b_norm or h_b_norm in h_a_norm) and len(h_a_norm) >= 4 and len(h_b_norm) >= 4)
     a_match = bool((a_a_norm in a_b_norm or a_b_norm in a_a_norm) and len(a_a_norm) >= 4 and len(a_b_norm) >= 4)
-
     return h_match and a_match
 
 
@@ -259,61 +377,9 @@ def calculate_status(match_dt: Optional[datetime], started: bool = False, finish
     return res["status_text"], res["status_class"]
 
 
-# STRICT BANNER REPOSITORY (Explicit Home_Away Keys Only)
-BANNER_CACHE: Dict[str, Dict[str, str]] = {}
-
-def fetch_all_staticzz_banners() -> None:
-    # Accurate match banners mapping strictly: [home_team]_[away_team]
-    verified_banners = {
-        "saopaulo_bocajuniors": "https://cdn-img.staticzz.com/img/noticias/728/imgS620I1201728T20260914014537.jpg",
-        "lduquito_palmeiras": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg",
-        "independienterivadavia_atleticotucuman": "https://cdn-img.staticzz.com/img/noticias/240/imgS620I1199240T20260911094523.jpg",
-        "atleticomg_fluminense": "https://cdn-img.staticzz.com/img/noticias/399/imgS620I1199399T20260911104032.jpg",
-        "botafogo_gremio": "https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg",
-        "newellsoldboys_velezsarsfield": "https://cdn-img.staticzz.com/img/noticias/548/imgS620I1199548T20260911141701.png",
-        "defensayjusticia_gimnasiamendoza": "https://cdn-img.staticzz.com/img/noticias/549/imgS620I1199549T20260911141703.png",
-        "cienciano_montevideocitytorque": "https://cdn-img.staticzz.com/img/noticias/522/imgS620I1197522T20260909013519.jpg",
-        "bocajuniors_centralcordoba": "https://cdn-img.staticzz.com/img/noticias/550/imgS620I1199550T20260911141705.png",
-        "estudiantes_platense": "https://cdn-img.staticzz.com/img/noticias/284/imgS620I1199284T20260911095118.jpg",
-        "atleticotucuman_riverplate": "https://cdn-img.staticzz.com/img/noticias/403/imgS620I1199403T20260911104045.jpg",
-        "talleres_union": "https://cdn-img.staticzz.com/img/noticias/415/imgS620I1199415T20260911104612.jpg",
-        "coritiba_athleticoparanaense": "https://cdn-img.staticzz.com/img/noticias/668/imgS620I1198668T20260910012043.jpg",
-        "gremio_vascodagama": "https://cdn-img.staticzz.com/img/noticias/450/imgS620I1199450T20260911111520.jpg",
-        "chapecoense_internacional": "https://cdn-img.staticzz.com/img/noticias/455/imgS620I1199455T20260911112210.jpg",
-        "palmeiras_saopaulo": "https://cdn-img.staticzz.com/img/noticias/460/imgS620I1199460T20260911113045.jpg",
-        "botafogo_rbbragantino": "https://cdn-img.staticzz.com/img/noticias/465/imgS620I1199465T20260911114230.jpg"
-    }
-
-    for k, v in verified_banners.items():
-        BANNER_CACHE[k] = {"url": v, "title": k}
-
-
-def get_staticzz_banner_for_match(home_team: str, away_team: str) -> str:
-    h_norm = normalize_team(home_team)
-    a_norm = normalize_team(away_team)
-
-    if not h_norm or not a_norm:
-        return ""
-
-    direct_key = f"{h_norm}_{a_norm}"
-    if direct_key in BANNER_CACHE:
-        return BANNER_CACHE[direct_key]["url"]
-
-    inv_key = f"{a_norm}_{h_norm}"
-    if inv_key in BANNER_CACHE:
-        return BANNER_CACHE[inv_key]["url"]
-
-    # Strict match only: both team names must exist clearly in cache key
-    for k, v in BANNER_CACHE.items():
-        parts = k.split("_")
-        if len(parts) == 2:
-            p_home, p_away = parts[0], parts[1]
-            if (p_home in h_norm or h_norm in p_home) and (p_away in a_norm or a_norm in p_away):
-                return v["url"]
-
-    # If no 100% verified match photo is found, return empty to trigger clean VS card
-    return ""
-
+# ==========================================
+# 📺 BROADCAST CHANNELS SCRAPER
+# ==========================================
 
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     listings: List[Dict[str, Any]] = []
@@ -451,6 +517,10 @@ def get_channels_for_match(home_team: str, away_team: str, league_name: str, cou
     return ["TNT Sports", "ESPN Premium"]
 
 
+# ==========================================
+# ⚽ MATCHES SYNC & DASHBOARD GENERATOR
+# ==========================================
+
 def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
     matches: List[Dict[str, Any]] = []
     date_fotmob = target_date.strftime("%Y%m%d")
@@ -505,7 +575,15 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else DEFAULT_CREST
                     away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else DEFAULT_CREST
 
-                    cdn_banner = get_staticzz_banner_for_match(home_name, away_name)
+                    # 🎨 AUTO-GENERATE HIGH-DEFINITION MATCH BANNER
+                    cdn_banner = generate_match_banner(
+                        home_team=home_name,
+                        away_team=away_name,
+                        home_logo_url=home_logo,
+                        away_logo_url=away_logo,
+                        league_name=badge_info["clean_league"],
+                        country_name=badge_info["clean_country"]
+                    )
 
                     matches.append({
                         "day": day_label.lower(),
@@ -526,8 +604,8 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                         "is_live": "LIVE" in status_text,
                         "banner_url": cdn_banner,
                         "banner_title": f"{home_name} vs {away_name}",
-                        "banner_source_site": "ogol.com.br" if is_brazil else "zerozero.com.ar",
-                        "has_scraped_banner": bool(cdn_banner),
+                        "banner_source_site": "Studio Pro Generator",
+                        "has_scraped_banner": True,
                         "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
                     })
     except Exception as e:
@@ -587,9 +665,6 @@ def cross_verify_matches_with_sources(
             m["channels"] = resolved_chans
             m["all_unique_channels"] = resolved_chans
 
-        if not m.get("banner_url"):
-            m["banner_url"] = get_staticzz_banner_for_match(home, away)
-
         if is_valid_fixture(m):
             verified.append(m)
 
@@ -626,52 +701,30 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     channels = m.get("channels") or m.get("all_unique_channels") or ["ESPN Premium", "Star+"]
     channels_html = "".join(f'<span class="channel-tag">{c}</span>' for c in channels)
 
-    raw_banner = m.get("banner_url") or get_staticzz_banner_for_match(home_team, away_team)
-    banner_url = fix_cdn_url(raw_banner)
+    banner_url = m.get("banner_url")
     banner_title = m.get("banner_title") or f"{home_team} vs {away_team}"
-    banner_site = m.get("banner_source_site") or "zerozero.com.ar"
 
     home_team_esc = home_team.replace("'", "\\'")
     away_team_esc = away_team.replace("'", "\\'")
     home_logo_esc = (home_logo or "").replace("'", "\\'")
     away_logo_esc = (away_logo or "").replace("'", "\\'")
 
-    # Clean VS Dynamic fallback when no exact 100% matched banner from staticzz exists
-    if banner_url and "cdn-img.staticzz.com" in banner_url:
-        target_copy_url = banner_url
-        banner_content = f'<img src="{banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, \'{home_team_esc}\', \'{away_team_esc}\', \'{home_logo_esc}\', \'{away_logo_esc}\', \'{match_id}\')">'
-        open_label = "🔗 Open Staticzz Banner"
-    else:
-        target_copy_url = home_logo
-        open_label = "⚽ Match View"
-        banner_content = f"""
-                        <div class="vs-banner-card-box" style="width:100%; height:100%; min-height:140px; display:flex; align-items:center; justify-content:space-around; background:linear-gradient(135deg, #090d16 0%, #172033 100%); border-radius:8px; padding:12px; border:1px solid #1e293b;">
-                            <div style="display:flex; flex-direction:column; align-items:center; max-width:38%;">
-                                <img src="{home_logo}" alt="{home_team}" style="width:48px; height:48px; object-fit:contain; margin-bottom:5px;" onerror="handleCrestError(this)">
-                                <span style="color:#f8fafc; font-size:12px; font-weight:700; text-align:center; line-height:1.2;">{home_team}</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center;">
-                                <span style="background:#0284c7; color:#fff; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px; margin-bottom:4px; letter-spacing:0.5px;">MATCH</span>
-                                <span style="color:#f59e0b; font-size:16px; font-weight:900;">VS</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; max-width:38%;">
-                                <img src="{away_logo}" alt="{away_team}" style="width:48px; height:48px; object-fit:contain; margin-bottom:5px;" onerror="handleCrestError(this)">
-                                <span style="color:#f8fafc; font-size:12px; font-weight:700; text-align:center; line-height:1.2;">{away_team}</span>
-                            </div>
-                        </div>"""
+    target_copy_url = banner_url if banner_url else home_logo
+
+    banner_content = f'<img src="{banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, \'{home_team_esc}\', \'{away_team_esc}\', \'{home_logo_esc}\', \'{away_logo_esc}\', \'{match_id}\')">'
 
     banner_actions = (
-        f'<a href="{target_copy_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip">🔗 Banner URL</a>'
+        f'<a href="{target_copy_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip">🔗 Banner HD URL</a>'
         f'<button type="button" class="btn-copy-crest" onclick="copyDirectUrl(\'{target_copy_url}\', this, event)">📋 Copy URL</button>'
     )
 
     banner_cell = f"""
                 <div class="banner-preview-box">
-                    <a href="{target_copy_url}" target="_blank" rel="noopener noreferrer" class="banner-image-container" title="Open match banner" style="display:block; text-decoration:none; cursor:pointer;">
+                    <a href="{target_copy_url}" target="_blank" rel="noopener noreferrer" class="banner-image-container" title="Open HD match banner" style="display:block; text-decoration:none; cursor:pointer;">
                         {banner_content}
                         <div class="banner-hover-overlay">
-                            <span class="banner-overlay-zoom">{open_label}</span>
-                            <span class="banner-source-pill">{banner_site}</span>
+                            <span class="banner-overlay-zoom">🔗 Open HD Banner</span>
+                            <span class="banner-source-pill">Auto Studio HD</span>
                         </div>
                     </a>
                     <div class="banner-actions-subrow">
@@ -804,10 +857,9 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
 
 def main():
-    logger.info("Initializing strict synchronization...")
-    fetch_all_staticzz_banners()
+    logger.info("Initializing Auto-Banner Studio Generator & Data Sync...")
 
-    now, tomorrow, today_str, _ = get_current_dates()
+    now, tomorrow, _, _ = get_current_dates()
 
     livesoccertv_listings = scrape_livesoccertv_fixtures_and_channels()
     futebolnatv_listings = scrape_futebolnatv_fixtures_and_channels()
@@ -820,7 +872,7 @@ def main():
 
     save_matches_to_disk(today_matches, tomorrow_matches)
     update_dashboard_html(today_matches, tomorrow_matches)
-    logger.info("Sync finished successfully: Today (%d), Tomorrow (%d)", len(today_matches), len(tomorrow_matches))
+    logger.info("Complete! Generated banners and synced: Today (%d), Tomorrow (%d)", len(today_matches), len(tomorrow_matches))
 
 
 if __name__ == "__main__":
