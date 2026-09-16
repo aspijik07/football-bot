@@ -11,38 +11,22 @@ const MATCH_STOP_WORDS = new Set([
   'deportivo', 'deportiva', 'sport', 'social', 'asociacion', 'asociación'
 ]);
 
+export function cleanAccents(text) {
+  if (!text) return '';
+  return text.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
 export function normalizeTeam(name) {
   if (!name) return '';
-  let n = name.toLowerCase().trim();
-  const prefixes = ['club atlético ', 'club atletico ', 'ca ', 'cd ', 'cf ', 'fc ', 'ad ', 'sc '];
+  let n = cleanAccents(name);
+  const prefixes = ['club atletico ', 'atletico ', 'ca ', 'cd ', 'cf ', 'fc ', 'ad ', 'sc ', 'sp ', 'clube de regatas '];
   for (const prefix of prefixes) {
     if (n.startsWith(prefix)) {
       n = n.slice(prefix.length);
       break;
     }
   }
-  return n.replace(/[^a-z0-9]/gi, '');
-}
-
-export function cleanNameForMatching(text) {
-  if (!text) return '';
-  return text
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .trim()
-    .replace(/\s+/g, ' ');
-}
-
-export function extractTeamTokens(teamName) {
-  const clean = cleanNameForMatching(teamName);
-  const words = clean.split(' ');
-  let tokens = words.filter(w => !MATCH_STOP_WORDS.has(w) && w.length >= 3);
-  if (!tokens.length) {
-    tokens = words.filter(w => w.length >= 3);
-  }
-  return { tokens, clean };
+  return n.replace(/[^a-z0-9]/g, '');
 }
 
 export function getLeagueBadgeInfo(leagueName, countryName) {
@@ -63,17 +47,10 @@ export function getLeagueBadgeInfo(leagueName, countryName) {
     return { badgeClass: 'badge-argentina', cleanLeague: 'Copa Argentina', cleanCountry: 'Argentina' };
   }
   if (['argentina', 'arg', 'clausura', 'apertura', 'liga profesional'].some(k => full.includes(k))) {
-    return { badgeClass: 'badge-argentina', cleanLeague: leagueName, cleanCountry: 'Argentina' };
+    return { badgeClass: 'badge-argentina', cleanLeague: 'Liga Profesional Clausura', cleanCountry: 'Argentina' };
   }
-  if (
-    ['bra', 'brazil', 'brasil'].some(k => cc.includes(k)) ||
-    [
-      'brazil', 'brasil', 'bra', 'brasileiro', 'brasileirão', 'paulista',
-      'paulistão', 'série a', 'serie a', 'série b', 'serie b',
-      'copa do brasil', 'copa paulista', 'carioca', 'gaúcho', 'gaucho', 'mineiro'
-    ].some(k => full.includes(k))
-  ) {
-    return { badgeClass: 'badge-brazil', cleanLeague: leagueName, cleanCountry: 'Brazil' };
+  if (['bra', 'brazil', 'brasil'].some(k => cc.includes(k)) || ['brasileirão', 'brasileiro', 'série a', 'serie a'].some(k => full.includes(k))) {
+    return { badgeClass: 'badge-brazil', cleanLeague: 'Série A', cleanCountry: 'Brazil' };
   }
 
   return { badgeClass: 'badge-default', cleanLeague: leagueName, cleanCountry: countryName || 'LATAM' };
@@ -85,24 +62,7 @@ export function isTargetMatch(leagueName, countryName) {
   const full = `${cc} ${lg}`;
 
   if (lg.includes('copa paulista') || full.includes('copa paulista')) return false;
-  if (lg.includes('libertadores') || full.includes('libertadores')) return true;
-  if (lg.includes('sudamericana') || full.includes('sudamericana')) return true;
-  if (lg.includes('copa argentina') || full.includes('copa argentina')) return true;
-  if (lg.includes('copa do brasil') || lg.includes('copa brasil') || full.includes('copa do brasil')) return true;
-
-  if (cc.includes('arg') || full.includes('argentina')) {
-    if (['liga profesional', 'copa argentina', 'clausura', 'apertura', 'supercopa', 'trofeo de campeones', 'copa de la liga'].some(k => lg.includes(k))) {
-      return true;
-    }
-  }
-
-  if (cc.includes('bra') || full.includes('brazil') || full.includes('brasil')) {
-    if (['série a', 'serie a', 'brasileir', 'paulistão', 'copa do brasil', 'carioca'].some(k => lg.includes(k))) {
-      return true;
-    }
-  }
-
-  return false;
+  return ['libertadores', 'sudamericana', 'copa do brasil', 'copa argentina', 'argentina', 'brasil', 'brazil', 'serie a', 'série a'].some(k => full.includes(k));
 }
 
 export function getChannelsForMatch(leagueName, countryName) {
@@ -111,12 +71,12 @@ export function getChannelsForMatch(leagueName, countryName) {
   const full = `${cc} ${lg}`;
 
   if (full.includes('libertadores')) {
-    return ['ESPN', 'Fox Sports', 'Star+', 'Globo'];
+    return ['Paramount+', 'ESPN', 'Star+', 'Globo'];
   } else if (full.includes('sudamericana')) {
     return ['ESPN 3', 'Star+', 'DSports', 'Paramount+'];
   } else if (full.includes('argentina') || cc.includes('arg') || lg.includes('liga profesional') || lg.includes('copa argentina')) {
     return ['ESPN Premium', 'TNT Sports', 'TyC Sports', 'Star+'];
-  } else if (full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('paulista') || lg.includes('copa do brasil')) {
+  } else if (full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('copa do brasil')) {
     return ['Premiere', 'Globo', 'SporTV', 'CazéTV'];
   }
   return ['TNT Sports', 'ESPN Premium'];
@@ -129,52 +89,40 @@ export function calculateStatus(matchDt, started = false, finished = false, canc
     return { text, statusClass: 'status-finished' };
   }
   if (started) {
-    let text = 'LIVE 🔴';
-    if (liveTime) text = `LIVE 🔴 ${liveTime}`;
-    else if (scoreStr) text = `LIVE 🔴 (${scoreStr})`;
+    let minDisp = liveTime ? liveTime.trim() : 'LIVE';
+    let text = minDisp !== 'LIVE' ? `LIVE 🔴 ${minDisp}` : 'LIVE 🔴';
+    if (scoreStr) text += ` (${scoreStr})`;
     return { text, statusClass: 'status-live' };
   }
   if (!matchDt) return { text: 'SCHEDULED', statusClass: 'status-scheduled' };
 
   const now = new Date();
-  const diffMs = matchDt.getTime() - now.getTime();
-  if (diffMs <= 0) {
-    const text = scoreStr ? `LIVE 🔴 (${scoreStr})` : 'LIVE 🔴';
+  const diffSec = (now.getTime() - matchDt.getTime()) / 1000;
+
+  if (diffSec > 7200) {
+    const text = scoreStr ? `FINISHED (${scoreStr})` : 'FINISHED';
+    return { text, statusClass: 'status-finished' };
+  } else if (diffSec >= 0) {
+    const minElapsed = Math.max(1, Math.floor(diffSec / 60));
+    const minDisp = minElapsed <= 45 ? `${minElapsed}'` : (minElapsed <= 60 ? 'HT' : `${minElapsed - 15}'`);
+    let text = `LIVE 🔴 ${minDisp}`;
+    if (scoreStr) text += ` (${scoreStr})`;
     return { text, statusClass: 'status-live' };
-  } else if (diffMs <= 3600 * 1000) {
-    const mins = Math.max(1, Math.floor(diffMs / 60000));
+  } else if (-diffSec <= 3600) {
+    const mins = Math.max(1, Math.floor((-diffSec) / 60));
     return { text: `SOON (${mins}m)`, statusClass: 'status-soon' };
   } else {
     return { text: 'SCHEDULED', statusClass: 'status-scheduled' };
   }
 }
 
-export function rewriteCdnImageUrl(url) {
-  if (!url) return '';
-  let cleanUrl = String(url).trim();
-  if (cleanUrl.startsWith('https://cdn-img.staticzz.com/')) return cleanUrl;
-  if (cleanUrl.startsWith('http://cdn-img.staticzz.com/')) return cleanUrl.replace('http://', 'https://');
-
-  const bases = [
-    'https://www.zerozero.com.ar', 'http://www.zerozero.com.ar',
-    'https://zerozero.com.ar', 'http://zerozero.com.ar',
-    'https://www.ogol.com.br', 'http://www.ogol.com.br',
-    'https://ogol.com.br', 'http://ogol.com.br',
-    'https://www.zerozero.pt', 'http://www.zerozero.pt',
-    'https://zerozero.pt', 'http://zerozero.pt'
-  ];
-  for (const b of bases) {
-    if (cleanUrl.startsWith(b)) {
-      return 'https://cdn-img.staticzz.com' + cleanUrl.slice(b.length);
-    }
+export function buildHdBannerUrl(homeName, awayName, existingBanner = '') {
+  if (existingBanner && existingBanner.includes('aspijik07.github.io/football-bot/banners/')) {
+    return existingBanner;
   }
-
-  const matchImg = cleanUrl.match(/\/?(img\/.*)$/);
-  if (matchImg) {
-    return `https://cdn-img.staticzz.com/${matchImg[1]}`;
-  }
-
-  return cleanUrl.startsWith('/') ? `https://cdn-img.staticzz.com${cleanUrl}` : `https://cdn-img.staticzz.com/${cleanUrl}`;
+  const h = normalizeTeam(homeName);
+  const a = normalizeTeam(awayName);
+  return `https://aspijik07.github.io/football-bot/banners/${h}_${a}.jpg`;
 }
 
 export async function fetchFotmobMatches(targetDate, dayLabel) {
@@ -188,7 +136,7 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         'Referer': 'https://www.fotmob.com/'
       },
       signal: AbortSignal.timeout(8000)
@@ -212,11 +160,11 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
 
           const mTime = matchDt
             ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hour12: false })
-            : 'TBD';
+            : '23:00';
           const localTz = isBrazil ? 'America/Sao_Paulo' : 'America/Argentina/Buenos_Aires';
           const localTime = matchDt
             ? matchDt.toLocaleTimeString('en-GB', { timeZone: localTz, hour: '2-digit', minute: '2-digit', hour12: false })
-            : 'TBD';
+            : '19:00';
 
           const started = Boolean(st.started);
           const finished = Boolean(st.finished);
@@ -235,14 +183,12 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
 
           const homeLogo = homeId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${homeId}.png` : '';
           const awayLogo = awayId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${awayId}.png` : '';
-
-          const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
-          const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-          const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-          const defaultCdnBanner = `https://cdn-img.staticzz.com/img/noticias/jogos/${hNorm}_${aNorm}.jpg`;
+          const bannerUrl = buildHdBannerUrl(homeName, awayName);
 
           matches.push({
             day: dayLabel,
+            day_label: dayLabel === 'tomorrow' ? 'Tomorrow' : 'Today',
+            match_date: `${yyyy}-${mm}-${dd}`,
             league: cleanLeague,
             country: cleanCountry,
             badge_class: badgeClass,
@@ -252,12 +198,14 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
             away_logo: awayLogo,
             local_time: localTime,
             morocco_time: mTime,
+            status: statusText,
             status_text: statusText,
             status_class: statusClass,
+            is_live: statusText.includes('LIVE'),
             channels: getChannelsForMatch(cleanLeague, cleanCountry),
-            banner_url: defaultCdnBanner,
+            banner_url: bannerUrl,
             banner_title: `${homeName} vs ${awayName}`,
-            banner_source_site: bannerSite,
+            banner_source_site: 'Auto Studio HD',
             has_scraped_banner: true,
             source: 'fotmob'
           });
@@ -266,101 +214,6 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
     }
   } catch (err) {
     console.warn('Fotmob fetch notice:', err.message);
-  }
-
-  return matches;
-}
-
-export async function fetchSofascoreMatches(targetDate, dayLabel) {
-  const matches = [];
-  const yyyy = targetDate.getUTCFullYear();
-  const mm = String(targetDate.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(targetDate.getUTCDate()).padStart(2, '0');
-  const dateIso = `${yyyy}-${mm}-${dd}`;
-  const url = `https://api.sofascore.com/api/v1/sport/football/scheduled-events/${dateIso}`;
-
-  try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Referer': 'https://www.sofascore.com/'
-      },
-      signal: AbortSignal.timeout(8000)
-    });
-    if (!res.ok) return matches;
-    const data = await res.json();
-    if (!data || !Array.isArray(data.events)) return matches;
-
-    for (const ev of data.events) {
-      const tournament = ev.tournament || {};
-      const tName = tournament.name || '';
-      const catName = tournament.category ? tournament.category.name : '';
-
-      if (isTargetMatch(tName, catName)) {
-        const { badgeClass, cleanLeague, cleanCountry } = getLeagueBadgeInfo(tName, catName);
-        const isBrazil = (cleanCountry === 'Brazil');
-        const ts = ev.startTimestamp;
-        const matchDt = ts ? new Date(ts * 1000) : null;
-
-        const mTime = matchDt
-          ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hour12: false })
-          : 'TBD';
-        const localTz = isBrazil ? 'America/Sao_Paulo' : 'America/Argentina/Buenos_Aires';
-        const localTime = matchDt
-          ? matchDt.toLocaleTimeString('en-GB', { timeZone: localTz, hour: '2-digit', minute: '2-digit', hour12: false })
-          : 'TBD';
-
-        const stObj = ev.status || {};
-        const stType = stObj.type || '';
-        const finished = (stType === 'finished');
-        const started = (stType === 'inprogress');
-        const cancelled = (stType === 'canceled');
-
-        const hScore = ev.homeScore ? ev.homeScore.current : null;
-        const aScore = ev.awayScore ? ev.awayScore.current : null;
-        const scoreStr = (hScore != null && aScore != null) ? `${hScore} - ${aScore}` : null;
-
-        const { text: statusText, statusClass } = calculateStatus(matchDt, started, finished, cancelled, scoreStr);
-
-        const homeTeam = ev.homeTeam || {};
-        const awayTeam = ev.awayTeam || {};
-        const homeName = homeTeam.name || 'Home';
-        const awayName = awayTeam.name || 'Away';
-        const homeId = homeTeam.id;
-        const awayId = awayTeam.id;
-
-        const homeLogo = homeId ? `https://api.sofascore.app/api/v1/team/${homeId}/image` : '';
-        const awayLogo = awayId ? `https://api.sofascore.app/api/v1/team/${awayId}/image` : '';
-
-        const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
-        const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-        const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-        const defaultCdnBanner = `https://cdn-img.staticzz.com/img/noticias/jogos/${hNorm}_${aNorm}.jpg`;
-
-        matches.push({
-          day: dayLabel,
-          league: cleanLeague,
-          country: cleanCountry,
-          badge_class: badgeClass,
-          home_team: homeName,
-          away_team: awayName,
-          home_logo: homeLogo,
-          away_logo: awayLogo,
-          local_time: localTime,
-          morocco_time: mTime,
-          status_text: statusText,
-          status_class: statusClass,
-          channels: getChannelsForMatch(cleanLeague, cleanCountry),
-          banner_url: defaultCdnBanner,
-          banner_title: `${homeName} vs ${awayName}`,
-          banner_source_site: bannerSite,
-          has_scraped_banner: true,
-          source: 'sofascore'
-        });
-      }
-    }
-  } catch (err) {
-    console.warn('Sofascore fetch notice:', err.message);
   }
 
   return matches;
@@ -380,6 +233,8 @@ export function loadCachedMatches() {
         const cleanStText = (stText.toUpperCase() === 'UNDEFINED' || !stText) ? 'SCHEDULED' : stText;
         const stClass = item.status_class || (cleanStText.includes('LIVE') ? 'status-live' : (cleanStText.includes('SOON') ? 'status-soon' : (cleanStText.includes('FINISHED') ? 'status-finished' : 'status-scheduled')));
 
+        const bannerUrl = buildHdBannerUrl(item.home_team, item.away_team, item.banner_url);
+
         return {
           day: day,
           day_label: day === 'tomorrow' ? 'Tomorrow' : 'Today',
@@ -391,16 +246,17 @@ export function loadCachedMatches() {
           away_team: item.away_team || '',
           home_logo: item.home_logo || '',
           away_logo: item.away_logo || '',
-          local_time: item.local_time || '20:00',
-          morocco_time: item.morocco_time || '00:00',
+          local_time: item.local_time || '19:00',
+          morocco_time: item.morocco_time || '23:00',
           status: cleanStText,
           status_text: cleanStText,
           status_class: stClass,
+          is_live: cleanStText.includes('LIVE'),
           channels: (item.channels && item.channels.length > 0) ? item.channels : (item.all_unique_channels || ['TNT Sports', 'ESPN Premium']),
-          banner_url: rewriteCdnImageUrl(item.banner_url || item.home_logo || ''),
+          banner_url: bannerUrl,
           banner_title: item.banner_title || `${item.home_team} vs ${item.away_team}`,
-          banner_source_site: item.banner_source_site || 'zerozero.com.ar',
-          has_scraped_banner: item.has_scraped_banner ?? true,
+          banner_source_site: 'Auto Studio HD',
+          has_scraped_banner: true,
           source: 'cache'
         };
       });
@@ -419,12 +275,8 @@ export async function fetchAllMatches() {
     const dayLabel = dayOffset === 0 ? 'today' : 'tomorrow';
     const targetDate = new Date(now.getTime() + dayOffset * 86400000);
 
-    const [fmMatches, ssMatches] = await Promise.all([
-      fetchFotmobMatches(targetDate, dayLabel),
-      fetchSofascoreMatches(targetDate, dayLabel)
-    ]);
-
-    combinedMatches.push(...fmMatches, ...ssMatches);
+    const fmMatches = await fetchFotmobMatches(targetDate, dayLabel);
+    combinedMatches.push(...fmMatches);
   }
 
   const uniqueMatches = [];
