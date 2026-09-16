@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """
 Football Broadcast Dashboard Scraper & HTML Generator
-Bulletproof, 100% Safe Execution:
-1. Authentic 16:9 staticzz CDN Preview Banners for ALL matches.
-2. Safe RSS & Regex parsing (No XML ParseErrors).
-3. Dynamic LIVE 🔴 detection and real-time status calculation.
-4. Robust Timezone conversions with fail-safe fallbacks.
+100% Python Syntax Clean (Fixed all f-string backslash issues).
 """
 
 import os
@@ -132,6 +128,7 @@ def is_valid_fixture(m: Any) -> bool:
 
 
 def fix_cdn_url(url: Optional[str]) -> str:
+    """Fixed: Safe parsing with NO backslashes inside f-strings."""
     if not url:
         return ""
     clean_url = str(url).strip()
@@ -145,7 +142,7 @@ def fix_cdn_url(url: Optional[str]) -> str:
     if m:
         final_path = m.group(1)
         final_path = re.sub(r"imgS\d+I", "imgS620I", final_path)
-        return f"https://cdn-img.staticzz.com/{final_path}"
+        return "https://cdn-img.staticzz.com/" + final_path
 
     for domain in ["zerozero.com.ar", "ogol.com.br", "zerozero.pt", "staticzz.com"]:
         if domain in clean_url:
@@ -153,10 +150,11 @@ def fix_cdn_url(url: Optional[str]) -> str:
             path = p.path.lstrip("/")
             if path and path.startswith("img/noticias/"):
                 path = re.sub(r"imgS\d+I", "imgS620I", path)
-                return f"https://cdn-img.staticzz.com/{path}"
+                return "https://cdn-img.staticzz.com/" + path
 
     if clean_url.startswith("/img/noticias/"):
-        return f"https://cdn-img.staticzz.com{re.sub(r'imgS\d+I', 'imgS620I', clean_url)}"
+        upgraded_path = re.sub(r"imgS\d+I", "imgS620I", clean_url)
+        return "https://cdn-img.staticzz.com" + upgraded_path
 
     return ""
 
@@ -281,7 +279,6 @@ def fetch_all_staticzz_banners() -> None:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     }
 
-    # Master Verified staticzz CDN images
     master_banners = {
         "saopaulo_bocajuniors": "https://cdn-img.staticzz.com/img/noticias/728/imgS620I1201728T20260914014537.jpg",
         "lduquito_palmeiras": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg",
@@ -306,7 +303,6 @@ def fetch_all_staticzz_banners() -> None:
     for k, v in master_banners.items():
         BANNER_CACHE[k] = {"url": v, "title": k}
 
-    # Safe RSS scraping via BeautifulSoup parser (Never crashes)
     rss_urls = [
         "https://www.zerozero.com.ar/rss/noticias.php",
         "https://www.ogol.com.br/rss/noticias.php",
@@ -321,8 +317,6 @@ def fetch_all_staticzz_banners() -> None:
                 for item in soup.find_all("item"):
                     title_elem = item.find("title")
                     title = title_elem.get_text(strip=True) if title_elem else ""
-                    
-                    # Search for staticzz image link
                     match = re.search(r'(https?://[^\s"<>]+staticzz\.com/img/noticias/[^\s"<>]+)', str(item))
                     if match and title:
                         cdn_url = fix_cdn_url(match.group(1))
@@ -880,7 +874,6 @@ def main():
                 moroc_t = calculate_morocco_from_latam_time(loc_t)
                 cdn_banner = get_staticzz_banner_for_match(item["home_team"], item["away_team"])
                 
-                # Safe minutes check
                 status_text = "SCHEDULED"
                 status_class = "status-scheduled"
                 is_live = False
