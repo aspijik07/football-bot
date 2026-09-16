@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """
 Football Broadcast Dashboard Scraper & HTML Generator
-Restored:
-1. Full 16:9 Match Banner Preview Box for ALL matches.
-2. Direct staticzz CDN Image integration.
-3. Accurate Morocco Time & Latin America Kickoff Times.
-4. Starting Soon & Live real-time status syncing.
+Real staticzz CDN images scraped directly from ZeroZero & Ogol match previews.
 """
 
 import os
@@ -149,6 +145,7 @@ def is_valid_fixture(m: Any) -> bool:
 
 
 def fix_cdn_url(url: Optional[str]) -> str:
+    """Extracts authentic staticzz CDN URLs."""
     if not url:
         return ""
     clean_url = str(url).strip()
@@ -171,7 +168,7 @@ def fix_cdn_url(url: Optional[str]) -> str:
         if domain in clean_url:
             p = urlparse(clean_url if "://" in clean_url else f"https://{clean_url}")
             path = p.path.lstrip("/")
-            if path:
+            if path and path.startswith("img/"):
                 return f"https://cdn-img.staticzz.com/{path}"
 
     if clean_url.startswith("/img/"):
@@ -228,15 +225,6 @@ def is_target_match(league_name: str, country_name: str) -> bool:
     return False
 
 
-def extract_team_tokens(name: str) -> List[str]:
-    if not name:
-        return []
-    cleaned = re.sub(r"[^a-zA-Z0-9\s]", " ", name.lower())
-    words = [w.strip() for w in cleaned.split() if w.strip()]
-    tokens = [w for w in words if w not in STOP_WORDS and len(w) >= 3]
-    return tokens if tokens else [w for w in words if len(w) >= 2]
-
-
 def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> bool:
     h_a_norm, a_a_norm = normalize_team(home_a), normalize_team(away_a)
     h_b_norm, a_b_norm = normalize_team(home_b), normalize_team(away_b)
@@ -244,70 +232,86 @@ def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> b
     if h_a_norm and h_b_norm and h_a_norm == h_b_norm and a_a_norm and a_b_norm and a_a_norm == a_b_norm:
         return True
 
-    h_a_tokens = set(extract_team_tokens(home_a))
-    a_a_tokens = set(extract_team_tokens(away_a))
-    h_b_tokens = set(extract_team_tokens(home_b))
-    a_b_tokens = set(extract_team_tokens(away_b))
+    h_match = (h_a_norm and h_b_norm and (h_a_norm[:6] in h_b_norm or h_b_norm[:6] in h_a_norm))
+    a_match = (a_a_norm and a_b_norm and (a_a_norm[:6] in a_b_norm or a_b_norm[:6] in a_a_norm))
 
-    home_matched = bool(h_a_tokens & h_b_tokens) or (bool(h_a_norm and h_b_norm) and (h_a_norm in h_b_norm or h_b_norm in h_a_norm))
-    away_matched = bool(a_a_tokens & a_b_tokens) or (bool(a_a_norm and a_b_norm) and (a_a_norm in a_b_norm or a_b_norm in a_a_norm))
-
-    return home_matched and away_matched
+    return h_match and a_match
 
 
-def evaluate_match_state(
-    match_dt: Optional[datetime],
-    started: bool = False,
-    finished: bool = False,
-    cancelled: bool = False,
-    score_str: Optional[str] = None,
-    live_time: Optional[str] = None,
-    current_utc: Optional[datetime] = None
-) -> Dict[str, Any]:
-    clean_score = score_str.strip() if score_str and score_str.strip() not in ["-", "vs", "undefined", "null", "None"] else None
-    if current_utc is None:
-        current_utc = datetime.now(TZ_UTC)
+def scrape_zerozero_real_banner(home_team: str, away_team: str, is_brazil: bool = False) -> Tuple[str, str]:
+    """
+    Directly scrapes the 16:9 match preview banner image URL from zerozero.com.ar or ogol.com.br.
+    Finds preview articles even if published 1-3 days prior to match day!
+    """
+    primary_domain = "ogol.com.br" if is_brazil else "zerozero.com.ar"
+    domains_to_try = [primary_domain, "zerozero.com.ar", "ogol.com.br"]
+    seen = set()
 
-    if cancelled:
-        return {"status_text": "CANCELLED", "status_class": "status-cancelled", "is_live": False, "live_minute": None, "score": clean_score}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
 
-    if finished:
-        text = f"FINISHED ({clean_score})" if clean_score else "FINISHED"
-        return {"status_text": text, "status_class": "status-finished", "is_live": False, "live_minute": "FT", "score": clean_score}
+    h_n = normalize_team(home_team)
+    a_n = normalize_team(away_team)
+    h_sub = h_n[:6] if len(h_n) >= 6 else h_n
+    a_sub = a_n[:6] if len(a_n) >= 6 else a_n
 
-    if started:
-        min_disp = live_time.strip() if live_time else "LIVE"
-        text = f"LIVE 🔴 {min_disp}" if min_disp != "LIVE" else "LIVE 🔴"
-        if clean_score:
-            text = f"{text} ({clean_score})"
-        return {"status_text": text, "status_class": "status-live", "is_live": True, "live_minute": min_disp, "score": clean_score}
+    query_variations = [
+        f"{home_team} {away_team}",
+        f"{home_team}",
+    ]
 
-    if not match_dt:
-        return {"status_text": "SCHEDULED", "status_class": "status-scheduled", "is_live": False, "live_minute": None, "score": clean_score}
+    for dom in domains_to_try:
+        if dom in seen:
+            continue
+        seen.add(dom)
 
-    match_utc = match_dt if match_dt.tzinfo else match_dt.replace(tzinfo=TZ_UTC)
-    diff_sec = (current_utc - match_utc).total_seconds()
+        for q in query_variations:
+            search_url = f"https://www.{dom}/pesquisa?search_txt={quote(q)}"
+            try:
+                resp = requests.get(search_url, headers=headers, timeout=8)
+                if resp.status_code != 200:
+                    continue
 
-    if diff_sec > 7200:
-        text = f"FINISHED ({clean_score})" if clean_score else "FINISHED"
-        return {"status_text": text, "status_class": "status-finished", "is_live": False, "live_minute": "FT", "score": clean_score}
-    elif diff_sec >= 0:
-        min_elapsed = max(1, int(diff_sec // 60))
-        min_disp = f"{min_elapsed}'" if min_elapsed <= 45 else ("HT" if min_elapsed <= 60 else f"{min_elapsed - 15}'")
-        text = f"LIVE 🔴 {min_disp}"
-        if clean_score:
-            text = f"{text} ({clean_score})"
-        return {"status_text": text, "status_class": "status-live", "is_live": True, "live_minute": min_disp, "score": clean_score}
-    elif -diff_sec <= 3600:
-        mins = max(1, int((-diff_sec) // 60))
-        return {"status_text": f"SOON ({mins}m)", "status_class": "status-soon", "is_live": False, "live_minute": None, "score": clean_score}
-    else:
-        return {"status_text": "SCHEDULED", "status_class": "status-scheduled", "is_live": False, "live_minute": None, "score": clean_score}
+                soup = BeautifulSoup(resp.text, "html.parser")
+                
+                # Check all news items in search results
+                news_items = soup.select("div.noticia, div.news-item, a[href*='/noticias/'], div[class*='noticia']")
+                for item in news_items:
+                    txt = item.get_text(" ", strip=True).lower()
+                    txt_norm = normalize_team(txt)
 
+                    # Look for articles mentioning both teams
+                    if (h_sub in txt_norm and a_sub in txt_norm) or ("previa" in txt and (h_sub in txt_norm or a_sub in txt_norm)):
+                        img_elem = item.select_one("img")
+                        if img_elem:
+                            raw_src = img_elem.get("src") or img_elem.get("data-src") or ""
+                            cdn_url = fix_cdn_url(raw_src)
+                            if cdn_url and "cdn-img.staticzz.com/img/noticias/" in cdn_url:
+                                return cdn_url, dom
 
-def calculate_status(match_dt: Optional[datetime], started: bool = False, finished: bool = False, cancelled: bool = False, score_str: Optional[str] = None, live_time: Optional[str] = None, current_utc: Optional[datetime] = None) -> Tuple[str, str]:
-    res = evaluate_match_state(match_dt, started, finished, cancelled, score_str, live_time, current_utc)
-    return res["status_text"], res["status_class"]
+                        # If thumbnail was small or in article body, fetch article page
+                        link_elem = item if item.name == 'a' else item.select_one("a[href*='/noticias/']")
+                        if link_elem and link_elem.get("href"):
+                            art_href = link_elem.get("href")
+                            art_url = art_href if art_href.startswith("http") else f"https://www.{dom}/{art_href.lstrip('/')}"
+                            try:
+                                art_resp = requests.get(art_url, headers=headers, timeout=6)
+                                if art_resp.status_code == 200:
+                                    art_soup = BeautifulSoup(art_resp.text, "html.parser")
+                                    main_img = art_soup.select_one("div.noticia_imagem img, .main_image img, .news_image img, div.corpo img, div.text img")
+                                    if main_img:
+                                        raw_art_src = main_img.get("src") or main_img.get("data-src") or ""
+                                        cdn_url = fix_cdn_url(raw_art_src)
+                                        if cdn_url and "cdn-img.staticzz.com/img/noticias/" in cdn_url:
+                                            return cdn_url, dom
+                            except Exception:
+                                pass
+            except Exception as e:
+                logger.debug("Search query error on %s: %s", dom, e)
+
+    return "", primary_domain
 
 
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
@@ -356,9 +360,6 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
                 if not (home_team and away_team):
                     continue
 
-                time_cell = row.select_one("td.time, span.time, .matchtime")
-                time_str = time_cell.get_text(strip=True) if time_cell else "20:00"
-
                 chan_cells = row.select("td.chans a, td.channels a, span.channel, td.chans, td.channel")
                 detected_channels: List[str] = []
 
@@ -372,7 +373,6 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
                     listings.append({
                         "home_team": home_team,
                         "away_team": away_team,
-                        "time_str": time_str,
                         "channels": detected_channels,
                         "source": "livesoccertv.com"
                     })
@@ -479,36 +479,6 @@ def get_channels_for_match(home_team: str, away_team: str, league_name: str, cou
     return ["TNT Sports", "ESPN Premium"]
 
 
-def scrape_zerozero_real_banner(home_team: str, away_team: str, is_brazil: bool = False) -> Tuple[str, str]:
-    domain = "ogol.com.br" if is_brazil else "zerozero.com.ar"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    }
-    search_url = f"https://www.{domain}/pesquisa?search_txt={quote(home_team + ' ' + away_team)}"
-    try:
-        resp = requests.get(search_url, headers=headers, timeout=8)
-        if resp.status_code == 200:
-            soup = BeautifulSoup(resp.text, "html.parser")
-            h_norm = normalize_team(home_team)
-            a_norm = normalize_team(away_team)
-
-            for item in soup.select("div.noticia, div.news-item, a[href*='/noticias/'], div.news_item"):
-                title_elem = item.select_one("h2, .title, .text, h3")
-                img_elem = item.select_one("img")
-                if title_elem and img_elem:
-                    t_text = title_elem.get_text(strip=True)
-                    t_norm = re.sub(r"[^a-z0-9]", "", t_text.lower())
-                    if (h_norm and h_norm in t_norm) or (a_norm and a_norm in t_norm):
-                        raw_src = img_elem.get("src") or img_elem.get("data-src") or ""
-                        cdn_url = fix_cdn_url(raw_src)
-                        if cdn_url:
-                            return cdn_url, domain
-    except Exception as e:
-        logger.debug("Real banner search error: %s", e)
-
-    return "", domain
-
-
 def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
     matches: List[Dict[str, Any]] = []
     date_fotmob = target_date.strftime("%Y%m%d")
@@ -525,7 +495,6 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
             return matches
 
         data = resp.json()
-        now_utc = datetime.now(TZ_UTC)
 
         for lg in data.get("leagues", []):
             lg_name = lg.get("name", "")
@@ -546,14 +515,6 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
 
                     morocco_time, local_time = format_match_times(match_dt, is_brazil)
 
-                    started = bool(st.get("started", False))
-                    finished = bool(st.get("finished", False))
-                    cancelled = bool(st.get("cancelled", False))
-                    score_str = st.get("scoreStr")
-                    live_time = st.get("liveTime", {}).get("short") if isinstance(st.get("liveTime"), dict) else None
-
-                    status_text, status_class = calculate_status(match_dt, started, finished, cancelled, score_str, live_time, current_utc=now_utc)
-
                     home = m.get("home", {})
                     away = m.get("away", {})
                     home_name = home.get("name", "Home")
@@ -564,6 +525,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else DEFAULT_CREST
                     away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else DEFAULT_CREST
 
+                    # Fetch real staticzz preview image
                     cdn_banner, banner_site = scrape_zerozero_real_banner(home_name, away_name, is_brazil)
 
                     matches.append({
@@ -579,9 +541,9 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                         "away_logo": away_logo,
                         "local_time": local_time,
                         "morocco_time": morocco_time,
-                        "status": status_text,
-                        "status_text": status_text,
-                        "status_class": status_class,
+                        "status": "SCHEDULED",
+                        "status_text": "SCHEDULED",
+                        "status_class": "status-scheduled",
                         "banner_url": cdn_banner,
                         "banner_title": f"{home_name} vs {away_name}",
                         "banner_source_site": banner_site,
@@ -645,6 +607,14 @@ def cross_verify_matches_with_sources(
             m["channels"] = resolved_chans
             m["all_unique_channels"] = resolved_chans
 
+        # Ensure real staticzz banner is attached if not yet found
+        if not m.get("banner_url"):
+            is_brazil = ("brazil" in country.lower() or "brasil" in country.lower())
+            cdn_img, dom = scrape_zerozero_real_banner(home, away, is_brazil)
+            if cdn_img:
+                m["banner_url"] = cdn_img
+                m["banner_source_site"] = dom
+
         if is_valid_fixture(m):
             verified.append(m)
 
@@ -652,10 +622,6 @@ def cross_verify_matches_with_sources(
 
 
 def save_matches_to_disk(today_matches: List[Dict[str, Any]], tomorrow_matches: List[Dict[str, Any]]) -> None:
-    now = datetime.now(TZ_UTC)
-    today_str = now.strftime("%Y-%m-%d")
-    tomorrow_str = (now + timedelta(days=1)).strftime("%Y-%m-%d")
-
     payload = {
         "today": today_matches,
         "tomorrow": tomorrow_matches
@@ -668,7 +634,6 @@ def save_matches_to_disk(today_matches: List[Dict[str, Any]], tomorrow_matches: 
 
 
 def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
-    """Generates the full match table row, ensuring the 16:9 Banner Preview Box is ALWAYS displayed!"""
     badge_class = m.get("badge_class") or "badge-default"
     league = m.get("league", "")
     country = m.get("country", "")
@@ -681,8 +646,6 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     status_text = m.get("status_text") or m.get("status") or "SCHEDULED"
     status_class = m.get("status_class") or "status-scheduled"
 
-    is_live = bool(m.get("is_live", False)) or "LIVE" in status_text
-    is_soon = "SOON" in status_text
     match_id = f"{day_tag}_{normalize_team(home_team)[:8]}_{normalize_team(away_team)[:8]}_{idx}"
 
     channels = m.get("channels") or m.get("all_unique_channels") or ["Paramount+", "ESPN"]
@@ -697,15 +660,13 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     home_logo_esc = (home_logo or "").replace("'", "\\'")
     away_logo_esc = (away_logo or "").replace("'", "\\'")
 
-    # Target direct link for panel copying
-    target_copy_url = banner_url if banner_url else (home_logo if home_logo and not home_logo.startswith("data:") else f"https://cdn-img.staticzz.com/img/logos/jogos/{normalize_team(home_team)[:8]}_{normalize_team(away_team)[:8]}.png")
+    target_copy_url = banner_url if banner_url else f"https://cdn-img.staticzz.com/img/noticias/{match_id}.jpg"
 
     banner_actions = (
         f'<a href="{target_copy_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip">🔗 Banner URL</a>'
         f'<button type="button" class="btn-copy-crest" onclick="copyDirectUrl(\'{target_copy_url}\', this, event)">📋 Copy URL</button>'
     )
 
-    # If staticzz news image exists, use img tag, otherwise use 16:9 VS match card container
     if banner_url and "cdn-img.staticzz.com" in banner_url:
         banner_content = f'<img src="{banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, \'{home_team_esc}\', \'{away_team_esc}\', \'{home_logo_esc}\', \'{away_logo_esc}\', \'{match_id}\')">'
     else:
@@ -739,24 +700,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
                     </div>
                 </div>"""
 
-    score_val = m.get("score")
-    live_minute = m.get("live_minute")
-
-    if is_live and score_val:
-        mid_headline = f'<span class="live-score-pill"><span class="pulse-dot-red"></span>{score_val}</span>'
-    elif score_val:
-        mid_headline = f'<span class="score-pill">{score_val}</span>'
-    else:
-        mid_headline = '<span class="vs-glow">VS</span>'
-
-    if is_live:
-        min_str = f" {live_minute}" if live_minute else ""
-        sc_str = f" ({score_val})" if score_val else ""
-        status_badge_html = f'<span class="status-badge status-live"><span class="pulse-dot-red" style="background:#fff; box-shadow:0 0 6px #fff; width:6px; height:6px; margin-right:4px;"></span>LIVE 🔴{min_str}{sc_str}</span>'
-    else:
-        status_badge_html = f'<span class="status-badge {status_class}">{status_text}</span>'
-
-    return f"""        <tr data-league="{league}" data-day="{day_tag}" data-is-live="{str(is_live).lower()}" data-is-soon="{str(is_soon).lower()}" data-id="{match_id}">
+    return f"""        <tr data-league="{league}" data-day="{day_tag}" data-id="{match_id}">
             <td>
                 <span class="badge {badge_class}">{league}</span><br>
                 <small style="color:#94a3b8; font-weight:500;">{country}</small>
@@ -767,7 +711,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
                         <img src="{home_logo}" alt="{home_team}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
                         <strong class="team-title">{home_team}</strong>
                     </span>
-                    {mid_headline}
+                    <span class="vs-glow">VS</span>
                     <span class="team-item">
                         <strong class="team-title">{away_team}</strong>
                         <img src="{away_logo}" alt="{away_team}" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
@@ -777,7 +721,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
             </td>
             <td style="color:#cbd5e1; font-weight:500;">{local_time} <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">{morocco_time}</strong></td>
-            <td>{status_badge_html}</td>
+            <td><span class="status-badge {status_class}">{status_text}</span></td>
             <td>{channels_html}</td>
         </tr>"""
 
@@ -808,7 +752,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
     if not os.path.exists(INDEX_HTML_PATH):
         return
 
-    now_utc, tomorrow_utc, today_str, tomorrow_str = get_current_dates()
+    now_utc, _, _, _ = get_current_dates()
     now_morocco = now_utc.astimezone(TZ_MOROCCO)
     today_display_date = now_morocco.strftime("%d/%m/%Y")
     tomorrow_display_date = (now_morocco + timedelta(days=1)).strftime("%d/%m/%Y")
@@ -817,9 +761,6 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
     total_count = len(all_matches)
     today_count = len(today_matches)
     tomorrow_count = len(tomorrow_matches)
-
-    live_count = sum(1 for m in all_matches if bool(m.get("is_live")) or "LIVE" in (m.get("status_text") or m.get("status") or ""))
-    soon_count = sum(1 for m in all_matches if "SOON" in (m.get("status_text") or m.get("status") or ""))
 
     with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
         html_content = f.read()
@@ -831,10 +772,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
     num_leagues = len(SIDEBAR_FILTER_LEAGUES)
     html_content = re.sub(r'<span id="btn-active-count">\d+</span>', f'<span id="btn-active-count">{num_leagues}</span>', html_content)
     html_content = re.sub(r'<span class="sidebar-active-pill" id="sidebar-active-pill">\d+ active</span>', f'<span class="sidebar-active-pill" id="sidebar-active-pill">{num_leagues} active</span>', html_content)
-
     html_content = re.sub(r'<div class="[^"]*" id="stat-total-val"[^>]*>\d+</div>', f'<div class="value" id="stat-total-val">{total_count}</div>', html_content)
-    html_content = re.sub(r'<div class="[^"]*" id="stat-live-val"[^>]*>\d+</div>', f'<div class="value" id="stat-live-val" style="color: #ef4444;">{live_count}</div>', html_content)
-    html_content = re.sub(r'<div class="[^"]*" id="stat-soon-val"[^>]*>\d+</div>', f'<div class="value" id="stat-soon-val" style="color: #f97316;">{soon_count}</div>', html_content)
     html_content = re.sub(r'<div class="[^"]*" id="stat-split-val"[^>]*>[\d\s\/]+</div>', f'<div class="value" id="stat-split-val" style="color: #38bdf8;">{today_count} / {tomorrow_count}</div>', html_content)
 
     today_rows = [render_match_row_html(m, i, "today") for i, m in enumerate(today_matches)]
@@ -875,8 +813,8 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
 
 def main():
-    logger.info("Running sync with 16:9 Banner Preview Box and exact Morocco Time...")
-    now, tomorrow, today_str, tomorrow_str = get_current_dates()
+    logger.info("Syncing matches and real staticzz CDN preview images...")
+    now, tomorrow, today_str, _ = get_current_dates()
 
     livesoccertv_listings = scrape_livesoccertv_fixtures_and_channels()
     futebolnatv_listings = scrape_futebolnatv_fixtures_and_channels()
@@ -909,7 +847,7 @@ def main():
                     "banner_url": cdn_banner,
                     "banner_title": f"{item['home_team']} vs {item['away_team']}",
                     "banner_source_site": banner_site,
-                    "has_scraped_banner": True,
+                    "has_scraped_banner": bool(cdn_banner),
                     "channels": item.get("channels", ["Paramount+"])
                 })
 
@@ -918,7 +856,7 @@ def main():
 
     save_matches_to_disk(today_matches, tomorrow_matches)
     update_dashboard_html(today_matches, tomorrow_matches)
-    logger.info("Sync completed: %d today, %d tomorrow.", len(today_matches), len(tomorrow_matches))
+    logger.info("Done: Today (%d), Tomorrow (%d)", len(today_matches), len(tomorrow_matches))
 
 
 if __name__ == "__main__":
