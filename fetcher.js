@@ -84,9 +84,7 @@ export function isTargetMatch(leagueName, countryName) {
   const cc = (countryName || '').toLowerCase();
   const full = `${cc} ${lg}`;
 
-  // Explicitly exclude Copa Paulista
   if (lg.includes('copa paulista') || full.includes('copa paulista')) return false;
-
   if (lg.includes('libertadores') || full.includes('libertadores')) return true;
   if (lg.includes('sudamericana') || full.includes('sudamericana')) return true;
   if (lg.includes('copa argentina') || full.includes('copa argentina')) return true;
@@ -118,7 +116,7 @@ export function getChannelsForMatch(leagueName, countryName) {
     return ['ESPN 3', 'Star+', 'DSports', 'Paramount+'];
   } else if (full.includes('argentina') || cc.includes('arg') || lg.includes('liga profesional') || lg.includes('copa argentina')) {
     return ['ESPN Premium', 'TNT Sports', 'TyC Sports', 'Star+'];
-  } else if (full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('paulista') || lg.includes('copa do brasil') || lg.includes('copa paulista')) {
+  } else if (full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('paulista') || lg.includes('copa do brasil')) {
     return ['Premiere', 'Globo', 'SporTV', 'CazéTV'];
   }
   return ['TNT Sports', 'ESPN Premium'];
@@ -152,7 +150,11 @@ export function calculateStatus(matchDt, started = false, finished = false, canc
 }
 
 export function rewriteCdnImageUrl(url) {
-  if (!url) return url;
+  if (!url) return '';
+  let cleanUrl = String(url).trim();
+  if (cleanUrl.startsWith('https://cdn-img.staticzz.com/')) return cleanUrl;
+  if (cleanUrl.startsWith('http://cdn-img.staticzz.com/')) return cleanUrl.replace('http://', 'https://');
+
   const bases = [
     'https://www.zerozero.com.ar', 'http://www.zerozero.com.ar',
     'https://zerozero.com.ar', 'http://zerozero.com.ar',
@@ -162,11 +164,17 @@ export function rewriteCdnImageUrl(url) {
     'https://zerozero.pt', 'http://zerozero.pt'
   ];
   for (const b of bases) {
-    if (url.startsWith(b)) {
-      return 'https://cdn-img.staticzz.com' + url.slice(b.length);
+    if (cleanUrl.startsWith(b)) {
+      return 'https://cdn-img.staticzz.com' + cleanUrl.slice(b.length);
     }
   }
-  return url;
+
+  const matchImg = cleanUrl.match(/\/?(img\/.*)$/);
+  if (matchImg) {
+    return `https://cdn-img.staticzz.com/${matchImg[1]}`;
+  }
+
+  return cleanUrl.startsWith('/') ? `https://cdn-img.staticzz.com${cleanUrl}` : `https://cdn-img.staticzz.com/${cleanUrl}`;
 }
 
 export async function fetchFotmobMatches(targetDate, dayLabel) {
@@ -181,7 +189,6 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
         'Referer': 'https://www.fotmob.com/'
       },
       signal: AbortSignal.timeout(8000)
@@ -196,6 +203,7 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
 
       if (isTargetMatch(lgName, lgCcode)) {
         const { badgeClass, cleanLeague, cleanCountry } = getLeagueBadgeInfo(lgName, lgCcode);
+        const isBrazil = (cleanCountry === 'Brazil');
 
         for (const m of (lg.matches || [])) {
           const st = m.status || {};
@@ -205,8 +213,9 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
           const mTime = matchDt
             ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hour12: false })
             : 'TBD';
+          const localTz = isBrazil ? 'America/Sao_Paulo' : 'America/Argentina/Buenos_Aires';
           const localTime = matchDt
-            ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })
+            ? matchDt.toLocaleTimeString('en-GB', { timeZone: localTz, hour: '2-digit', minute: '2-digit', hour12: false })
             : 'TBD';
 
           const started = Boolean(st.started);
@@ -227,7 +236,6 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
           const homeLogo = homeId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${homeId}.png` : '';
           const awayLogo = awayId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${awayId}.png` : '';
 
-          const isBrazil = (cleanCountry === 'Brazil');
           const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
           const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
           const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
@@ -275,7 +283,6 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': '*/*',
         'Referer': 'https://www.sofascore.com/'
       },
       signal: AbortSignal.timeout(8000)
@@ -291,14 +298,16 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
 
       if (isTargetMatch(tName, catName)) {
         const { badgeClass, cleanLeague, cleanCountry } = getLeagueBadgeInfo(tName, catName);
+        const isBrazil = (cleanCountry === 'Brazil');
         const ts = ev.startTimestamp;
         const matchDt = ts ? new Date(ts * 1000) : null;
 
         const mTime = matchDt
           ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hour12: false })
           : 'TBD';
+        const localTz = isBrazil ? 'America/Sao_Paulo' : 'America/Argentina/Buenos_Aires';
         const localTime = matchDt
-          ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })
+          ? matchDt.toLocaleTimeString('en-GB', { timeZone: localTz, hour: '2-digit', minute: '2-digit', hour12: false })
           : 'TBD';
 
         const stObj = ev.status || {};
@@ -323,7 +332,6 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
         const homeLogo = homeId ? `https://api.sofascore.app/api/v1/team/${homeId}/image` : '';
         const awayLogo = awayId ? `https://api.sofascore.app/api/v1/team/${awayId}/image` : '';
 
-        const isBrazil = (cleanCountry === 'Brazil');
         const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
         const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
         const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
@@ -419,7 +427,6 @@ export async function fetchAllMatches() {
     combinedMatches.push(...fmMatches, ...ssMatches);
   }
 
-  // Deduplicate matches
   const uniqueMatches = [];
   const seen = new Set();
   for (const m of combinedMatches) {
@@ -433,44 +440,7 @@ export async function fetchAllMatches() {
   }
 
   if (uniqueMatches.length === 0) {
-    console.log('No live matches found over network or rate limited, falling back to cache');
     return loadCachedMatches();
-  }
-
-  // Persist updated matches.json
-  try {
-    const payload = {
-      total_matches: uniqueMatches.length,
-      last_updated: new Date().toISOString(),
-      matches: uniqueMatches.map(m => ({
-        day_label: m.day.charAt(0).toUpperCase() + m.day.slice(1),
-        league: m.league,
-        country: m.country,
-        badge_class: m.badge_class,
-        home_team: m.home_team,
-        away_team: m.away_team,
-        home_logo: m.home_logo,
-        away_logo: m.away_logo,
-        local_time: m.local_time,
-        morocco_time: m.morocco_time,
-        status: m.status_text,
-        banner_url: m.banner_url,
-        banner_title: m.banner_title || `${m.home_team} vs ${m.away_team}`,
-        banner_source_site: m.banner_source_site || 'zerozero.com.ar',
-        has_scraped_banner: m.has_scraped_banner ?? false,
-        all_unique_channels: m.channels
-      }))
-    };
-
-    const matchesPath = path.join(__dirname, 'matches.json');
-    fs.writeFileSync(matchesPath, JSON.stringify(payload, null, 4), 'utf8');
-
-    const distMatchesPath = path.join(__dirname, 'dist', 'matches.json');
-    if (fs.existsSync(path.dirname(distMatchesPath))) {
-      fs.writeFileSync(distMatchesPath, JSON.stringify(payload, null, 4), 'utf8');
-    }
-  } catch (err) {
-    console.warn('Could not persist updated matches.json:', err);
   }
 
   return uniqueMatches;
