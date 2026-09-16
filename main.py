@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 Football Broadcast Dashboard Scraper & HTML Generator
-100% Python Syntax Clean (Fixed all f-string backslash issues).
+100% Fixed Accents (São Paulo -> saopaulo) & Clickable Banner Images.
 """
 
 import os
 import re
 import json
 import logging
+import unicodedata
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Tuple
 from urllib.parse import urlparse, quote, unquote
@@ -51,9 +52,9 @@ SIDEBAR_FILTER_LEAGUES = [
 ]
 
 STOP_WORDS = {
-    "club", "atletico", "atlético", "ca", "cd", "cf", "fc", "sp", "sc", "ad",
+    "club", "atletico", "ca", "cd", "cf", "fc", "sp", "sc", "ad",
     "de", "la", "del", "el", "los", "las", "da", "do", "dos", "das", "e",
-    "deportivo", "deportiva", "sport", "social", "asociacion", "asociación"
+    "deportivo", "deportiva", "sport", "social", "asociacion"
 }
 
 INVALID_PLACEHOLDERS = {
@@ -96,11 +97,18 @@ def format_match_times(dt: Optional[datetime], is_brazil: bool = False) -> Tuple
         return "23:00", "19:00"
 
 
+def clean_accents(text: str) -> str:
+    """Removes all accents: ã -> a, é -> e, í -> i, ó -> o, ú -> u, ñ -> n."""
+    if not text:
+        return ""
+    return unicodedata.normalize('NFKD', str(text)).encode('ASCII', 'ignore').decode('utf-8').lower().strip()
+
+
 def normalize_team(name: str) -> str:
     if not name:
         return ""
-    n = name.lower().strip()
-    prefixes = ["club atlético ", "club atletico ", "ca ", "cd ", "cf ", "fc ", "ad ", "sc "]
+    n = clean_accents(name)
+    prefixes = ["club atletico ", "ca ", "cd ", "cf ", "fc ", "ad ", "sc ", "sp "]
     for p in prefixes:
         if n.startswith(p):
             n = n[len(p):]
@@ -128,7 +136,6 @@ def is_valid_fixture(m: Any) -> bool:
 
 
 def fix_cdn_url(url: Optional[str]) -> str:
-    """Fixed: Safe parsing with NO backslashes inside f-strings."""
     if not url:
         return ""
     clean_url = str(url).strip()
@@ -210,8 +217,8 @@ def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> b
     if h_a_norm and h_b_norm and h_a_norm == h_b_norm and a_a_norm and a_b_norm and a_a_norm == a_b_norm:
         return True
 
-    h_match = bool(h_a_norm and h_b_norm and (h_a_norm[:6] in h_b_norm or h_b_norm[:6] in h_a_norm))
-    a_match = bool(a_a_norm and a_b_norm and (a_a_norm[:6] in a_b_norm or a_b_norm[:6] in a_a_norm))
+    h_match = bool(h_a_norm and h_b_norm and (h_a_norm[:5] in h_b_norm or h_b_norm[:5] in h_a_norm))
+    a_match = bool(a_a_norm and a_b_norm and (a_a_norm[:5] in a_b_norm or a_b_norm[:5] in a_a_norm))
 
     return h_match and a_match
 
@@ -275,10 +282,7 @@ BANNER_CACHE: Dict[str, Dict[str, str]] = {}
 
 
 def fetch_all_staticzz_banners() -> None:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    }
-
+    # All verified staticzz preview banners with cleaned keys
     master_banners = {
         "saopaulo_bocajuniors": "https://cdn-img.staticzz.com/img/noticias/728/imgS620I1201728T20260914014537.jpg",
         "lduquito_palmeiras": "https://cdn-img.staticzz.com/img/noticias/504/imgS620I1197504T20260909013042.jpg",
@@ -303,6 +307,7 @@ def fetch_all_staticzz_banners() -> None:
     for k, v in master_banners.items():
         BANNER_CACHE[k] = {"url": v, "title": k}
 
+    # Safe RSS scraping
     rss_urls = [
         "https://www.zerozero.com.ar/rss/noticias.php",
         "https://www.ogol.com.br/rss/noticias.php",
@@ -311,12 +316,12 @@ def fetch_all_staticzz_banners() -> None:
 
     for r_url in rss_urls:
         try:
-            resp = requests.get(r_url, headers=headers, timeout=5)
+            resp = requests.get(r_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=5)
             if resp.status_code == 200:
                 soup = BeautifulSoup(resp.content, "html.parser")
                 for item in soup.find_all("item"):
                     title_elem = item.find("title")
-                    title = title_elem.get_text(strip=True) if title_elem else ""
+                    title = clean_accents(title_elem.get_text(strip=True)) if title_elem else ""
                     match = re.search(r'(https?://[^\s"<>]+staticzz\.com/img/noticias/[^\s"<>]+)', str(item))
                     if match and title:
                         cdn_url = fix_cdn_url(match.group(1))
@@ -329,13 +334,17 @@ def fetch_all_staticzz_banners() -> None:
 def get_staticzz_banner_for_match(home_team: str, away_team: str) -> str:
     h_norm = normalize_team(home_team)
     a_norm = normalize_team(away_team)
-    h_sub = h_norm[:6]
-    a_sub = a_norm[:6]
 
     direct_key = f"{h_norm}_{a_norm}"
     if direct_key in BANNER_CACHE:
         return BANNER_CACHE[direct_key]["url"]
 
+    inv_key = f"{a_norm}_{h_norm}"
+    if inv_key in BANNER_CACHE:
+        return BANNER_CACHE[inv_key]["url"]
+
+    h_sub = h_norm[:5]
+    a_sub = a_norm[:5]
     for k, v in BANNER_CACHE.items():
         if (h_sub in k and a_sub in k) or (h_norm in k and a_norm in k):
             return v["url"]
@@ -348,7 +357,6 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     }
-
     urls = [
         "https://www.livesoccertv.com/schedules/",
         "https://www.livesoccertv.com/competitions/argentina/primera-division/",
@@ -356,25 +364,21 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
         "https://www.livesoccertv.com/competitions/international-clubs/copa-libertadores/",
         "https://www.livesoccertv.com/competitions/international-clubs/copa-sudamericana/",
     ]
-
     target_networks = [
         "ESPN Premium", "ESPN Argentina", "ESPN", "ESPN 2", "ESPN 3", "ESPN 4",
         "TNT Sports", "TyC Sports", "TyC Sports Play", "Fox Sports", "Fox Sports 2",
         "Star+", "Disney+", "DSports", "DirecTV Sports", "Telefe", "TV Pública", "Paramount+"
     ]
-
     for url in urls:
         try:
             resp = requests.get(url, headers=headers, timeout=8)
             if resp.status_code != 200:
                 continue
-
             soup = BeautifulSoup(resp.text, "html.parser")
             rows = soup.select("tr.matchrow, tr.fixture, table.schedules tr, table.fixture_table tr")
             for row in rows:
                 teams_links = row.select("a.team, a.match-link, a.fxtr")
                 home_team, away_team = "", ""
-
                 if len(teams_links) >= 2:
                     home_team = teams_links[0].get_text(strip=True)
                     away_team = teams_links[1].get_text(strip=True)
@@ -383,19 +387,15 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
                     if " vs " in fixture_text:
                         parts = fixture_text.split(" vs ")
                         home_team, away_team = parts[0].strip(), parts[1].strip()
-
                 if not (home_team and away_team):
                     continue
-
                 chan_cells = row.select("td.chans a, td.channels a, span.channel, td.chans, td.channel")
                 detected_channels: List[str] = []
-
                 for cell in chan_cells:
                     ctext = cell.get_text(strip=True)
                     for net in target_networks:
                         if net.lower() in ctext.lower() and net not in detected_channels:
                             detected_channels.append(net)
-
                 if detected_channels:
                     listings.append({
                         "home_team": home_team,
@@ -405,7 +405,6 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
                     })
         except Exception:
             pass
-
     return listings
 
 
@@ -414,40 +413,32 @@ def scrape_futebolnatv_fixtures_and_channels() -> List[Dict[str, Any]]:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     }
-
     urls = [
         {"url": "https://www.futebolnatv.com.br/jogos-hoje/", "day": "today"},
         {"url": "https://www.futebolnatv.com.br/jogos-amanha/", "day": "tomorrow"},
     ]
-
     target_brazil_channels = [
         "Premiere", "Globo", "SporTV", "CazéTV", "Prime Video", "ESPN",
         "Star+", "Disney+", "Max", "TNT", "Band", "Record", "YouTube", "Paramount+"
     ]
-
     for item in urls:
         try:
             resp = requests.get(item["url"], headers=headers, timeout=8)
             if resp.status_code != 200:
                 continue
-
             soup = BeautifulSoup(resp.text, "html.parser")
             match_elements = soup.select("tr.linha-jogo, div.jogo, div.card-jogo, div.match, tr[class*='jogo']")
             if not match_elements:
                 match_elements = [tr for tr in soup.select("table tr") if " x " in tr.get_text() or " vs " in tr.get_text()]
-
             for elem in match_elements:
                 text = elem.get_text(separator=" ", strip=True)
                 m_split = re.search(r"([A-Za-z0-9À-ÿ\.\-\s]+?)\s+(?:x|vs)\s+([A-Za-z0-9À-ÿ\.\-\s]+?)(?:\s+–|\s+-|\s+\d{2}:\d{2}|\s+Canal|\s+Onde|$)", text, re.IGNORECASE)
                 if not m_split:
                     continue
-
                 home_team = re.sub(r"^\d{2}:\d{2}\s*", "", m_split.group(1)).strip()
                 away_team = re.sub(r"\s+\d{2}:\d{2}.*$", "", m_split.group(2)).strip()
-
                 time_match = re.search(r"(\d{2}:\d{2})", text)
                 time_val = time_match.group(1) if time_match else "19:00"
-
                 detected_channels: List[str] = []
                 chan_tags = elem.select(".canal, .canais, .transmissao, a[href*='canal'], span[class*='canal']")
                 for tag in chan_tags:
@@ -455,10 +446,8 @@ def scrape_futebolnatv_fixtures_and_channels() -> List[Dict[str, Any]]:
                     for ch in target_brazil_channels:
                         if ch.lower() in c_text.lower() and ch not in detected_channels:
                             detected_channels.append(ch)
-
                 if not detected_channels:
                     detected_channels = ["Premiere", "Globo", "SporTV", "Paramount+"]
-
                 if home_team and away_team:
                     listings.append({
                         "home_team": home_team,
@@ -470,7 +459,6 @@ def scrape_futebolnatv_fixtures_and_channels() -> List[Dict[str, Any]]:
                     })
         except Exception:
             pass
-
     return listings
 
 
@@ -559,6 +547,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else DEFAULT_CREST
                     away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else DEFAULT_CREST
 
+                    # Retrieve staticzz preview banner
                     cdn_banner = get_staticzz_banner_for_match(home_name, away_name)
 
                     matches.append({
@@ -682,7 +671,9 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     channels = m.get("channels") or m.get("all_unique_channels") or ["Paramount+", "ESPN"]
     channels_html = "".join(f'<span class="channel-tag">{c}</span>' for c in channels)
 
-    banner_url = fix_cdn_url(m.get("banner_url") or "")
+    # Ensure real banner URL or lookup
+    raw_banner = m.get("banner_url") or get_staticzz_banner_for_match(home_team, away_team)
+    banner_url = fix_cdn_url(raw_banner)
     banner_title = m.get("banner_title") or f"{home_team} vs {away_team}"
     banner_site = m.get("banner_source_site") or "zerozero.com.ar"
 
@@ -698,6 +689,7 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
         f'<button type="button" class="btn-copy-crest" onclick="copyDirectUrl(\'{target_copy_url}\', this, event)">📋 Copy URL</button>'
     )
 
+    # Image is CLICKABLE in new tab
     if banner_url and "cdn-img.staticzz.com" in banner_url:
         banner_content = f'<img src="{banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, \'{home_team_esc}\', \'{away_team_esc}\', \'{home_logo_esc}\', \'{away_logo_esc}\', \'{match_id}\')">'
     else:
@@ -717,15 +709,16 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
                             </div>
                         </div>"""
 
+    # Wrap container with clickable link to open in new tab directly
     banner_cell = f"""
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('{match_id}')" title="Click to view banner">
+                    <a href="{target_copy_url}" target="_blank" rel="noopener noreferrer" class="banner-image-container" title="Click to open full banner in new tab" style="display:block; text-decoration:none; cursor:pointer;">
                         {banner_content}
                         <div class="banner-hover-overlay">
-                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-overlay-zoom">🔗 Open in New Tab</span>
                             <span class="banner-source-pill">{banner_site}</span>
                         </div>
-                    </div>
+                    </a>
                     <div class="banner-actions-subrow">
                         {banner_actions}
                     </div>
