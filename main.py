@@ -28,6 +28,7 @@ Key Features:
 import os
 import re
 import io
+import math
 import json
 import logging
 from datetime import datetime, timezone, timedelta
@@ -70,46 +71,76 @@ DEFAULT_CREST = (
 
 TROPHY_CONFIG: Dict[str, Dict[str, Any]] = {
     "copa_libertadores": {
-        "filename": "copa_libertadores.png",
-        "url": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Copa_Libertadores_trophy.svg/300px-Copa_Libertadores_trophy.svg.png",
+        "filename": "trophy_libertadores.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/132.png",
         "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/42.png",
-        "label": "COPA LIBERTADORES",
-        "color": "#eab308"
+        "label": "CONMEBOL LIBERTADORES",
+        "color": "#c59b27",
+        "accent": "#e5c158",
+        "bg_top": "#0f0f11",
+        "bg_mid": "#1c1c20",
+        "bg_bot": "#0a0a0c",
+        "ribbons": ["#c59b27", "#e5c158", "#947118", "#fef08a"]
     },
     "copa_sudamericana": {
-        "filename": "copa_sudamericana.png",
-        "url": "https://upload.wikimedia.org/wikipedia/en/thumb/9/91/Copa_Sudamericana_trophy.svg/300px-Copa_Sudamericana_trophy.svg.png",
+        "filename": "trophy_sudamericana.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/133.png",
         "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/297.png",
-        "label": "COPA SUDAMERICANA",
-        "color": "#3b82f6"
+        "label": "CONMEBOL SUDAMERICANA",
+        "color": "#0284c7",
+        "accent": "#38bdf8",
+        "bg_top": "#061124",
+        "bg_mid": "#0d2347",
+        "bg_bot": "#040a17",
+        "ribbons": ["#0284c7", "#38bdf8", "#e2e8f0", "#0369a1"]
     },
     "brasileirao_serie_a": {
-        "filename": "brasileirao_serie_a.png",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Trofeu_Brasileirao.png/300px-Trofeu_Brasileirao.png",
+        "filename": "trophy_brasileirao.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/268.png",
         "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/268.png",
         "label": "BRASILEIRÃO SÉRIE A",
-        "color": "#10b981"
+        "color": "#eab308",
+        "accent": "#10b981",
+        "bg_top": "#031810",
+        "bg_mid": "#083322",
+        "bg_bot": "#02100a",
+        "ribbons": ["#eab308", "#10b981", "#059669", "#facc15"]
     },
     "copa_do_brasil": {
-        "filename": "copa_do_brasil.png",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Trofeu_Copa_do_Brasil.png/300px-Trofeu_Copa_do_Brasil.png",
+        "filename": "trophy_copadobrasil.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/315.png",
         "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/330.png",
         "label": "COPA DO BRASIL",
-        "color": "#06b6d4"
+        "color": "#10b981",
+        "accent": "#cbd5e1",
+        "bg_top": "#041f17",
+        "bg_mid": "#0b2d24",
+        "bg_bot": "#081a1f",
+        "ribbons": ["#cbd5e1", "#eab308", "#059669", "#94a3b8"]
     },
     "liga_profesional_argentina": {
-        "filename": "liga_profesional_argentina.png",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Trofeo_Liga_Profesional_de_F%C3%BAtbol.png/300px-Trofeo_Liga_Profesional_de_F%C3%BAtbol.png",
+        "filename": "trophy_ligaprofesional.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/112.png",
         "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/112.png",
         "label": "LIGA PROFESIONAL",
-        "color": "#38bdf8"
+        "color": "#38bdf8",
+        "accent": "#e2e8f0",
+        "bg_top": "#08192e",
+        "bg_mid": "#0f3156",
+        "bg_bot": "#051020",
+        "ribbons": ["#38bdf8", "#e2e8f0", "#0284c7", "#ffffff"]
     },
     "copa_argentina": {
-        "filename": "copa_argentina.png",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Trofeo_Copa_Argentina.png/300px-Trofeo_Copa_Argentina.png",
+        "filename": "trophy_copaargentina.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/326.png",
         "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/329.png",
         "label": "COPA ARGENTINA",
-        "color": "#a855f7"
+        "color": "#94a3b8",
+        "accent": "#38bdf8",
+        "bg_top": "#091322",
+        "bg_mid": "#132238",
+        "bg_bot": "#070c14",
+        "ribbons": ["#94a3b8", "#e2e8f0", "#475569", "#38bdf8"]
     }
 }
 
@@ -441,37 +472,199 @@ def get_cached_trophy_image(trophy_key: str) -> Any:
         return None
 
 
+def hex_to_rgb(hex_str: str) -> Tuple[int, int, int]:
+    """Helper to convert hex color string to RGB tuple."""
+    h = (hex_str or "#000000").lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) < 6:
+        h = h.ljust(6, "0")
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+
+def get_banner_fonts() -> Tuple[Any, Any, Any, Any]:
+    """Load high quality system TrueType fonts with fallbacks for crisp banner typography."""
+    if not HAS_PIL:
+        return None, None, None, None
+    font_paths = [
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    ]
+    font_path = next((p for p in font_paths if os.path.exists(p)), None)
+    if font_path:
+        try:
+            f_watermark = ImageFont.truetype(font_path, 11)
+            f_team = ImageFont.truetype(font_path, 13)
+            f_time = ImageFont.truetype(font_path, 11)
+            f_vs = ImageFont.truetype(font_path, 14)
+            return f_watermark, f_team, f_time, f_vs
+        except Exception:
+            pass
+    try:
+        def_f = ImageFont.load_default()
+    except Exception:
+        def_f = None
+    return def_f, def_f, def_f, def_f
+
+
+def create_league_background(trophy_key: str, width: int = 640, height: int = 380) -> Optional[Any]:
+    """
+    Creates a sleek, premium broadcast design background for match banners:
+    - Deep dark textured gradient background with subtle center lighting.
+    - Completely removes all pitch lines, field circles, and wireframes.
+    - Elegant curved metallic ribbons/swooshes along the bottom tailored to tournament brand colors.
+    - Rendered with 2x supersampling and downscaled with LANCZOS for silky smooth antialiasing.
+    """
+    if not HAS_PIL:
+        return None
+
+    cfg = TROPHY_CONFIG.get(trophy_key, TROPHY_CONFIG["copa_libertadores"])
+    scale = 2
+    sw, sh = width * scale, height * scale
+
+    bg = Image.new("RGBA", (sw, sh), (10, 15, 25, 255))
+    draw = ImageDraw.Draw(bg)
+
+    c_top = hex_to_rgb(cfg.get("bg_top", "#0f172a"))
+    c_mid = hex_to_rgb(cfg.get("bg_mid", "#1e293b"))
+    c_bot = hex_to_rgb(cfg.get("bg_bot", "#090d16"))
+    primary_color = hex_to_rgb(cfg.get("color", "#c59b27"))
+    accent_color = hex_to_rgb(cfg.get("accent", "#e5c158"))
+    ribbon_hexes = cfg.get("ribbons", ["#c59b27", "#e5c158", "#947118", "#fef08a"])
+    ribbon_colors = [hex_to_rgb(h) for h in ribbon_hexes]
+
+    # 1. Smooth 3-stop vertical gradient background
+    mid_y = int(sh * 0.45)
+    for y in range(sh):
+        if y < mid_y:
+            t = y / max(1, mid_y)
+            r = int(c_top[0] + (c_mid[0] - c_top[0]) * t)
+            g = int(c_top[1] + (c_mid[1] - c_top[1]) * t)
+            b = int(c_top[2] + (c_mid[2] - c_top[2]) * t)
+        else:
+            t = (y - mid_y) / max(1, (sh - mid_y))
+            r = int(c_mid[0] + (c_bot[0] - c_mid[0]) * t)
+            g = int(c_mid[1] + (c_bot[1] - c_mid[1]) * t)
+            b = int(c_mid[2] + (c_bot[2] - c_mid[2]) * t)
+        draw.line([(0, y), (sw, y)], fill=(r, g, b, 255))
+
+    # 2. Subtle radial spotlights behind home and away crest zones (and center VS)
+    spotlights = [
+        (int(sw * 0.273), int(sh * 0.50), int(sw * 0.24), primary_color, 26),
+        (int(sw * 0.727), int(sh * 0.50), int(sw * 0.24), primary_color, 26),
+        (sw // 2, int(sh * 0.50), int(sw * 0.18), accent_color, 16),
+    ]
+    glow_layer = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow_layer)
+    for cx, cy, radius, col, max_alpha in spotlights:
+        for r_step in range(radius, 0, -6):
+            alpha = int(max_alpha * (1.0 - (r_step / radius) ** 1.5))
+            if alpha > 0:
+                glow_draw.ellipse(
+                    [cx - r_step, cy - r_step, cx + r_step, cy + r_step],
+                    fill=(col[0], col[1], col[2], alpha)
+                )
+    bg = Image.alpha_composite(bg, glow_layer)
+    draw = ImageDraw.Draw(bg)
+
+    # 3. Elegant curved metallic ribbons / swooshes along bottom
+    # Layer 0: Dark ambient base swoosh
+    pts_base = [(0, sh)]
+    for x in range(0, sw + 1, 8):
+        norm_x = x / sw
+        curve_y = sh * 0.82 - math.sin(norm_x * math.pi * 1.1) * (sh * 0.08) + (norm_x - 0.5) * (sh * 0.04)
+        pts_base.append((x, curve_y))
+    pts_base.append((sw, sh))
+    draw.polygon(pts_base, fill=(c_bot[0], c_bot[1], c_bot[2], 220))
+
+    # Ribbon 1: Primary wide metallic ribbon
+    pts_r1 = []
+    r1_col = ribbon_colors[0]
+    for x in range(0, sw + 1, 6):
+        norm_x = x / sw
+        curve_y = sh * 0.85 - math.sin(norm_x * math.pi * 0.95 + 0.2) * (sh * 0.09) + (norm_x * sh * 0.06)
+        pts_r1.append((x, curve_y))
+
+    r1_layer = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+    r1_draw = ImageDraw.Draw(r1_layer)
+    r1_poly = [(0, sh)] + pts_r1 + [(sw, sh)]
+    r1_draw.polygon(r1_poly, fill=(r1_col[0], r1_col[1], r1_col[2], 215))
+
+    # Metallic specular highlight along ribbon 1 crest
+    for i in range(len(pts_r1) - 1):
+        x1, y1 = pts_r1[i]
+        x2, y2 = pts_r1[i + 1]
+        nx = x1 / sw
+        h_factor = 0.5 + 0.5 * math.sin(nx * math.pi * 2.0)
+        hr = min(255, int(r1_col[0] + (255 - r1_col[0]) * (0.35 * h_factor)))
+        hg = min(255, int(r1_col[1] + (255 - r1_col[1]) * (0.35 * h_factor)))
+        hb = min(255, int(r1_col[2] + (255 - r1_col[2]) * (0.35 * h_factor)))
+        r1_draw.line([(x1, y1), (x2, y2)], fill=(hr, hg, hb, 240), width=4)
+        r1_draw.line([(x1, y1 - 2), (x2, y2 - 2)], fill=(hr, hg, hb, 120), width=2)
+    bg = Image.alpha_composite(bg, r1_layer)
+
+    # Ribbon 2: Secondary overlapping metallic ribbon (thinner, contrasting sweep)
+    pts_r2 = []
+    r2_col = ribbon_colors[1] if len(ribbon_colors) > 1 else primary_color
+    for x in range(0, sw + 1, 6):
+        norm_x = x / sw
+        curve_y = sh * 0.91 - math.sin((norm_x + 0.1) * math.pi * 1.1) * (sh * 0.07) - (norm_x * sh * 0.03)
+        pts_r2.append((x, curve_y))
+
+    r2_layer = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+    r2_draw = ImageDraw.Draw(r2_layer)
+    r2_poly = [(0, sh)] + pts_r2 + [(sw, sh)]
+    r2_draw.polygon(r2_poly, fill=(r2_col[0], r2_col[1], r2_col[2], 225))
+    for i in range(len(pts_r2) - 1):
+        x1, y1 = pts_r2[i]
+        x2, y2 = pts_r2[i + 1]
+        nx = x1 / sw
+        h_factor = 0.6 + 0.4 * math.sin((nx + 0.2) * math.pi * 2.0)
+        hr = min(255, int(r2_col[0] + (255 - r2_col[0]) * (0.45 * h_factor)))
+        hg = min(255, int(r2_col[1] + (255 - r2_col[1]) * (0.45 * h_factor)))
+        hb = min(255, int(r2_col[2] + (255 - r2_col[2]) * (0.45 * h_factor)))
+        r2_draw.line([(x1, y1), (x2, y2)], fill=(hr, hg, hb, 245), width=3)
+    bg = Image.alpha_composite(bg, r2_layer)
+
+    # Ribbon 3: Bottom edge accent line
+    if len(ribbon_colors) > 2:
+        r3_col = ribbon_colors[2]
+        r3_layer = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+        r3_draw = ImageDraw.Draw(r3_layer)
+        pts_r3 = []
+        for x in range(0, sw + 1, 6):
+            norm_x = x / sw
+            curve_y = sh * 0.96 - math.sin(norm_x * math.pi * 1.2) * (sh * 0.03)
+            pts_r3.append((x, curve_y))
+        r3_poly = [(0, sh)] + pts_r3 + [(sw, sh)]
+        r3_draw.polygon(r3_poly, fill=(r3_col[0], r3_col[1], r3_col[2], 180))
+        bg = Image.alpha_composite(bg, r3_layer)
+
+    # Downsample from 2x supersampled canvas to target dimensions (640x380) with LANCZOS
+    resampling_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
+    return bg.resize((width, height), resampling_filter)
+
+
 def generate_match_banner(match_data: Dict[str, Any], output_path: str) -> bool:
     """
-    Generates a 640x380 HD JPEG banner for a match using Pillow:
-    - Top-Left: Standardized League tag
-    - Top-Right: Official Authentic League Trophy Badge
-    - Center Left: Home team crest & name
-    - Center Middle: Glowing VS badge
-    - Center Right: Away team crest & name
-    - Bottom: Kickoff time in Local & Morocco time
+    Generates a sleek, broadcast-grade 640x380 HD JPEG banner for a match using Pillow:
+    - Canvas: 640x380 px.
+    - Deep dark textured gradient background with tournament brand colors.
+    - Elegant curved metallic ribbons/swooshes along the bottom.
+    - Home Crest: Placed at X=175, Y=190, max size 180x180 px (HQ antialiased with drop shadow).
+    - Away Crest: Placed at X=465, Y=190, max size 180x180 px (HQ antialiased with drop shadow).
+    - Center: Sleek glowing broadcast "VS" badge at X=320, Y=190.
+    - Trophy: Top-Right (X=565, Y=25), max size 60x60 px official tournament trophy.
+    - Top-Left: Subtle league watermark / brand dot.
+    - Bottom: Kickoff time in Local & Morocco time in a sleek broadcast pill.
+    - Output: Crisp JPEG (Quality 95) saved to output_path.
     """
     if not HAS_PIL:
         return False
 
     width, height = 640, 380
-    bg = Image.new("RGBA", (width, height), (15, 23, 42, 255))
-    draw = ImageDraw.Draw(bg)
-
-    # Gradient background
-    for y in range(height):
-        ratio = y / height
-        r = int(11 + (30 - 11) * ratio)
-        g = int(19 + (41 - 19) * ratio)
-        b = int(41 + (59 - 41) * ratio)
-        draw.line([(0, y), (width, y)], fill=(r, g, b, 255))
-
-    # Modern stadium pitch lines
-    draw.line([(0, 0), (width, height)], fill=(255, 255, 255, 8), width=1)
-    draw.line([(width, 0), (0, height)], fill=(255, 255, 255, 8), width=1)
-    draw.ellipse([width // 2 - 90, height // 2 - 90, width // 2 + 90, height // 2 + 90], outline=(56, 189, 248, 25), width=2)
-    draw.line([(width // 2, 40), (width // 2, height - 40)], fill=(56, 189, 248, 20), width=1)
-
     league_name = match_data.get("league", "South American Football")
     country_name = match_data.get("country", "")
     home_name = match_data.get("home_team", "Home Team")
@@ -483,66 +676,155 @@ def generate_match_banner(match_data: Dict[str, Any], output_path: str) -> bool:
 
     trophy_key = get_trophy_key(league_name, country_name)
     trophy_cfg = TROPHY_CONFIG.get(trophy_key, TROPHY_CONFIG["copa_libertadores"])
+    primary_color = hex_to_rgb(trophy_cfg.get("color", "#c59b27"))
+    accent_color = hex_to_rgb(trophy_cfg.get("accent", "#e5c158"))
 
-    try:
-        font_default = ImageFont.load_default()
-    except Exception:
-        font_default = None
+    # 1. Create tournament themed background without pitch lines / wireframes
+    bg = create_league_background(trophy_key, width, height)
+    if not bg:
+        bg = Image.new("RGBA", (width, height), (15, 23, 42, 255))
 
-    # Top-Left: League Tag
-    league_tag = trophy_cfg["label"]
-    tag_width = len(league_tag) * 9 + 24
-    draw.rounded_rectangle([20, 18, 20 + tag_width, 46], radius=6, fill=(30, 41, 59, 220), outline=(56, 189, 248, 120), width=1)
-    draw.text((32, 25), league_tag, fill=(56, 189, 248, 255), font=font_default)
+    draw = ImageDraw.Draw(bg)
+    font_watermark, font_team, font_time, font_vs = get_banner_fonts()
+    resampling_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
 
-    # Top-Right: Authentic League Trophy Badge
+    # 2. Top-Left: Subtle league watermark / brand dot with clean league label
+    league_tag = trophy_cfg.get("label", league_name.upper())
+    # Brand pill with glowing dot
+    pill_text_len = len(league_tag)
+    pill_w = pill_text_len * 7 + 38
+    draw.rounded_rectangle([18, 16, 18 + pill_w, 42], radius=6, fill=(15, 23, 42, 210), outline=(primary_color[0], primary_color[1], primary_color[2], 150), width=1)
+    # Glowing brand dot
+    draw.ellipse([27, 26, 33, 32], fill=(primary_color[0], primary_color[1], primary_color[2], 255))
+    draw.text((38, 22), league_tag, fill=(241, 245, 249, 255), font=font_watermark)
+
+    # 3. Top-Right: Official Tournament Trophy in 60x60 bounding box at (X=565, Y=25)
     trophy_img = get_cached_trophy_image(trophy_key)
     if trophy_img:
-        t_w, t_h = 64, 64
-        t_resized = trophy_img.resize((t_w, t_h), Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS)
-        draw.ellipse([width - 82, 10, width - 14, 78], fill=(15, 23, 42, 190), outline=(234, 179, 8, 180), width=2)
-        bg.paste(t_resized, (width - 80, 12), t_resized)
+        tw, th = trophy_img.size
+        t_scale = min(60.0 / max(1, tw), 60.0 / max(1, th), 1.0)
+        tcw = max(1, int(tw * t_scale))
+        tch = max(1, int(th * t_scale))
+        t_resized = trophy_img.resize((tcw, tch), resampling_filter)
 
-    # Center VS Badge
-    vs_cx, vs_cy = width // 2, height // 2 - 10
-    draw.ellipse([vs_cx - 26, vs_cy - 26, vs_cx + 26, vs_cy + 26], fill=(30, 41, 59, 240), outline=(245, 158, 11, 220), width=2)
-    draw.text((vs_cx - 9, vs_cy - 8), "VS", fill=(245, 158, 11, 255), font=font_default)
+        # Center within 60x60 box starting at (565, 25)
+        tx = 565 + (60 - tcw) // 2
+        ty = 25 + (60 - tch) // 2
 
-    # Home Crest (Left)
+        # Soft drop shadow for trophy
+        t_pad = 8
+        t_shadow = Image.new("RGBA", (tcw + t_pad * 2, tch + t_pad * 2), (0, 0, 0, 0))
+        t_alpha = t_resized.split()[3] if t_resized.mode == "RGBA" else None
+        if t_alpha:
+            t_shadow.paste(Image.new("RGBA", (tcw, tch), (0, 0, 0, 160)), (t_pad, t_pad), t_alpha)
+        else:
+            t_shadow.paste(Image.new("RGBA", (tcw, tch), (0, 0, 0, 160)), (t_pad, t_pad))
+        t_shadow_blurred = t_shadow.filter(ImageFilter.GaussianBlur(radius=4))
+        bg.paste(t_shadow_blurred, (tx - t_pad, ty - t_pad + 3), t_shadow_blurred)
+        bg.paste(t_resized, (tx, ty), t_resized if t_resized.mode == "RGBA" else None)
+
+    # 4. Center: Sleek glowing broadcast "VS" badge at X=320, Y=190
+    vs_cx, vs_cy = 320, 190
+    # Outer subtle glow
+    draw.ellipse([vs_cx - 25, vs_cy - 25, vs_cx + 25, vs_cy + 25], fill=(15, 23, 42, 230), outline=(primary_color[0], primary_color[1], primary_color[2], 220), width=2)
+    draw.text((vs_cx - 10, vs_cy - 8), "VS", fill=(accent_color[0], accent_color[1], accent_color[2], 255), font=font_vs)
+
+    # 5. Home Crest (Left): Center at X=175, Y=190, max size 180x180 px (HQ antialiased with drop shadow)
+    home_cx, home_cy = 175, 190
+    max_crest_size = 180
     home_img = get_cached_crest_image(home_name, home_logo)
-    crest_size = 100
-    h_x, h_y = 150 - crest_size // 2, vs_cy - crest_size // 2
     if home_img:
-        h_resized = home_img.resize((crest_size, crest_size), Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS)
-        bg.paste(h_resized, (h_x, h_y), h_resized)
+        hw, hh = home_img.size
+        h_scale = min(max_crest_size / max(1, hw), max_crest_size / max(1, hh), 1.0)
+        hcw = max(1, int(hw * h_scale))
+        hch = max(1, int(hh * h_scale))
+        h_resized = home_img.resize((hcw, hch), resampling_filter)
+
+        # Drop shadow for home crest
+        h_pad = 20
+        h_shadow = Image.new("RGBA", (hcw + h_pad * 2, hch + h_pad * 2), (0, 0, 0, 0))
+        h_alpha = h_resized.split()[3] if h_resized.mode == "RGBA" else None
+        if h_alpha:
+            h_shadow.paste(Image.new("RGBA", (hcw, hch), (0, 0, 0, 180)), (h_pad, h_pad), h_alpha)
+        else:
+            h_shadow.paste(Image.new("RGBA", (hcw, hch), (0, 0, 0, 180)), (h_pad, h_pad))
+        h_shadow_blurred = h_shadow.filter(ImageFilter.GaussianBlur(radius=8))
+
+        hx = home_cx - hcw // 2
+        hy = home_cy - hch // 2
+        bg.paste(h_shadow_blurred, (hx - h_pad, hy - h_pad + 6), h_shadow_blurred)
+        bg.paste(h_resized, (hx, hy), h_resized if h_resized.mode == "RGBA" else None)
     else:
-        draw.ellipse([h_x, h_y, h_x + crest_size, h_y + crest_size], fill=(30, 41, 59, 240), outline=(56, 189, 248, 160), width=2)
+        # Fallback crest circle
+        r_c = 45
+        draw.ellipse([home_cx - r_c, home_cy - r_c, home_cx + r_c, home_cy + r_c], fill=(30, 41, 59, 230), outline=(primary_color[0], primary_color[1], primary_color[2], 180), width=2)
+        initial = (home_name[:2] or "HM").upper()
+        draw.text((home_cx - 10, home_cy - 8), initial, fill=(241, 245, 249, 255), font=font_team)
 
-    # Home Team Label
-    h_disp = home_name if len(home_name) <= 18 else home_name[:16] + ".."
-    draw.text((150 - len(h_disp) * 4, vs_cy + crest_size // 2 + 14), h_disp, fill=(241, 245, 249, 255), font=font_default)
+    # Home Team Name Label below crest
+    h_disp = home_name if len(home_name) <= 20 else home_name[:18] + ".."
+    h_label_w = len(h_disp) * 7.5
+    draw.text((int(home_cx - h_label_w / 2), home_cy + 98), h_disp, fill=(241, 245, 249, 255), font=font_team)
 
-    # Away Crest (Right)
+    # 6. Away Crest (Right): Center at X=465, Y=190, max size 180x180 px (HQ antialiased with drop shadow)
+    away_cx, away_cy = 465, 190
     away_img = get_cached_crest_image(away_name, away_logo)
-    a_x, a_y = 490 - crest_size // 2, vs_cy - crest_size // 2
     if away_img:
-        a_resized = away_img.resize((crest_size, crest_size), Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS)
-        bg.paste(a_resized, (a_x, a_y), a_resized)
+        aw, ah = away_img.size
+        a_scale = min(max_crest_size / max(1, aw), max_crest_size / max(1, ah), 1.0)
+        acw = max(1, int(aw * a_scale))
+        ach = max(1, int(ah * a_scale))
+        a_resized = away_img.resize((acw, ach), resampling_filter)
+
+        # Drop shadow for away crest
+        a_pad = 20
+        a_shadow = Image.new("RGBA", (acw + a_pad * 2, ach + a_pad * 2), (0, 0, 0, 0))
+        a_alpha = a_resized.split()[3] if a_resized.mode == "RGBA" else None
+        if a_alpha:
+            a_shadow.paste(Image.new("RGBA", (acw, ach), (0, 0, 0, 180)), (a_pad, a_pad), a_alpha)
+        else:
+            a_shadow.paste(Image.new("RGBA", (acw, ach), (0, 0, 0, 180)), (a_pad, a_pad))
+        a_shadow_blurred = a_shadow.filter(ImageFilter.GaussianBlur(radius=8))
+
+        ax = away_cx - acw // 2
+        ay = away_cy - ach // 2
+        bg.paste(a_shadow_blurred, (ax - a_pad, ay - a_pad + 6), a_shadow_blurred)
+        bg.paste(a_resized, (ax, ay), a_resized if a_resized.mode == "RGBA" else None)
     else:
-        draw.ellipse([a_x, a_y, a_x + crest_size, a_y + crest_size], fill=(30, 41, 59, 240), outline=(56, 189, 248, 160), width=2)
+        # Fallback crest circle
+        r_c = 45
+        draw.ellipse([away_cx - r_c, away_cy - r_c, away_cx + r_c, away_cy + r_c], fill=(30, 41, 59, 230), outline=(primary_color[0], primary_color[1], primary_color[2], 180), width=2)
+        initial = (away_name[:2] or "AW").upper()
+        draw.text((away_cx - 10, away_cy - 8), initial, fill=(241, 245, 249, 255), font=font_team)
 
-    # Away Team Label
-    a_disp = away_name if len(away_name) <= 18 else away_name[:16] + ".."
-    draw.text((490 - len(a_disp) * 4, vs_cy + crest_size // 2 + 14), a_disp, fill=(241, 245, 249, 255), font=font_default)
+    # Away Team Name Label below crest
+    a_disp = away_name if len(away_name) <= 20 else away_name[:18] + ".."
+    a_label_w = len(a_disp) * 7.5
+    draw.text((int(away_cx - a_label_w / 2), away_cy + 98), a_disp, fill=(241, 245, 249, 255), font=font_team)
 
-    # Bottom Kickoff Badge
-    time_label = f"⏰ {local_time} (GMT-3)  |  🇲🇦 {morocco_time} MOROCCO"
-    draw.rounded_rectangle([width // 2 - 160, height - 44, width // 2 + 160, height - 16], radius=6, fill=(15, 23, 42, 230), outline=(56, 189, 248, 140), width=1)
-    draw.text((width // 2 - len(time_label) * 3 - 8, height - 36), time_label, fill=(226, 232, 240, 255), font=font_default)
+    # 7. Bottom: Kickoff time in Local & Morocco time in a sleek broadcast pill
+    time_label = f"⏰ {local_time} (GMT-3)   |   🇲🇦 {morocco_time} MOROCCO" if local_time and morocco_time else f"⏰ {local_time or morocco_time}"
+    pill_time_w = len(time_label) * 6.8 + 26
+    pill_cx = width // 2
+    pill_cy = height - 26
+    draw.rounded_rectangle(
+        [int(pill_cx - pill_time_w / 2), pill_cy - 12, int(pill_cx + pill_time_w / 2), pill_cy + 12],
+        radius=6,
+        fill=(15, 23, 42, 235),
+        outline=(accent_color[0], accent_color[1], accent_color[2], 140),
+        width=1
+    )
+    draw.text(
+        (int(pill_cx - (len(time_label) * 6.5) / 2), pill_cy - 6),
+        time_label,
+        fill=(226, 232, 240, 255),
+        font=font_time
+    )
 
+    # 8. Save output as crisp JPEG (Quality 95)
     final_rgb = bg.convert("RGB")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    final_rgb.save(output_path, "JPEG", quality=92, optimize=True)
+    final_rgb.save(output_path, "JPEG", quality=95, optimize=True)
     return True
 
 
