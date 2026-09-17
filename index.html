@@ -1838,71 +1838,29 @@
             return `https://cdn-img.staticzz.com/img/noticias/${extId}.jpg`;
         }
 
-        // Banner Image Normalization: Ensure all banner <img> tags process image sources using https://wsrv.nl/?url= proxy
+        // Banner Image Normalization: Ensure all banner <img> tags resolve to GitHub Pages HD banners or clean URLs
         function normalizeCdnBannerUrl(rawUrl, matchId, homeTeam, awayTeam, league) {
             let url = (rawUrl || '').trim();
-            if (!url) return '';
-
-            // Check if URL has match/news ID that maps to the canonical CDN banner
-            const extId = extractMatchOrNewsId(url);
-            if (extId) {
-                return wrapWsrvProxy(constructCdnBannerUrl(extId));
-            }
-
-            if (url.startsWith('https://wsrv.nl/?url=') || url.startsWith('http://wsrv.nl/?url=')) {
+            if (url.includes('aspijik07.github.io') || url.includes('/banners/')) {
                 return url;
             }
-
-            let directCdnUrl = url;
-
-            // If already on cdn-img.staticzz.com, enforce HTTPS
-            if (url.includes('cdn-img.staticzz.com')) {
-                directCdnUrl = url.replace(/^http:\/\//i, 'https://');
-            } else if (url.includes('zerozero.com.ar') || url.includes('zerozero.pt') || url.includes('ogol.com.br') || url.includes('staticzz.com')) {
-                try {
-                    const parsed = new URL(url.startsWith('//') ? 'https:' + url : (url.startsWith('http') ? url : 'https://' + url));
-                    directCdnUrl = 'https://cdn-img.staticzz.com' + parsed.pathname + (parsed.search || '');
-                } catch (e) {
-                    const pathMatch = url.match(/\/img\/(noticias\/.*)$/);
-                    if (pathMatch) directCdnUrl = 'https://cdn-img.staticzz.com/img/' + pathMatch[1];
-                }
-            } else if (url.startsWith('/img/')) {
-                directCdnUrl = 'https://cdn-img.staticzz.com' + url;
-            } else if (url.includes('/img/noticias/')) {
-                const idx = url.indexOf('/img/noticias/');
-                directCdnUrl = 'https://cdn-img.staticzz.com' + url.substring(idx);
-            } else if (matchId && MATCHES_DATA[matchId] && MATCHES_DATA[matchId].banner_url && MATCHES_DATA[matchId].banner_url.includes('cdn-img.staticzz.com')) {
-                directCdnUrl = MATCHES_DATA[matchId].banner_url;
-            } else if (homeTeam && awayTeam) {
+            if (homeTeam && awayTeam) {
                 const hNorm = (homeTeam || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                 const aNorm = (awayTeam || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                for (const k in MATCHES_DATA) {
-                    const item = MATCHES_DATA[k];
-                    const itemH = (item.home_team || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                    const itemA = (item.away_team || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                    if ((itemH.includes(hNorm) || hNorm.includes(itemH)) && (itemA.includes(aNorm) || aNorm.includes(itemA))) {
-                        if (item.banner_url && item.banner_url.includes('cdn-img.staticzz.com')) {
-                            directCdnUrl = item.banner_url;
-                            break;
-                        }
-                    }
-                }
+                return `https://aspijik07.github.io/football-bot/banners/${hNorm}_${aNorm}.jpg`;
             }
-
-            return wrapWsrvProxy(directCdnUrl);
+            return url;
         }
 
         // Full Preview Banner Layout: Replaces small "View Card" with the full image preview banner inside each table row
         function renderBannerCellHtml(m, matchId, homeTeam, awayTeam, homeLogo, awayLogo, homeUrlBtn, awayUrlBtn, copyBtn) {
-            const bannerUrl = normalizeCdnBannerUrl(m.banner_url, matchId, homeTeam, awayTeam, m.league);
-            const isBrazil = (m.country === 'Brazil' || (m.league && (m.league.includes('Brasil') || m.league.includes('Série A') || m.league.includes('Paulistão'))));
-            const primaryDomain = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
-            let sourceSite = m.banner_source_site;
-            if (!sourceSite || sourceSite === 'fotmob.com' || sourceSite === 'sofascore.com' || sourceSite === 'livesoccertv.com') {
-                sourceSite = (bannerUrl && bannerUrl.includes('ogol')) ? 'ogol.com.br' : primaryDomain;
-            }
+            const hNorm = (homeTeam || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const aNorm = (awayTeam || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const defaultBanner = `https://aspijik07.github.io/football-bot/banners/${hNorm}_${aNorm}.jpg`;
+            const bannerUrl = m.banner_url || defaultBanner;
+            const sourceSite = m.banner_source_site || 'github.io';
 
-            // Store back normalized CDN banner info on match object
+            // Store back normalized banner info on match object
             m.banner_url = bannerUrl;
             m.has_scraped_banner = Boolean(bannerUrl);
             m.banner_source_site = sourceSite;
@@ -1918,17 +1876,15 @@
             <!-- Large Match Preview Banner -->
             <div class="banner-preview-box">
                 <div class="banner-image-container" onclick="openMatchBanner('${matchId}')" title="Click to open full 16:9 match preview banner in modal">
-                    <img src="${displayImgSrc}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, '${homeEsc}', '${awayEsc}', '${homeLogoEsc}', '${awayLogoEsc}')">
+                    <img src="${displayImgSrc}" alt="${homeTeam} vs ${awayTeam}" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, '${homeEsc}', '${awayEsc}', '${homeLogoEsc}', '${awayLogoEsc}')">
                     <div class="banner-hover-overlay">
                         <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                         <span class="banner-source-pill">${sourceSite}</span>
                     </div>
                 </div>
                 <div class="banner-actions-subrow">
-                    ${bannerUrl ? `
-                        <a href="${bannerUrl}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
-                        <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${bannerUrl}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-                    ` : `<span class="direct-img-chip" style="opacity:0.6;">⚡ Match Card</span>`}
+                    <a href="${bannerUrl}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>
+                    <button type="button" class="btn-copy-crest" onclick="copyDirectUrl('${bannerUrl}', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
                 </div>
             </div>`;
         }
@@ -2036,11 +1992,14 @@
                 m.day = day;
                 m.day_label = day === 'tomorrow' ? 'Tomorrow' : 'Today';
 
-                // Normalize Banner URL to https://cdn-img.staticzz.com and enable full preview banner
-                m.banner_url = normalizeCdnBannerUrl(m.banner_url, matchId, m.home_team, m.away_team, m.league);
+                // Normalize Banner URL to GitHub Pages HD banner
+                const hNormBanner = (m.home_team || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const aNormBanner = (m.away_team || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const defaultBannerUrl = `https://aspijik07.github.io/football-bot/banners/${hNormBanner}_${aNormBanner}.jpg`;
+                m.banner_url = m.banner_url || defaultBannerUrl;
                 m.has_scraped_banner = true;
-                if (!m.banner_source_site) {
-                    m.banner_source_site = m.banner_url.includes('ogol') ? 'ogol.com.br' : 'zerozero.com.ar';
+                if (!m.banner_source_site || m.banner_source_site === 'zerozero.com.ar' || m.banner_source_site === 'ogol.com.br') {
+                    m.banner_source_site = 'github.io';
                 }
 
                 const stText = (m.status_text || m.status || 'SCHEDULED').trim();

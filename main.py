@@ -2343,18 +2343,12 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     channels = m.get("channels") or m.get("all_unique_channels") or ["TNT Sports", "ESPN Premium"]
     channels_html = "".join(f'<span class="channel-tag">{c}</span>' for c in channels)
 
-    banner_url = m.get("banner_url") or ""
+    home_norm = normalize_team(home_team)
+    away_norm = normalize_team(away_team)
+    default_banner = f"https://aspijik07.github.io/football-bot/banners/{home_norm}_{away_norm}.jpg"
+    banner_url = m.get("banner_url") or default_banner
     banner_title = m.get("banner_title") or f"{home_team} vs {away_team}"
-    c_lower = country.lower()
-    lg_lower = league.lower()
-    is_brazil = (
-        "brazil" in c_lower or "brasil" in c_lower or
-        any(k in lg_lower for k in ["série a", "serie a", "brasileir", "copa do brasil", "paulistão", "carioca"])
-    )
-    primary_domain = "ogol.com.br" if is_brazil else "zerozero.com.ar"
-    banner_site = m.get("banner_source_site")
-    if not banner_site or banner_site in ["fotmob.com", "sofascore.com", "livesoccertv.com", "zerozero.pt"]:
-        banner_site = primary_domain
+    banner_site = m.get("banner_source_site") or "github.io"
 
     home_team_esc = home_team.replace("'", "\\'")
     away_team_esc = away_team.replace("'", "\\'")
@@ -2364,19 +2358,16 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     fixture_svg = f"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='349' viewBox='0 0 620 349'><rect width='100%' height='100%' fill='%230f172a'/><path d='M0,0 L620,349 M620,0 L0,349' stroke='%231e293b' stroke-width='1.5'/><circle cx='310' cy='174' r='60' fill='%231e293b' stroke='%2338bdf8' stroke-width='2'/><text x='310' y='180' font-size='22' text-anchor='middle' fill='%2338bdf8' font-family='system-ui'>⚽ MATCH PREVIEW</text><text x='310' y='210' font-size='14' text-anchor='middle' fill='%2394a3b8' font-family='system-ui'>{home_team} vs {away_team}</text></svg>"
     display_banner_url = wrap_wsrv_proxy(banner_url) if banner_url else fixture_svg
 
-    if banner_url:
-        banner_actions = (
-            f'<a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>'
-            f'<button type="button" class="btn-copy-crest" onclick="copyDirectUrl(\'{banner_url}\', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>'
-        )
-    else:
-        banner_actions = '<span class="direct-img-chip" style="opacity:0.6;">⚡ Match Card</span>'
+    banner_actions = (
+        f'<a href="{banner_url}" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a>'
+        f'<button type="button" class="btn-copy-crest" onclick="copyDirectUrl(\'{banner_url}\', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>'
+    )
 
     banner_cell = f"""
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
                     <div class="banner-image-container" onclick="openMatchBanner('{match_id}')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="{display_banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="lazy" onerror="handleBannerError(this, '{home_team_esc}', '{away_team_esc}', '{home_logo_esc}', '{away_logo_esc}', '{match_id}')">
+                        <img src="{display_banner_url}" alt="{banner_title}" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, '{home_team_esc}', '{away_team_esc}', '{home_logo_esc}', '{away_logo_esc}', '{match_id}')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">{banner_site}</span>
