@@ -65,15 +65,10 @@ export function getLeagueBadgeInfo(leagueName, countryName) {
   if (['argentina', 'arg', 'clausura', 'apertura', 'liga profesional'].some(k => full.includes(k))) {
     return { badgeClass: 'badge-argentina', cleanLeague: leagueName, cleanCountry: 'Argentina' };
   }
-  if (
-    ['bra', 'brazil', 'brasil'].some(k => cc.includes(k)) ||
-    [
-      'brazil', 'brasil', 'bra', 'brasileiro', 'brasileirão', 'paulista',
-      'paulistão', 'série a', 'serie a', 'série b', 'serie b',
-      'copa do brasil', 'copa paulista', 'carioca', 'gaúcho', 'gaucho', 'mineiro'
-    ].some(k => full.includes(k))
-  ) {
-    return { badgeClass: 'badge-brazil', cleanLeague: leagueName, cleanCountry: 'Brazil' };
+
+  const isBrazil = ['bra', 'brazil', 'brasil'].some(k => cc.includes(k)) || ['brazil', 'brasil', 'brasileir'].some(k => lg.includes(k));
+  if (isBrazil && ['série a', 'serie a', 'brasileirão', 'brasileiro', 'paulistão', 'carioca', 'copa do brasil'].some(k => lg.includes(k))) {
+    return { badgeClass: 'badge-brazil', cleanLeague: 'Série A', cleanCountry: 'Brazil' };
   }
 
   return { badgeClass: 'badge-default', cleanLeague: leagueName, cleanCountry: countryName || 'LATAM' };
@@ -87,6 +82,9 @@ export function isTargetMatch(leagueName, countryName) {
   // Explicitly exclude Copa Paulista
   if (lg.includes('copa paulista') || full.includes('copa paulista')) return false;
 
+  // Reject non-target countries like Italy
+  if (['ita', 'italy', 'italia'].some(k => cc.includes(k))) return false;
+
   if (lg.includes('libertadores') || full.includes('libertadores')) return true;
   if (lg.includes('sudamericana') || full.includes('sudamericana')) return true;
   if (lg.includes('copa argentina') || full.includes('copa argentina')) return true;
@@ -98,7 +96,8 @@ export function isTargetMatch(leagueName, countryName) {
     }
   }
 
-  if (cc.includes('bra') || full.includes('brazil') || full.includes('brasil')) {
+  const isBrazil = ['bra', 'brazil', 'brasil'].some(k => cc.includes(k)) || ['brazil', 'brasil', 'brasileir'].some(k => lg.includes(k));
+  if (isBrazil) {
     if (['série a', 'serie a', 'brasileir', 'paulistão', 'copa do brasil', 'carioca'].some(k => lg.includes(k))) {
       return true;
     }

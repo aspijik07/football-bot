@@ -298,9 +298,11 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
         return {"badge_class": "badge-brazil", "clean_league": "Copa do Brasil", "clean_country": "Brazil"}
     if "copa argentina" in lg or "copa argentina" in full:
         return {"badge_class": "badge-argentina", "clean_league": "Copa Argentina", "clean_country": "Argentina"}
-    if any(k in full for k in ["argentina", "arg", "clausura", "apertura", "liga profesional"]):
+    if any(k in cc for k in ["arg", "argentina"]) or any(k in lg for k in ["argentina", "clausura", "apertura", "liga profesional"]):
         return {"badge_class": "badge-argentina", "clean_league": "Liga Profesional Clausura", "clean_country": "Argentina"}
-    if any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in full for k in ["série a", "serie a", "brasileirão", "brasileiro", "copa do brasil"]):
+
+    is_brazil = any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in lg for k in ["brazil", "brasil", "brasileir"])
+    if is_brazil and any(k in lg for k in ["série a", "serie a", "brasileirão", "brasileiro", "paulistão", "carioca", "copa do brasil"]):
         return {"badge_class": "badge-brazil", "clean_league": "Série A", "clean_country": "Brazil"}
 
     return {"badge_class": "badge-default", "clean_league": league_name, "clean_country": country_name or "LATAM"}
@@ -309,7 +311,7 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
 def is_target_match(league_name: str, country_name: str) -> bool:
     """
     Checks if a fixture belongs to targeted South American competitions.
-    Strictly excludes Copa Paulista.
+    Strictly excludes Copa Paulista and non-target Serie A (e.g. Italy).
     """
     lg = (league_name or "").lower()
     cc = (country_name or "").lower()
@@ -317,6 +319,10 @@ def is_target_match(league_name: str, country_name: str) -> bool:
 
     # Explicit exclusion of Copa Paulista
     if "copa paulista" in lg or "copa paulista" in full:
+        return False
+
+    # Reject non-target countries like Italy
+    if any(k in cc for k in ["ita", "italy", "italia"]):
         return False
 
     if "libertadores" in lg or "libertadores" in full:
@@ -328,11 +334,12 @@ def is_target_match(league_name: str, country_name: str) -> bool:
     if "copa argentina" in lg or "copa argentina" in full:
         return True
 
-    if "arg" in cc or "argentina" in full:
+    if any(k in cc for k in ["arg", "argentina"]) or "argentina" in full:
         if any(k in lg for k in ["liga profesional", "copa argentina", "clausura", "apertura", "supercopa", "trofeo de campeones", "copa de la liga"]):
             return True
 
-    if "bra" in cc or "brazil" in full or "brasil" in full:
+    is_brazil = any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in lg for k in ["brazil", "brasil", "brasileir"])
+    if is_brazil:
         if any(k in lg for k in ["série a", "serie a", "brasileir", "paulistão", "copa do brasil", "carioca"]):
             return True
 
