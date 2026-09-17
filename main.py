@@ -658,7 +658,6 @@ def generate_match_banner(match_data: Dict[str, Any], output_path: str) -> bool:
     - Center: Sleek glowing broadcast "VS" badge at X=320, Y=190.
     - Trophy: Top-Right (X=565, Y=25), max size 60x60 px official tournament trophy.
     - Top-Left: Subtle league watermark / brand dot.
-    - Bottom: Kickoff time in Local & Morocco time in a sleek broadcast pill.
     - Output: Crisp JPEG (Quality 95) saved to output_path.
     """
     if not HAS_PIL:
@@ -685,7 +684,7 @@ def generate_match_banner(match_data: Dict[str, Any], output_path: str) -> bool:
         bg = Image.new("RGBA", (width, height), (15, 23, 42, 255))
 
     draw = ImageDraw.Draw(bg)
-    font_watermark, font_team, font_time, font_vs = get_banner_fonts()
+    font_watermark, font_team, _, font_vs = get_banner_fonts()
     resampling_filter = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS
 
     # 2. Top-Left: Subtle league watermark / brand dot with clean league label
@@ -802,26 +801,7 @@ def generate_match_banner(match_data: Dict[str, Any], output_path: str) -> bool:
     a_label_w = len(a_disp) * 7.5
     draw.text((int(away_cx - a_label_w / 2), away_cy + 98), a_disp, fill=(241, 245, 249, 255), font=font_team)
 
-    # 7. Bottom: Kickoff time in Local & Morocco time in a sleek broadcast pill
-    time_label = f"⏰ {local_time} (GMT-3)   |   🇲🇦 {morocco_time} MOROCCO" if local_time and morocco_time else f"⏰ {local_time or morocco_time}"
-    pill_time_w = len(time_label) * 6.8 + 26
-    pill_cx = width // 2
-    pill_cy = height - 26
-    draw.rounded_rectangle(
-        [int(pill_cx - pill_time_w / 2), pill_cy - 12, int(pill_cx + pill_time_w / 2), pill_cy + 12],
-        radius=6,
-        fill=(15, 23, 42, 235),
-        outline=(accent_color[0], accent_color[1], accent_color[2], 140),
-        width=1
-    )
-    draw.text(
-        (int(pill_cx - (len(time_label) * 6.5) / 2), pill_cy - 6),
-        time_label,
-        fill=(226, 232, 240, 255),
-        font=font_time
-    )
-
-    # 8. Save output as crisp JPEG (Quality 95)
+    # 7. Save output as crisp JPEG (Quality 95)
     final_rgb = bg.convert("RGB")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     final_rgb.save(output_path, "JPEG", quality=95, optimize=True)
