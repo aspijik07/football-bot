@@ -316,14 +316,14 @@ def fix_cdn_url(url: Optional[str]) -> str:
 def wrap_wsrv_proxy(url: Optional[str]) -> str:
     """
     Wraps scraped banner image URLs using wsrv.nl proxy to bypass CDN hotlink protection.
-    If the image is already hosted on GitHub Pages, returns directly.
+    If the image is already hosted locally or on GitHub Pages, returns directly.
     """
     if not url:
         return ""
     clean_url = str(url).strip()
     if not clean_url:
         return ""
-    if "aspijik07.github.io" in clean_url:
+    if clean_url.startswith("./banners/") or clean_url.startswith("banners/") or clean_url.startswith("/banners/") or "aspijik07.github.io" in clean_url:
         return clean_url
     if clean_url.startswith("data:") or "wsrv.nl" in clean_url:
         return clean_url
@@ -2345,8 +2345,10 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
 
     home_norm = normalize_team(home_team)
     away_norm = normalize_team(away_team)
-    default_banner = f"https://aspijik07.github.io/football-bot/banners/{home_norm}_{away_norm}.jpg"
+    default_banner = f"./banners/{home_norm}_{away_norm}.jpg"
     banner_url = m.get("banner_url") or default_banner
+    if banner_url.startswith("https://aspijik07.github.io/football-bot/banners/"):
+        banner_url = f"./banners/{banner_url.split('/')[-1]}"
     banner_title = m.get("banner_title") or f"{home_team} vs {away_team}"
     banner_site = m.get("banner_source_site") or "github.io"
 
@@ -2652,7 +2654,7 @@ def main():
             logger.warning("Could not generate Pillow banner for %s vs %s: %s", m.get("home_team"), m.get("away_team"), e)
 
         active_banners.add(banner_fname)
-        m["banner_url"] = f"https://aspijik07.github.io/football-bot/banners/{banner_fname}"
+        m["banner_url"] = f"./banners/{banner_fname}"
         m["banner_source_site"] = "github.io"
         m["has_scraped_banner"] = True
 

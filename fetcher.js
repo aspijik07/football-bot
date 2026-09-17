@@ -153,7 +153,7 @@ export function calculateStatus(matchDt, started = false, finished = false, canc
 
 export function rewriteCdnImageUrl(url) {
   if (!url) return url;
-  if (url.includes('aspijik07.github.io') || url.includes('/banners/')) {
+  if (url.startsWith('./banners/') || url.startsWith('banners/') || url.startsWith('/banners/') || url.includes('aspijik07.github.io') || url.includes('/banners/')) {
     return url;
   }
   const bases = [
@@ -175,7 +175,7 @@ export function rewriteCdnImageUrl(url) {
 export function generateBannerUrl(homeName, awayName) {
   const hNorm = normalizeTeam(homeName);
   const aNorm = normalizeTeam(awayName);
-  return `https://aspijik07.github.io/football-bot/banners/${hNorm}_${aNorm}.jpg`;
+  return `./banners/${hNorm}_${aNorm}.jpg`;
 }
 
 export async function fetchFotmobMatches(targetDate, dayLabel) {
