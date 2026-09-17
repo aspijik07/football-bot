@@ -27,6 +27,7 @@ Key Features:
 
 import os
 import re
+import io
 import json
 import logging
 from datetime import datetime, timezone, timedelta
@@ -35,6 +36,12 @@ from urllib.parse import urlparse, quote
 
 import requests
 from bs4 import BeautifulSoup
+
+try:
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -45,12 +52,66 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MATCHES_JSON_PATH = os.path.join(BASE_DIR, "matches.json")
 INDEX_HTML_PATH = os.path.join(BASE_DIR, "index.html")
 
+BANNERS_DIR = os.path.join(BASE_DIR, "banners")
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+CRESTS_CACHE_DIR = os.path.join(ASSETS_DIR, "crests")
+TROPHIES_CACHE_DIR = os.path.join(ASSETS_DIR, "trophies")
+
+os.makedirs(BANNERS_DIR, exist_ok=True)
+os.makedirs(CRESTS_CACHE_DIR, exist_ok=True)
+os.makedirs(TROPHIES_CACHE_DIR, exist_ok=True)
+
 DEFAULT_CREST = (
     "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' "
     "viewBox='0 0 60 60'><circle cx='30' cy='30' r='27' fill='%231e293b' stroke='%2338bdf8' "
     "stroke-width='2.5'/><text x='30' y='36' font-size='20' text-anchor='middle' fill='%2338bdf8' "
     "font-family='system-ui'>⚽</text></svg>"
 )
+
+TROPHY_CONFIG: Dict[str, Dict[str, Any]] = {
+    "copa_libertadores": {
+        "filename": "copa_libertadores.png",
+        "url": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Copa_Libertadores_trophy.svg/300px-Copa_Libertadores_trophy.svg.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/42.png",
+        "label": "COPA LIBERTADORES",
+        "color": "#eab308"
+    },
+    "copa_sudamericana": {
+        "filename": "copa_sudamericana.png",
+        "url": "https://upload.wikimedia.org/wikipedia/en/thumb/9/91/Copa_Sudamericana_trophy.svg/300px-Copa_Sudamericana_trophy.svg.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/297.png",
+        "label": "COPA SUDAMERICANA",
+        "color": "#3b82f6"
+    },
+    "brasileirao_serie_a": {
+        "filename": "brasileirao_serie_a.png",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Trofeu_Brasileirao.png/300px-Trofeu_Brasileirao.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/268.png",
+        "label": "BRASILEIRÃO SÉRIE A",
+        "color": "#10b981"
+    },
+    "copa_do_brasil": {
+        "filename": "copa_do_brasil.png",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Trofeu_Copa_do_Brasil.png/300px-Trofeu_Copa_do_Brasil.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/330.png",
+        "label": "COPA DO BRASIL",
+        "color": "#06b6d4"
+    },
+    "liga_profesional_argentina": {
+        "filename": "liga_profesional_argentina.png",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Trofeo_Liga_Profesional_de_F%C3%BAtbol.png/300px-Trofeo_Liga_Profesional_de_F%C3%BAtbol.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/112.png",
+        "label": "LIGA PROFESIONAL",
+        "color": "#38bdf8"
+    },
+    "copa_argentina": {
+        "filename": "copa_argentina.png",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Trofeo_Copa_Argentina.png/300px-Trofeo_Copa_Argentina.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/329.png",
+        "label": "COPA ARGENTINA",
+        "color": "#a855f7"
+    }
+}
 
 # Sidebar Filter Configuration:
 # Hardcoded to explicitly include "Copa Argentina" and "Copa do Brasil" (even with 0 matches),
@@ -204,16 +265,16 @@ def construct_cdn_banner_url(extracted_id: Union[str, int]) -> str:
 
 def fix_cdn_url(url: Optional[str]) -> str:
     """
-    Safely convert match banner image URLs to the staticzz CDN pattern:
-    https://cdn-img.staticzz.com/img/noticias/[MATCH_IMAGE_PATH]
-    If an extracted match or news ID is present, constructs:
-    https://cdn-img.staticzz.com/img/noticias/{extracted_id}.jpg
+    Safely convert match banner image URLs or preserve GitHub Pages hosted banners.
     """
     if not url:
         return ""
     clean_url = str(url).strip()
     if not clean_url:
         return ""
+
+    if "aspijik07.github.io" in clean_url or "/banners/" in clean_url:
+        return clean_url
 
     # Check if an extracted ID is found, and return clean exact CDN URL
     extracted_id = extract_match_or_news_id(clean_url)
@@ -254,14 +315,16 @@ def fix_cdn_url(url: Optional[str]) -> str:
 
 def wrap_wsrv_proxy(url: Optional[str]) -> str:
     """
-    Wraps scraped banner image URLs using wsrv.nl proxy to bypass CDN hotlink protection:
-    https://wsrv.nl/?url=[ENCODED_URL]
+    Wraps scraped banner image URLs using wsrv.nl proxy to bypass CDN hotlink protection.
+    If the image is already hosted on GitHub Pages, returns directly.
     """
     if not url:
         return ""
     clean_url = str(url).strip()
     if not clean_url:
         return ""
+    if "aspijik07.github.io" in clean_url:
+        return clean_url
     if clean_url.startswith("data:") or "wsrv.nl" in clean_url:
         return clean_url
     return f"https://wsrv.nl/?url={quote(clean_url, safe='')}"
@@ -282,6 +345,225 @@ def normalize_team(name: str) -> str:
             n = n[len(p):]
             break
     return re.sub(r"[^a-z0-9]", "", n)
+
+
+def get_trophy_key(league_name: str, country_name: str) -> str:
+    """Determine the unique trophy identifier for a competition."""
+    lg = (league_name or "").lower()
+    cc = (country_name or "").lower()
+    full = f"{cc} {lg}"
+
+    if "libertadores" in lg or "libertadores" in full:
+        return "copa_libertadores"
+    if "sudamericana" in lg or "sudamericana" in full:
+        return "copa_sudamericana"
+    if "copa do brasil" in lg or "copa brasil" in lg or "copa do brasil" in full:
+        return "copa_do_brasil"
+    if "copa argentina" in lg or "copa argentina" in full:
+        return "copa_argentina"
+    if any(k in cc for k in ["arg", "argentina"]) or any(k in lg for k in ["clausura", "apertura", "liga profesional"]):
+        return "liga_profesional_argentina"
+    if any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in lg for k in ["série a", "serie a", "brasileirão", "brasileiro", "paulistão", "carioca"]):
+        return "brasileirao_serie_a"
+    return "copa_libertadores"
+
+
+def get_cached_crest_image(team_name: str, logo_url: Optional[str]) -> Any:
+    """Download and cache team crest in assets/crests/ to eliminate rate limits."""
+    if not HAS_PIL:
+        return None
+    norm = normalize_team(team_name) or "default"
+    cache_path = os.path.join(CRESTS_CACHE_DIR, f"{norm}.png")
+
+    if os.path.exists(cache_path) and os.path.getsize(cache_path) > 100:
+        try:
+            img = Image.open(cache_path)
+            return img.convert("RGBA")
+        except Exception as e:
+            logger.debug("Failed opening cached crest %s: %s", cache_path, e)
+
+    if logo_url and logo_url.startswith("http"):
+        try:
+            resp = requests.get(
+                logo_url,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"},
+                timeout=6
+            )
+            if resp.status_code == 200 and len(resp.content) > 100:
+                img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+                img.save(cache_path, "PNG")
+                return img
+        except Exception as e:
+            logger.debug("Failed fetching crest from %s: %s", logo_url, e)
+
+    return None
+
+
+def get_cached_trophy_image(trophy_key: str) -> Any:
+    """Download and cache league trophy in assets/trophies/ to eliminate rate limits."""
+    if not HAS_PIL:
+        return None
+    config = TROPHY_CONFIG.get(trophy_key, TROPHY_CONFIG["copa_libertadores"])
+    cache_path = os.path.join(TROPHIES_CACHE_DIR, config["filename"])
+
+    if os.path.exists(cache_path) and os.path.getsize(cache_path) > 100:
+        try:
+            img = Image.open(cache_path)
+            return img.convert("RGBA")
+        except Exception as e:
+            logger.debug("Failed opening cached trophy %s: %s", cache_path, e)
+
+    for url_to_try in [config.get("url"), config.get("fallback_logo")]:
+        if not url_to_try:
+            continue
+        try:
+            resp = requests.get(
+                url_to_try,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"},
+                timeout=6
+            )
+            if resp.status_code == 200 and len(resp.content) > 100:
+                img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+                img.save(cache_path, "PNG")
+                return img
+        except Exception as e:
+            logger.debug("Failed downloading trophy %s from %s: %s", trophy_key, url_to_try, e)
+
+    # Fallback trophy rendering if network unavailable
+    try:
+        t_img = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(t_img)
+        draw.ellipse([10, 10, 90, 90], fill=(30, 41, 59, 230), outline=(56, 189, 248, 255), width=3)
+        draw.polygon([(50, 20), (32, 45), (40, 75), (60, 75), (68, 45)], fill=(234, 179, 8, 240), outline=(255, 255, 255, 200))
+        t_img.save(cache_path, "PNG")
+        return t_img
+    except Exception:
+        return None
+
+
+def generate_match_banner(match_data: Dict[str, Any], output_path: str) -> bool:
+    """
+    Generates a 640x380 HD JPEG banner for a match using Pillow:
+    - Top-Left: Standardized League tag
+    - Top-Right: Official Authentic League Trophy Badge
+    - Center Left: Home team crest & name
+    - Center Middle: Glowing VS badge
+    - Center Right: Away team crest & name
+    - Bottom: Kickoff time in Local & Morocco time
+    """
+    if not HAS_PIL:
+        return False
+
+    width, height = 640, 380
+    bg = Image.new("RGBA", (width, height), (15, 23, 42, 255))
+    draw = ImageDraw.Draw(bg)
+
+    # Gradient background
+    for y in range(height):
+        ratio = y / height
+        r = int(11 + (30 - 11) * ratio)
+        g = int(19 + (41 - 19) * ratio)
+        b = int(41 + (59 - 41) * ratio)
+        draw.line([(0, y), (width, y)], fill=(r, g, b, 255))
+
+    # Modern stadium pitch lines
+    draw.line([(0, 0), (width, height)], fill=(255, 255, 255, 8), width=1)
+    draw.line([(width, 0), (0, height)], fill=(255, 255, 255, 8), width=1)
+    draw.ellipse([width // 2 - 90, height // 2 - 90, width // 2 + 90, height // 2 + 90], outline=(56, 189, 248, 25), width=2)
+    draw.line([(width // 2, 40), (width // 2, height - 40)], fill=(56, 189, 248, 20), width=1)
+
+    league_name = match_data.get("league", "South American Football")
+    country_name = match_data.get("country", "")
+    home_name = match_data.get("home_team", "Home Team")
+    away_name = match_data.get("away_team", "Away Team")
+    home_logo = match_data.get("home_logo", "")
+    away_logo = match_data.get("away_logo", "")
+    local_time = match_data.get("local_time", "")
+    morocco_time = match_data.get("morocco_time", "")
+
+    trophy_key = get_trophy_key(league_name, country_name)
+    trophy_cfg = TROPHY_CONFIG.get(trophy_key, TROPHY_CONFIG["copa_libertadores"])
+
+    try:
+        font_default = ImageFont.load_default()
+    except Exception:
+        font_default = None
+
+    # Top-Left: League Tag
+    league_tag = trophy_cfg["label"]
+    tag_width = len(league_tag) * 9 + 24
+    draw.rounded_rectangle([20, 18, 20 + tag_width, 46], radius=6, fill=(30, 41, 59, 220), outline=(56, 189, 248, 120), width=1)
+    draw.text((32, 25), league_tag, fill=(56, 189, 248, 255), font=font_default)
+
+    # Top-Right: Authentic League Trophy Badge
+    trophy_img = get_cached_trophy_image(trophy_key)
+    if trophy_img:
+        t_w, t_h = 64, 64
+        t_resized = trophy_img.resize((t_w, t_h), Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS)
+        draw.ellipse([width - 82, 10, width - 14, 78], fill=(15, 23, 42, 190), outline=(234, 179, 8, 180), width=2)
+        bg.paste(t_resized, (width - 80, 12), t_resized)
+
+    # Center VS Badge
+    vs_cx, vs_cy = width // 2, height // 2 - 10
+    draw.ellipse([vs_cx - 26, vs_cy - 26, vs_cx + 26, vs_cy + 26], fill=(30, 41, 59, 240), outline=(245, 158, 11, 220), width=2)
+    draw.text((vs_cx - 9, vs_cy - 8), "VS", fill=(245, 158, 11, 255), font=font_default)
+
+    # Home Crest (Left)
+    home_img = get_cached_crest_image(home_name, home_logo)
+    crest_size = 100
+    h_x, h_y = 150 - crest_size // 2, vs_cy - crest_size // 2
+    if home_img:
+        h_resized = home_img.resize((crest_size, crest_size), Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS)
+        bg.paste(h_resized, (h_x, h_y), h_resized)
+    else:
+        draw.ellipse([h_x, h_y, h_x + crest_size, h_y + crest_size], fill=(30, 41, 59, 240), outline=(56, 189, 248, 160), width=2)
+
+    # Home Team Label
+    h_disp = home_name if len(home_name) <= 18 else home_name[:16] + ".."
+    draw.text((150 - len(h_disp) * 4, vs_cy + crest_size // 2 + 14), h_disp, fill=(241, 245, 249, 255), font=font_default)
+
+    # Away Crest (Right)
+    away_img = get_cached_crest_image(away_name, away_logo)
+    a_x, a_y = 490 - crest_size // 2, vs_cy - crest_size // 2
+    if away_img:
+        a_resized = away_img.resize((crest_size, crest_size), Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.LANCZOS)
+        bg.paste(a_resized, (a_x, a_y), a_resized)
+    else:
+        draw.ellipse([a_x, a_y, a_x + crest_size, a_y + crest_size], fill=(30, 41, 59, 240), outline=(56, 189, 248, 160), width=2)
+
+    # Away Team Label
+    a_disp = away_name if len(away_name) <= 18 else away_name[:16] + ".."
+    draw.text((490 - len(a_disp) * 4, vs_cy + crest_size // 2 + 14), a_disp, fill=(241, 245, 249, 255), font=font_default)
+
+    # Bottom Kickoff Badge
+    time_label = f"⏰ {local_time} (GMT-3)  |  🇲🇦 {morocco_time} MOROCCO"
+    draw.rounded_rectangle([width // 2 - 160, height - 44, width // 2 + 160, height - 16], radius=6, fill=(15, 23, 42, 230), outline=(56, 189, 248, 140), width=1)
+    draw.text((width // 2 - len(time_label) * 3 - 8, height - 36), time_label, fill=(226, 232, 240, 255), font=font_default)
+
+    final_rgb = bg.convert("RGB")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    final_rgb.save(output_path, "JPEG", quality=92, optimize=True)
+    return True
+
+
+def cleanup_expired_banners(active_banner_filenames: set) -> None:
+    """
+    Automatically delete expired match banners from banners/ while preserving assets/ cache.
+    """
+    if not os.path.exists(BANNERS_DIR):
+        return
+    try:
+        for fname in os.listdir(BANNERS_DIR):
+            if fname.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+                if fname not in active_banner_filenames:
+                    file_path = os.path.join(BANNERS_DIR, fname)
+                    try:
+                        os.remove(file_path)
+                        logger.info("Deleted expired match banner: %s", fname)
+                    except Exception as e:
+                        logger.debug("Could not delete expired banner %s: %s", fname, e)
+    except Exception as e:
+        logger.warning("Error during banner cleanup: %s", e)
 
 
 def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]:
@@ -311,7 +593,7 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
 def is_target_match(league_name: str, country_name: str) -> bool:
     """
     Checks if a fixture belongs to targeted South American competitions.
-    Strictly excludes Copa Paulista and non-target Serie A (e.g. Italy).
+    Strictly excludes Copa Paulista and non-target countries (e.g. Italy, Spain, England).
     """
     lg = (league_name or "").lower()
     cc = (country_name or "").lower()
@@ -321,8 +603,9 @@ def is_target_match(league_name: str, country_name: str) -> bool:
     if "copa paulista" in lg or "copa paulista" in full:
         return False
 
-    # Reject non-target countries like Italy
-    if any(k in cc for k in ["ita", "italy", "italia"]):
+    # Reject European and non-target countries
+    non_target_cc = ["ita", "italy", "italia", "esp", "spain", "españa", "eng", "england", "ger", "germany", "fra", "france", "por", "portugal", "ned", "saudi", "mex"]
+    if any(k in cc for k in non_target_cc):
         return False
 
     if "libertadores" in lg or "libertadores" in full:
@@ -2364,10 +2647,24 @@ def main():
     today_matches = cross_verify_matches_with_sources(today_matches, livesoccertv_listings, futebolnatv_listings)
     tomorrow_matches = cross_verify_matches_with_sources(tomorrow_matches, livesoccertv_listings, futebolnatv_listings)
 
-    # Enforce CDN URL rewrite and status guarantees across all verified matches
+    # Enforce Pillow banner generation, status guarantees, and active banner retention
+    active_banners = set()
     for m in today_matches + tomorrow_matches:
-        if m.get("banner_url"):
-            m["banner_url"] = fix_cdn_url(m["banner_url"])
+        home_norm = normalize_team(m.get("home_team", ""))
+        away_norm = normalize_team(m.get("away_team", ""))
+        banner_fname = f"{home_norm}_{away_norm}.jpg"
+        banner_path = os.path.join(BANNERS_DIR, banner_fname)
+
+        try:
+            generate_match_banner(m, banner_path)
+        except Exception as e:
+            logger.warning("Could not generate Pillow banner for %s vs %s: %s", m.get("home_team"), m.get("away_team"), e)
+
+        active_banners.add(banner_fname)
+        m["banner_url"] = f"https://aspijik07.github.io/football-bot/banners/{banner_fname}"
+        m["banner_source_site"] = "github.io"
+        m["has_scraped_banner"] = True
+
         st_text = m.get("status_text") or m.get("status") or "SCHEDULED"
         if st_text.upper() in ["UNDEFINED", "NONE", "NULL", ""]:
             st_text = "SCHEDULED"
@@ -2384,6 +2681,9 @@ def main():
         m["status"] = st_text
         m["status_text"] = st_text
         m["status_class"] = st_class
+
+    # Auto-delete expired match banners from banners/ while keeping assets/ cache
+    cleanup_expired_banners(active_banners)
 
     # 5. Output Schema: Ensure matches.json contains two strict keys: 'today' and 'tomorrow'
     save_matches_to_disk(today_matches, tomorrow_matches)

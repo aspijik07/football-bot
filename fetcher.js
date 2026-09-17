@@ -82,8 +82,9 @@ export function isTargetMatch(leagueName, countryName) {
   // Explicitly exclude Copa Paulista
   if (lg.includes('copa paulista') || full.includes('copa paulista')) return false;
 
-  // Reject non-target countries like Italy
-  if (['ita', 'italy', 'italia'].some(k => cc.includes(k))) return false;
+  // Reject European and non-target countries
+  const nonTargetCountries = ['ita', 'italy', 'italia', 'esp', 'spain', 'españa', 'eng', 'england', 'ger', 'germany', 'fra', 'france', 'por', 'portugal', 'ned', 'saudi', 'mex'];
+  if (nonTargetCountries.some(k => cc.includes(k))) return false;
 
   if (lg.includes('libertadores') || full.includes('libertadores')) return true;
   if (lg.includes('sudamericana') || full.includes('sudamericana')) return true;
@@ -152,6 +153,9 @@ export function calculateStatus(matchDt, started = false, finished = false, canc
 
 export function rewriteCdnImageUrl(url) {
   if (!url) return url;
+  if (url.includes('aspijik07.github.io') || url.includes('/banners/')) {
+    return url;
+  }
   const bases = [
     'https://www.zerozero.com.ar', 'http://www.zerozero.com.ar',
     'https://zerozero.com.ar', 'http://zerozero.com.ar',
@@ -166,6 +170,12 @@ export function rewriteCdnImageUrl(url) {
     }
   }
   return url;
+}
+
+export function generateBannerUrl(homeName, awayName) {
+  const hNorm = normalizeTeam(homeName);
+  const aNorm = normalizeTeam(awayName);
+  return `https://aspijik07.github.io/football-bot/banners/${hNorm}_${aNorm}.jpg`;
 }
 
 export async function fetchFotmobMatches(targetDate, dayLabel) {
@@ -226,11 +236,7 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
           const homeLogo = homeId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${homeId}.png` : '';
           const awayLogo = awayId ? `https://images.fotmob.com/image_resources/logo/teamlogo/${awayId}.png` : '';
 
-          const isBrazil = (cleanCountry === 'Brazil');
-          const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
-          const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-          const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-          const defaultCdnBanner = `https://cdn-img.staticzz.com/img/noticias/jogos/${hNorm}_${aNorm}.jpg`;
+          const bannerUrl = generateBannerUrl(homeName, awayName);
 
           matches.push({
             day: dayLabel,
@@ -246,9 +252,9 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
             status_text: statusText,
             status_class: statusClass,
             channels: getChannelsForMatch(cleanLeague, cleanCountry),
-            banner_url: defaultCdnBanner,
+            banner_url: bannerUrl,
             banner_title: `${homeName} vs ${awayName}`,
-            banner_source_site: bannerSite,
+            banner_source_site: 'github.io',
             has_scraped_banner: true,
             source: 'fotmob'
           });
@@ -322,11 +328,7 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
         const homeLogo = homeId ? `https://api.sofascore.app/api/v1/team/${homeId}/image` : '';
         const awayLogo = awayId ? `https://api.sofascore.app/api/v1/team/${awayId}/image` : '';
 
-        const isBrazil = (cleanCountry === 'Brazil');
-        const bannerSite = isBrazil ? 'ogol.com.br' : 'zerozero.com.ar';
-        const hNorm = homeName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-        const aNorm = awayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
-        const defaultCdnBanner = `https://cdn-img.staticzz.com/img/noticias/jogos/${hNorm}_${aNorm}.jpg`;
+        const bannerUrl = generateBannerUrl(homeName, awayName);
 
         matches.push({
           day: dayLabel,
@@ -342,9 +344,9 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
           status_text: statusText,
           status_class: statusClass,
           channels: getChannelsForMatch(cleanLeague, cleanCountry),
-          banner_url: defaultCdnBanner,
+          banner_url: bannerUrl,
           banner_title: `${homeName} vs ${awayName}`,
-          banner_source_site: bannerSite,
+          banner_source_site: 'github.io',
           has_scraped_banner: true,
           source: 'sofascore'
         });
@@ -388,9 +390,9 @@ export function loadCachedMatches() {
           status_text: cleanStText,
           status_class: stClass,
           channels: (item.channels && item.channels.length > 0) ? item.channels : (item.all_unique_channels || ['TNT Sports', 'ESPN Premium']),
-          banner_url: rewriteCdnImageUrl(item.banner_url || item.home_logo || ''),
+          banner_url: rewriteCdnImageUrl(item.banner_url || generateBannerUrl(item.home_team, item.away_team)),
           banner_title: item.banner_title || `${item.home_team} vs ${item.away_team}`,
-          banner_source_site: item.banner_source_site || 'zerozero.com.ar',
+          banner_source_site: item.banner_source_site || 'github.io',
           has_scraped_banner: item.has_scraped_banner ?? true,
           source: 'cache'
         };
@@ -455,7 +457,7 @@ export async function fetchAllMatches() {
         status: m.status_text,
         banner_url: m.banner_url,
         banner_title: m.banner_title || `${m.home_team} vs ${m.away_team}`,
-        banner_source_site: m.banner_source_site || 'zerozero.com.ar',
+        banner_source_site: m.banner_source_site || 'github.io',
         has_scraped_banner: m.has_scraped_banner ?? false,
         all_unique_channels: m.channels
       }))
