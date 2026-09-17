@@ -3,178 +3,6 @@
         {
             "day": "today",
             "day_label": "Today",
-            "match_date": "2026-09-16",
-            "league": "Copa Libertadores",
-            "country": "South America",
-            "badge_class": "badge-libertadores",
-            "home_team": "LDU de Quito",
-            "away_team": "Palmeiras",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6721.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png",
-            "local_time": "19:00",
-            "morocco_time": "23:00",
-            "status": "LIVE 🔴 72‎’‎ (1 - 1)",
-            "status_text": "LIVE 🔴 72‎’‎ (1 - 1)",
-            "status_class": "status-live",
-            "is_live": true,
-            "banner_url": "https://aspijik07.github.io/football-bot/banners/ldudequito_palmeiras.jpg",
-            "banner_title": "LDU de Quito vs Palmeiras",
-            "banner_source_site": "Studio Pro Generator",
-            "has_scraped_banner": true,
-            "all_unique_channels": [
-                "Paramount+",
-                "ESPN",
-                "Star+",
-                "Globo"
-            ],
-            "channels": [
-                "Paramount+",
-                "ESPN",
-                "Star+",
-                "Globo"
-            ]
-        },
-        {
-            "day": "today",
-            "day_label": "Today",
-            "match_date": "2026-09-16",
-            "league": "Copa Argentina",
-            "country": "Argentina",
-            "badge_class": "badge-argentina",
-            "home_team": "Independiente Rivadavia",
-            "away_team": "Atlético Tucumán",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png",
-            "local_time": "19:00",
-            "morocco_time": "23:00",
-            "status": "LIVE 🔴 69‎’‎ (1 - 0)",
-            "status_text": "LIVE 🔴 69‎’‎ (1 - 0)",
-            "status_class": "status-live",
-            "is_live": true,
-            "banner_url": "https://aspijik07.github.io/football-bot/banners/independienterivadavia_tucuman.jpg",
-            "banner_title": "Independiente Rivadavia vs Atlético Tucumán",
-            "banner_source_site": "Studio Pro Generator",
-            "has_scraped_banner": true,
-            "all_unique_channels": [
-                "ESPN Premium",
-                "TNT Sports",
-                "TyC Sports",
-                "Star+"
-            ],
-            "channels": [
-                "ESPN Premium",
-                "TNT Sports",
-                "TyC Sports",
-                "Star+"
-            ]
-        },
-        {
-            "day": "today",
-            "day_label": "Today",
-            "match_date": "2026-09-16",
-            "league": "Copa Sudamericana",
-            "country": "South America",
-            "badge_class": "badge-sudamericana",
-            "home_team": "São Paulo",
-            "away_team": "Boca Juniors",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png",
-            "local_time": "21:30",
-            "morocco_time": "01:30",
-            "status": "FINISHED (1 - 1)",
-            "status_text": "FINISHED (1 - 1)",
-            "status_class": "status-finished",
-            "is_live": false,
-            "banner_url": "https://aspijik07.github.io/football-bot/banners/saopaulo_bocajuniors.jpg",
-            "banner_title": "São Paulo vs Boca Juniors",
-            "banner_source_site": "Studio Pro Generator",
-            "has_scraped_banner": true,
-            "all_unique_channels": [
-                "ESPN 3",
-                "Star+",
-                "DSports",
-                "Paramount+"
-            ],
-            "channels": [
-                "ESPN 3",
-                "Star+",
-                "DSports",
-                "Paramount+"
-            ]
-        },
-        {
-            "day": "today",
-            "day_label": "Today",
-            "match_date": "2026-09-16",
-            "league": "Copa Sudamericana",
-            "country": "South America",
-            "badge_class": "badge-sudamericana",
-            "home_team": "Atlético-MG",
-            "away_team": "Santos",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png",
-            "local_time": "19:00",
-            "morocco_time": "23:00",
-            "status": "LIVE 🔴 67‎’‎ (3 - 1)",
-            "status_text": "LIVE 🔴 67‎’‎ (3 - 1)",
-            "status_class": "status-live",
-            "is_live": true,
-            "banner_url": "https://aspijik07.github.io/football-bot/banners/atleticomg_santos.jpg",
-            "banner_title": "Atlético-MG vs Santos",
-            "banner_source_site": "Studio Pro Generator",
-            "has_scraped_banner": true,
-            "all_unique_channels": [
-                "ESPN 3",
-                "Star+",
-                "DSports",
-                "Paramount+"
-            ],
-            "channels": [
-                "ESPN 3",
-                "Star+",
-                "DSports",
-                "Paramount+"
-            ]
-        },
-        {
-            "day": "today",
-            "day_label": "Today",
-            "match_date": "2026-09-16",
-            "league": "Série A",
-            "country": "Brazil",
-            "badge_class": "badge-brazil",
-            "home_team": "Botafogo",
-            "away_team": "Grêmio",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png",
-            "local_time": "19:30",
-            "morocco_time": "23:30",
-            "status": "LIVE 🔴 HT (1 - 1)",
-            "status_text": "LIVE 🔴 HT (1 - 1)",
-            "status_class": "status-live",
-            "is_live": true,
-            "banner_url": "https://aspijik07.github.io/football-bot/banners/botafogo_gremio.jpg",
-            "banner_title": "Botafogo vs Grêmio",
-            "banner_source_site": "Studio Pro Generator",
-            "has_scraped_banner": true,
-            "all_unique_channels": [
-                "Premiere",
-                "Globo",
-                "SporTV",
-                "CazéTV"
-            ],
-            "channels": [
-                "Premiere",
-                "Globo",
-                "SporTV",
-                "CazéTV"
-            ]
-        }
-    ],
-    "tomorrow": [
-        {
-            "day": "tomorrow",
-            "day_label": "Tomorrow",
             "match_date": "2026-09-17",
             "league": "Copa Libertadores",
             "country": "South America",
@@ -185,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png",
             "local_time": "21:30",
             "morocco_time": "01:30",
-            "status": "SOON (59m)",
-            "status_text": "SOON (59m)",
-            "status_class": "status-soon",
+            "status": "FINISHED (0 - 1)",
+            "status_text": "FINISHED (0 - 1)",
+            "status_class": "status-finished",
             "is_live": false,
             "banner_url": "https://aspijik07.github.io/football-bot/banners/corinthians_estudiantes.jpg",
             "banner_title": "Corinthians vs Estudiantes",
@@ -204,6 +32,110 @@
                 "ESPN",
                 "Star+",
                 "Globo"
+            ]
+        }
+    ],
+    "tomorrow": [
+        {
+            "day": "tomorrow",
+            "day_label": "Tomorrow",
+            "match_date": "2026-09-18",
+            "league": "Série A",
+            "country": "Brazil",
+            "badge_class": "badge-brazil",
+            "home_team": "Monza",
+            "away_team": "Sassuolo",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6504.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7943.png",
+            "local_time": "15:45",
+            "morocco_time": "19:45",
+            "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
+            "is_live": false,
+            "banner_url": "https://aspijik07.github.io/football-bot/banners/monza_sassuolo.jpg",
+            "banner_title": "Monza vs Sassuolo",
+            "banner_source_site": "Studio Pro Generator",
+            "has_scraped_banner": true,
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
+        },
+        {
+            "day": "tomorrow",
+            "day_label": "Tomorrow",
+            "match_date": "2026-09-18",
+            "league": "Copa Libertadores",
+            "country": "South America",
+            "badge_class": "badge-libertadores",
+            "home_team": "Flamengo",
+            "away_team": "Independiente del Valle",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/192875.png",
+            "local_time": "21:30",
+            "morocco_time": "01:30",
+            "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
+            "is_live": false,
+            "banner_url": "https://aspijik07.github.io/football-bot/banners/flamengo_independientedelvalle.jpg",
+            "banner_title": "Flamengo vs Independiente del Valle",
+            "banner_source_site": "Studio Pro Generator",
+            "has_scraped_banner": true,
+            "all_unique_channels": [
+                "Paramount+",
+                "ESPN",
+                "Star+",
+                "Globo"
+            ],
+            "channels": [
+                "Paramount+",
+                "ESPN",
+                "Star+",
+                "Globo"
+            ]
+        },
+        {
+            "day": "tomorrow",
+            "day_label": "Tomorrow",
+            "match_date": "2026-09-18",
+            "league": "Copa Sudamericana",
+            "country": "South America",
+            "badge_class": "badge-sudamericana",
+            "home_team": "Montevideo City Torque",
+            "away_team": "Cienciano",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/395613.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1845.png",
+            "local_time": "21:30",
+            "morocco_time": "01:30",
+            "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
+            "is_live": false,
+            "banner_url": "https://aspijik07.github.io/football-bot/banners/montevideocitytorque_cienciano.jpg",
+            "banner_title": "Montevideo City Torque vs Cienciano",
+            "banner_source_site": "Studio Pro Generator",
+            "has_scraped_banner": true,
+            "all_unique_channels": [
+                "ESPN 3",
+                "Star+",
+                "DSports",
+                "Paramount+"
+            ],
+            "channels": [
+                "ESPN 3",
+                "Star+",
+                "DSports",
+                "Paramount+"
             ]
         }
     ]
