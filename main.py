@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """
-Football Broadcast Dashboard - Studio Pro Match Banners with Local Crest Cache
-Features:
-- Local Crest Cache (assets/crests/) -> 0 Rate Limits, Ultra Fast
-- Local Trophy Cache (assets/trophies/)
-- Auto-Cleanup of expired match banners
-- Accurate Morocco Time (Africa/Casablanca) & Channels Sync
+Football Broadcast Dashboard - Strict League & Country Filtering
+Only authentic LATAM competitions (Brazil, Argentina, Libertadores, Sudamericana).
+Blocks European leagues (Italy Serie A, Spain, etc.).
 """
 
 import os
@@ -68,7 +65,6 @@ INVALID_PLACEHOLDERS = {
     "team a", "team b", "team 1", "team 2", "time a", "time b", "tbd vs tbd"
 }
 
-# Trophy Master CDN sources for auto-caching
 TROPHY_ICONS = {
     "libertadores": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/132.png",
     "sudamericana": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/133.png",
@@ -117,10 +113,6 @@ LEAGUE_THEMES = {
 }
 
 
-# ==========================================
-# ⚡ CREST & TROPHY LOCAL CACHE ENGINE
-# ==========================================
-
 def clean_accents(text: str) -> str:
     if not text:
         return ""
@@ -139,15 +131,61 @@ def normalize_team(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", n)
 
 
+def is_target_match(league_name: str, country_name: str) -> bool:
+    lg = (league_name or "").lower()
+    cc = (country_name or "").lower()
+
+    # 1. Strictly block European and other non-target countries
+    blocked_countries = ["ita", "italy", "italia", "esp", "spain", "eng", "england", "fra", "france", "ger", "germany", "por", "portugal"]
+    if any(b == cc or b in cc for b in blocked_countries):
+        return False
+
+    # 2. Continental South America
+    if "libertadores" in lg or "sudamericana" in lg or "recopa" in lg:
+        return True
+
+    # 3. Brazil (Must be Brazil country)
+    is_brazil = any(b in cc for b in ["bra", "brazil", "brasil"])
+    if is_brazil:
+        if any(k in lg for k in ["série a", "serie a", "brasileir", "copa do brasil"]):
+            if "copa paulista" not in lg:
+                return True
+
+    # 4. Argentina (Must be Argentina country)
+    is_argentina = any(b in cc for b in ["arg", "argentina"])
+    if is_argentina:
+        if any(k in lg for k in ["liga profesional", "primera division", "copa argentina", "clausura", "apertura", "copa de la liga"]):
+            return True
+
+    return False
+
+
+def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]:
+    lg = (league_name or "").lower()
+    cc = (country_name or "").lower()
+
+    if "libertadores" in lg:
+        return {"badge_class": "badge-libertadores", "clean_league": "Copa Libertadores", "clean_country": "South America"}
+    if "sudamericana" in lg:
+        return {"badge_class": "badge-sudamericana", "clean_league": "Copa Sudamericana", "clean_country": "South America"}
+    if "copa do brasil" in lg or "copa brasil" in lg:
+        return {"badge_class": "badge-brazil", "clean_league": "Copa do Brasil", "clean_country": "Brazil"}
+    if "copa argentina" in lg:
+        return {"badge_class": "badge-argentina", "clean_league": "Copa Argentina", "clean_country": "Argentina"}
+    if any(k in cc for k in ["arg", "argentina"]):
+        return {"badge_class": "badge-argentina", "clean_league": "Liga Profesional Clausura", "clean_country": "Argentina"}
+    if any(k in cc for k in ["bra", "brazil", "brasil"]):
+        return {"badge_class": "badge-brazil", "clean_league": "Série A", "clean_country": "Brazil"}
+
+    return {"badge_class": "badge-default", "clean_league": league_name, "clean_country": country_name or "LATAM"}
+
+
 def get_cached_team_crest(team_name: str, logo_url: str, target_size: int = 180) -> Optional[Image.Image]:
-    """Retrieves crest from local disk cache, or downloads once and saves locally."""
     if not team_name:
         return None
-
     team_slug = normalize_team(team_name)
     local_path = os.path.join(CRESTS_DIR, f"{team_slug}.png")
 
-    # 1. Load from local cache if present
     if os.path.exists(local_path) and os.path.getsize(local_path) > 300:
         try:
             img = Image.open(local_path).convert("RGBA")
@@ -156,15 +194,12 @@ def get_cached_team_crest(team_name: str, logo_url: str, target_size: int = 180)
         except Exception:
             pass
 
-    # 2. Download from remote, cache to disk, and return
     if logo_url and "svg" not in logo_url:
         try:
             resp = requests.get(logo_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
             if resp.status_code == 200:
                 img = Image.open(io.BytesIO(resp.content)).convert("RGBA")
-                # Save master transparent PNG to cache
                 img.save(local_path, "PNG", optimize=True)
-                logger.info("Cached new team crest: %s -> %s", team_name, local_path)
                 img.thumbnail((target_size, target_size), Image.Resampling.LANCZOS)
                 return img
         except Exception:
@@ -174,7 +209,6 @@ def get_cached_team_crest(team_name: str, logo_url: str, target_size: int = 180)
 
 
 def get_cached_trophy(theme_key: str, target_size: int = 55) -> Optional[Image.Image]:
-    """Retrieves tournament trophy from local disk cache, or downloads once."""
     trophy_path = os.path.join(TROPHIES_DIR, f"{theme_key}.png")
 
     if os.path.exists(trophy_path) and os.path.getsize(trophy_path) > 300:
@@ -199,10 +233,6 @@ def get_cached_trophy(theme_key: str, target_size: int = 55) -> Optional[Image.I
     return None
 
 
-# ==========================================
-# 🎨 MATCH BANNER COMPOSITOR
-# ==========================================
-
 def create_league_background(width: int, height: int, theme_key: str) -> Image.Image:
     theme = LEAGUE_THEMES.get(theme_key, LEAGUE_THEMES["default"])
     c1, c2 = theme["c_top"], theme["c_bottom"]
@@ -218,11 +248,9 @@ def create_league_background(width: int, height: int, theme_key: str) -> Image.I
     overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     ov_draw = ImageDraw.Draw(overlay)
 
-    # Central stadium lighting
     cx, cy = width // 2, height // 2
     ov_draw.ellipse([cx - 240, cy - 180, cx + 240, cy + 180], fill=(255, 255, 255, 16))
 
-    # Pro League Badge Icon (Top Left)
     ov_draw.rectangle([25, 25, 33, 50], fill=(255, 255, 255, 220))
     ov_draw.rectangle([33, 25, 45, 38], fill=(255, 255, 255, 220))
 
@@ -256,7 +284,7 @@ def generate_match_banner(
         theme_key = "copa_do_brasil"
     elif "copa argentina" in lg:
         theme_key = "copa_argentina"
-    elif "brazil" in cc or "brasil" in cc or "série a" in lg:
+    elif "brazil" in cc or "brasil" in cc:
         theme_key = "brazil"
     elif "arg" in cc or "argentina" in lg:
         theme_key = "argentina"
@@ -266,12 +294,10 @@ def generate_match_banner(
     w, h = 640, 380
     banner = create_league_background(w, h, theme_key)
 
-    # Place Trophy in top right from cache
     trophy_img = get_cached_trophy(theme_key, target_size=55)
     if trophy_img:
         banner.paste(trophy_img, (w - trophy_img.width - 25, 20), trophy_img)
 
-    # Place Home and Away Crests from local cache
     h_img = get_cached_team_crest(home_team, home_logo_url, target_size=180)
     a_img = get_cached_team_crest(away_team, away_logo_url, target_size=180)
 
@@ -291,7 +317,6 @@ def generate_match_banner(
 
 
 def cleanup_expired_banners(active_matches: List[Dict[str, Any]]) -> None:
-    """Cleans up only temporary match banners, preserving local crest cache."""
     active_filenames = set()
     for m in active_matches:
         h = normalize_team(m.get("home_team", ""))
@@ -304,14 +329,9 @@ def cleanup_expired_banners(active_matches: List[Dict[str, Any]]) -> None:
             if fname.endswith(".jpg") and fname not in active_filenames:
                 try:
                     os.remove(os.path.join(BANNERS_DIR, fname))
-                    logger.info("Cleaned up expired banner: %s", fname)
                 except Exception:
                     pass
 
-
-# ==========================================
-# 🕒 TIME & DATA NORMALIZATION
-# ==========================================
 
 def get_current_dates() -> Tuple[datetime, datetime, str, str]:
     now = datetime.now(TZ_UTC)
@@ -360,37 +380,6 @@ def is_valid_fixture(m: Any) -> bool:
     if "copa paulista" in league.lower():
         return False
     return True
-
-
-def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]:
-    lg = (league_name or "").lower()
-    cc = (country_name or "").lower()
-    full = f"{cc} {lg}"
-
-    if "libertadores" in lg or "libertadores" in full:
-        return {"badge_class": "badge-libertadores", "clean_league": "Copa Libertadores", "clean_country": "South America"}
-    if "sudamericana" in lg or "sudamericana" in full:
-        return {"badge_class": "badge-sudamericana", "clean_league": "Copa Sudamericana", "clean_country": "South America"}
-    if "copa do brasil" in lg or "copa brasil" in lg or "copa do brasil" in full:
-        return {"badge_class": "badge-brazil", "clean_league": "Copa do Brasil", "clean_country": "Brazil"}
-    if "copa argentina" in lg or "copa argentina" in full:
-        return {"badge_class": "badge-argentina", "clean_league": "Copa Argentina", "clean_country": "Argentina"}
-    if any(k in full for k in ["argentina", "arg", "clausura", "apertura", "liga profesional"]):
-        return {"badge_class": "badge-argentina", "clean_league": "Liga Profesional Clausura", "clean_country": "Argentina"}
-    if any(k in cc for k in ["bra", "brazil", "brasil"]) or any(k in full for k in ["série a", "serie a", "brasileirão", "brasileiro"]):
-        return {"badge_class": "badge-brazil", "clean_league": "Série A", "clean_country": "Brazil"}
-
-    return {"badge_class": "badge-default", "clean_league": league_name, "clean_country": country_name or "LATAM"}
-
-
-def is_target_match(league_name: str, country_name: str) -> bool:
-    lg = (league_name or "").lower()
-    cc = (country_name or "").lower()
-    full = f"{cc} {lg}"
-
-    if "copa paulista" in lg or "copa paulista" in full:
-        return False
-    return any(k in full for k in ["libertadores", "sudamericana", "copa do brasil", "copa argentina", "argentina", "brasil", "brazil", "serie a", "série a"])
 
 
 def match_fixture_teams(home_a: str, away_a: str, home_b: str, away_b: str) -> bool:
@@ -461,10 +450,6 @@ def calculate_status(match_dt: Optional[datetime], started: bool = False, finish
     res = evaluate_match_state(match_dt, started, finished, cancelled, score_str, live_time, current_utc)
     return res["status_text"], res["status_class"]
 
-
-# ==========================================
-# 📺 BROADCAST CHANNELS SCRAPER
-# ==========================================
 
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     listings: List[Dict[str, Any]] = []
@@ -602,10 +587,6 @@ def get_channels_for_match(home_team: str, away_team: str, league_name: str, cou
     return ["TNT Sports", "ESPN Premium"]
 
 
-# ==========================================
-# ⚽ MATCHES SYNC & DASHBOARD GENERATOR
-# ==========================================
-
 def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str, Any]]:
     matches: List[Dict[str, Any]] = []
     date_fotmob = target_date.strftime("%Y%m%d")
@@ -627,6 +608,8 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
         for lg in data.get("leagues", []):
             lg_name = lg.get("name", "")
             lg_ccode = lg.get("ccode", "")
+            
+            # STRICT FILTER: Only matches from target countries
             if is_target_match(lg_name, lg_ccode):
                 badge_info = get_league_badge_info(lg_name, lg_ccode)
                 is_brazil = (badge_info["clean_country"] == "Brazil")
@@ -660,7 +643,6 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     home_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{home_id}.png" if home_id else DEFAULT_CREST
                     away_logo = f"https://images.fotmob.com/image_resources/logo/teamlogo/{away_id}.png" if away_id else DEFAULT_CREST
 
-                    # Generate High-Definition Match Banner with Local Crest Caching
                     cdn_banner = generate_match_banner(
                         home_team=home_name,
                         away_team=away_name,
@@ -942,7 +924,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
 
 def main():
-    logger.info("Initializing Auto-Banner Studio with Local Crest Cache...")
+    logger.info("Initializing Strict LATAM Coverage Sync...")
 
     now, tomorrow, _, _ = get_current_dates()
 
@@ -956,12 +938,4 @@ def main():
     tomorrow_matches = cross_verify_matches_with_sources(scraped_tomorrow, livesoccertv_listings, futebolnatv_listings)
 
     all_current_matches = today_matches + tomorrow_matches
-    cleanup_expired_banners(all_current_matches)
-
-    save_matches_to_disk(today_matches, tomorrow_matches)
-    update_dashboard_html(today_matches, tomorrow_matches)
-    logger.info("Complete: Synced Today (%d), Tomorrow (%d). Cache active.", len(today_matches), len(tomorrow_matches))
-
-
-if __name__ == "__main__":
-    main()
+    cle
