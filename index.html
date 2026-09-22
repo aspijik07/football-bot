@@ -1180,7 +1180,7 @@
                                 <th style="width: 16%;">LEAGUE</th>
                                 <th style="width: 38%;">MATCH & BANNER</th>
                                 <th style="width: 11%;">LOCAL TIME</th>
-                                <th style="width: 13%;">MOROCCO TIME (GMT+1)</th>
+                                <th style="width: 13%;">MOROCCO TIME (GMT 0)</th>
                                 <th style="width: 11%;">STATUS</th>
                                 <th style="width: 11%;">CHANNELS</th>
                             </tr>
@@ -1680,7 +1680,7 @@
                     <!-- Center VS & Time -->
                     <div class="modal-center-divider">
                         <div class="modal-big-vs">VS</div>
-                        <div id="modal-time-tag" class="modal-time-tag">21:00 GMT+1</div>
+                        <div id="modal-time-tag" class="modal-time-tag">21:00 GMT 0</div>
                     </div>
 
                     <!-- Away Team -->
@@ -1815,7 +1815,7 @@
             awayImg.src = m.away_logo || DEFAULT_CREST;
             awayImg.onerror = function() { this.src = DEFAULT_CREST; };
 
-            document.getElementById('modal-time-tag').textContent = m.morocco_time + ' GMT+1 (' + m.local_time + ' GMT-3)';
+            document.getElementById('modal-time-tag').textContent = m.morocco_time + ' GMT 0 (' + m.local_time + ' GMT-3)';
 
             // Check if 16:9 banner exists (normalized with cdn-img.staticzz.com)
             const bannerUrl = normalizeCdnBannerUrl(m.banner_url, matchId, m.home_team, m.away_team, m.league);
@@ -1946,10 +1946,10 @@
                 dateStr = `${targetDate.getFullYear()}-${pad(targetDate.getMonth() + 1)}-${pad(targetDate.getDate())}`;
             }
 
-            // Check Morocco Time (GMT+1 / UTC+01:00)
+            // Check Morocco Time (GMT 0 / UTC+00:00)
             if (m.morocco_time && /^\d{1,2}:\d{2}$/.test(m.morocco_time.trim())) {
                 const [h, min] = m.morocco_time.trim().split(':');
-                const iso = `${dateStr}T${h.padStart(2, '0')}:${min}:00+01:00`;
+                const iso = `${dateStr}T${h.padStart(2, '0')}:${min}:00Z`;
                 const ms = Date.parse(iso);
                 if (!isNaN(ms)) return ms;
             }

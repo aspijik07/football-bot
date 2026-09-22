@@ -50,6 +50,9 @@ export function getLeagueBadgeInfo(leagueName, countryName) {
   const cc = (countryName || '').toLowerCase();
   const full = `${cc} ${lg}`;
 
+  if (lg.includes('nations league') || lg.includes('uefa nations league') || full.includes('nations league')) {
+    return { badgeClass: 'badge-nationsleague', cleanLeague: 'UEFA Nations League', cleanCountry: 'Europe' };
+  }
   if (lg.includes('libertadores') || full.includes('libertadores')) {
     return { badgeClass: 'badge-libertadores', cleanLeague: 'Copa Libertadores', cleanCountry: 'South America' };
   }
@@ -82,6 +85,11 @@ export function isTargetMatch(leagueName, countryName) {
   // Explicitly exclude Copa Paulista
   if (lg.includes('copa paulista') || full.includes('copa paulista')) return false;
 
+  // UEFA Nations League matches (e.g. Germany vs Netherlands, France vs Italy, etc.)
+  if (lg.includes('nations league') || lg.includes('uefa nations league') || full.includes('nations league')) {
+    return true;
+  }
+
   // Reject European and non-target countries
   const nonTargetCountries = ['ita', 'italy', 'italia', 'esp', 'spain', 'españa', 'eng', 'england', 'ger', 'germany', 'fra', 'france', 'por', 'portugal', 'ned', 'saudi', 'mex'];
   if (nonTargetCountries.some(k => cc.includes(k))) return false;
@@ -112,7 +120,9 @@ export function getChannelsForMatch(leagueName, countryName) {
   const cc = (countryName || '').toLowerCase();
   const full = `${cc} ${lg}`;
 
-  if (full.includes('libertadores')) {
+  if (full.includes('nations league') || lg.includes('nations league')) {
+    return ['ESPN', 'Fox Sports', 'Star+', 'UEFA.tv'];
+  } else if (full.includes('libertadores')) {
     return ['ESPN', 'Fox Sports', 'Star+', 'Globo'];
   } else if (full.includes('sudamericana')) {
     return ['ESPN 3', 'Star+', 'DSports', 'Paramount+'];
@@ -172,6 +182,161 @@ export function rewriteCdnImageUrl(url) {
   return url;
 }
 
+export function calculateMoroccoTime(localTimeStr) {
+  if (!localTimeStr || typeof localTimeStr !== 'string') return 'TBD';
+  const clean = localTimeStr.trim();
+  const match = clean.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return 'TBD';
+  const h = parseInt(match[1], 10);
+  const m = parseInt(match[2], 10);
+  if (isNaN(h) || isNaN(m)) return 'TBD';
+  // Latam local time is GMT-3. GMT-3 to GMT 0 is strictly +3 Hours.
+  const moroccoH = (h + 3) % 24;
+  return `${String(moroccoH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+export function formatMatchTimes(matchDt) {
+  if (!matchDt || isNaN(matchDt.getTime())) {
+    return { localTime: 'TBD', moroccoTime: 'TBD' };
+  }
+  // Morocco timezone is strictly GMT 0 (UTC+0 without unwanted +1h offset)
+  const moroccoTime = matchDt.toLocaleTimeString('en-GB', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  // Latam local time is strictly GMT-3
+  const localTime = matchDt.toLocaleTimeString('en-GB', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  return { localTime, moroccoTime };
+}
+
+export function isValidFixture(m, targetDate = null) {
+  if (!m || typeof m !== 'object') return false;
+
+  const home = (m.home_team || '').trim();
+  const away = (m.away_team || '').trim();
+  const league = (m.league || m.league_name || '').trim();
+
+  if (!home || !away || !league) return false;
+
+  const invalidPlaceholders = new Set([
+    'tbd', 'tba', 'home', 'away', 'unknown', 'n/a', 'na', 'none', 'null', '?', '--',
+    'team a', 'team b', 'team 1', 'team 2', 'time a', 'time b', 'tbd vs tbd',
+    'a determinar', 'por definir', 'indefinido'
+  ]);
+
+  const unconfirmedKeywords = [
+    'tbd', 'tba', 'postponed', 'pospuesto', 'postergado', 'adiado', 'cancelled',
+    'canceled', 'cancelado', 'suspended', 'suspenso', 'interrupted', 'abandoned',
+    'delayed', 'retardado', 'aplazado', 'unconfirmed', 'sin confirmar',
+    'por definir', 'a definir', 'indefinido'
+  ];
+
+  const homeLower = home.toLowerCase();
+  const awayLower = away.toLowerCase();
+  const leagueLower = league.toLowerCase();
+
+  if (invalidPlaceholders.has(homeLower) || invalidPlaceholders.has(awayLower) || invalidPlaceholders.has(leagueLower)) {
+    return false;
+  }
+  if (homeLower === 'tbd vs tbd' || awayLower === 'tbd vs tbd') {
+    return false;
+  }
+
+  // Reject identical teams
+  const hNorm = normalizeTeam(home);
+  const aNorm = normalizeTeam(away);
+  if (hNorm && aNorm && hNorm === aNorm) return false;
+
+  // Strictly exclude Copa Paulista
+  if (leagueLower.includes('copa paulista')) return false;
+
+  // Reject postponed/cancelled/unconfirmed statuses
+  const statusText = (m.status_text || m.status || '').toLowerCase();
+  const statusClass = (m.status_class || '').toLowerCase();
+  for (const kw of unconfirmedKeywords) {
+    if (statusText.includes(kw) || statusClass.includes(kw)) {
+      return false;
+    }
+  }
+  if (m.cancelled || m.postponed) return false;
+
+  // Kickoff time check: must have confirmed HH:MM
+  const timeCandidates = [m.local_time, m.morocco_time, m.start_time, m.time_str, m.time_val]
+    .filter(t => typeof t === 'string' && t.trim().length > 0)
+    .map(t => t.trim());
+
+  if (!timeCandidates.length) return false;
+  for (const t of timeCandidates) {
+    const tLow = t.toLowerCase();
+    if (invalidPlaceholders.has(tLow) || unconfirmedKeywords.some(kw => tLow.includes(kw))) {
+      return false;
+    }
+  }
+
+  const hasConfirmedTime = timeCandidates.some(t => /^\d{1,2}:\d{2}$/.test(t));
+  if (!hasConfirmedTime) return false;
+
+  // Reject 00:00 midnight placeholder in local time when not live/finished
+  const localTime = (m.local_time || '').trim();
+  const isLive = Boolean(m.is_live) || statusText.includes('live');
+  const isFinished = statusText.includes('finished') || statusClass === 'status-finished';
+  if (localTime === '00:00' && !isLive && !isFinished) {
+    return false;
+  }
+
+  // Cross-check UTC timestamps to ensure matches belong strictly to today's and tomorrow's official 24-hour windows
+  const now = new Date();
+  const todayStartUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+  const tomorrowEndUtc = new Date(todayStartUtc.getTime() + 2 * 86400000);
+  const pad = n => String(n).padStart(2, '0');
+  const todayStr = `${todayStartUtc.getUTCFullYear()}-${pad(todayStartUtc.getUTCMonth() + 1)}-${pad(todayStartUtc.getUTCDate())}`;
+  const tomorrowDate = new Date(todayStartUtc.getTime() + 86400000);
+  const tomorrowStr = `${tomorrowDate.getUTCFullYear()}-${pad(tomorrowDate.getUTCMonth() + 1)}-${pad(tomorrowDate.getUTCDate())}`;
+
+  let matchDt = null;
+  if (m.match_dt instanceof Date) {
+    matchDt = m.match_dt;
+  } else if (m.startTimestamp) {
+    matchDt = new Date(Number(m.startTimestamp) * 1000);
+  } else if (m.timestamp) {
+    const ts = Number(m.timestamp);
+    matchDt = new Date(ts > 1e11 ? ts : ts * 1000);
+  } else if (m.utcTime || m.utc_time) {
+    const rawUtc = m.utcTime || m.utc_time;
+    const parsed = Date.parse(rawUtc);
+    if (!isNaN(parsed)) matchDt = new Date(parsed);
+  }
+
+  if (matchDt && !isNaN(matchDt.getTime())) {
+    // Check if strictly within [todayStartUtc - 3.5h, tomorrowEndUtc)
+    if (matchDt.getTime() < (todayStartUtc.getTime() - 3.5 * 3600000) || matchDt.getTime() >= tomorrowEndUtc.getTime()) {
+      return false;
+    }
+  }
+
+  // Check match_date string if present
+  const matchDate = (m.match_date || m.date || '').trim();
+  if (matchDate && /^\d{4}-\d{2}-\d{2}$/.test(matchDate)) {
+    if (matchDate !== todayStr && matchDate !== tomorrowStr) {
+      return false;
+    }
+  }
+
+  const dayLabel = (m.day_label || m.day || '').toLowerCase();
+  if (['yesterday', 'past', 'ontem', 'ayer', 'historico', 'anterior'].includes(dayLabel)) {
+    return false;
+  }
+
+  return true;
+}
+
 export function generateBannerUrl(homeName, awayName) {
   const hNorm = normalizeTeam(homeName);
   const aNorm = normalizeTeam(awayName);
@@ -211,12 +376,7 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
           const utcTime = st.utcTime;
           const matchDt = utcTime ? new Date(utcTime) : null;
 
-          const mTime = matchDt
-            ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hour12: false })
-            : 'TBD';
-          const localTime = matchDt
-            ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })
-            : 'TBD';
+          const { localTime, moroccoTime: mTime } = formatMatchTimes(matchDt);
 
           const started = Boolean(st.started);
           const finished = Boolean(st.finished);
@@ -238,8 +398,9 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
 
           const bannerUrl = generateBannerUrl(homeName, awayName);
 
-          matches.push({
+          const fixtureItem = {
             day: dayLabel,
+            match_date: `${yyyy}-${mm}-${dd}`,
             league: cleanLeague,
             country: cleanCountry,
             badge_class: badgeClass,
@@ -256,8 +417,13 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
             banner_title: `${homeName} vs ${awayName}`,
             banner_source_site: 'github.io',
             has_scraped_banner: true,
-            source: 'fotmob'
-          });
+            source: 'fotmob',
+            match_dt: matchDt
+          };
+
+          if (isValidFixture(fixtureItem, targetDate)) {
+            matches.push(fixtureItem);
+          }
         }
       }
     }
@@ -299,12 +465,7 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
         const ts = ev.startTimestamp;
         const matchDt = ts ? new Date(ts * 1000) : null;
 
-        const mTime = matchDt
-          ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hour12: false })
-          : 'TBD';
-        const localTime = matchDt
-          ? matchDt.toLocaleTimeString('en-GB', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })
-          : 'TBD';
+        const { localTime, moroccoTime: mTime } = formatMatchTimes(matchDt);
 
         const stObj = ev.status || {};
         const stType = stObj.type || '';
@@ -330,8 +491,9 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
 
         const bannerUrl = generateBannerUrl(homeName, awayName);
 
-        matches.push({
+        const fixtureItem = {
           day: dayLabel,
+          match_date: `${yyyy}-${mm}-${dd}`,
           league: cleanLeague,
           country: cleanCountry,
           badge_class: badgeClass,
@@ -348,8 +510,13 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
           banner_title: `${homeName} vs ${awayName}`,
           banner_source_site: 'github.io',
           has_scraped_banner: true,
-          source: 'sofascore'
-        });
+          source: 'sofascore',
+          match_dt: matchDt
+        };
+
+        if (isValidFixture(fixtureItem, targetDate)) {
+          matches.push(fixtureItem);
+        }
       }
     }
   } catch (err) {
@@ -373,6 +540,9 @@ export function loadCachedMatches() {
         const cleanStText = (stText.toUpperCase() === 'UNDEFINED' || !stText) ? 'SCHEDULED' : stText;
         const stClass = item.status_class || (cleanStText.includes('LIVE') ? 'status-live' : (cleanStText.includes('SOON') ? 'status-soon' : (cleanStText.includes('FINISHED') ? 'status-finished' : 'status-scheduled')));
 
+        const localTime = item.local_time || '20:00';
+        const moroccoTime = item.morocco_time ? calculateMoroccoTime(localTime) : '23:00';
+
         return {
           day: day,
           day_label: day === 'tomorrow' ? 'Tomorrow' : 'Today',
@@ -384,8 +554,8 @@ export function loadCachedMatches() {
           away_team: item.away_team || '',
           home_logo: item.home_logo || '',
           away_logo: item.away_logo || '',
-          local_time: item.local_time || '20:00',
-          morocco_time: item.morocco_time || '00:00',
+          local_time: localTime,
+          morocco_time: moroccoTime,
           status: cleanStText,
           status_text: cleanStText,
           status_class: stClass,
@@ -396,7 +566,7 @@ export function loadCachedMatches() {
           has_scraped_banner: item.has_scraped_banner ?? true,
           source: 'cache'
         };
-      });
+      }).filter(m => isValidFixture(m));
     } catch (e) {
       console.warn('Error reading matches.json:', e);
     }
@@ -420,10 +590,11 @@ export async function fetchAllMatches() {
     combinedMatches.push(...fmMatches, ...ssMatches);
   }
 
-  // Deduplicate matches
+  // Deduplicate matches & validate
   const uniqueMatches = [];
   const seen = new Set();
   for (const m of combinedMatches) {
+    if (!isValidFixture(m)) continue;
     const h = normalizeTeam(m.home_team).slice(0, 8);
     const a = normalizeTeam(m.away_team).slice(0, 8);
     const id = `${m.day}_${h}_${a}`;

@@ -69,7 +69,27 @@ DEFAULT_CREST = (
     "font-family='system-ui'>⚽</text></svg>"
 )
 
+LEAGUE_THEMES: Dict[str, Dict[str, Any]] = {
+    "nationsleague": {"c_top": (10, 15, 35), "c_bottom": (15, 30, 70), "trophy_key": "nationsleague"}
+}
+
+TROPHY_ICONS: Dict[str, str] = {
+    "nationsleague": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/9806.png"
+}
+
 TROPHY_CONFIG: Dict[str, Dict[str, Any]] = {
+    "nationsleague": {
+        "filename": "trophy_nationsleague.png",
+        "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/9806.png",
+        "fallback_logo": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/9806.png",
+        "label": "UEFA NATIONS LEAGUE",
+        "color": "#38bdf8",
+        "accent": "#f59e0b",
+        "bg_top": "#0a0f23",
+        "bg_mid": "#0e1c38",
+        "bg_bot": "#0f1e46",
+        "ribbons": ["#38bdf8", "#0284c7", "#f59e0b", "#ffffff"]
+    },
     "copa_libertadores": {
         "filename": "trophy_libertadores.png",
         "url": "https://images.fotmob.com/image_resources/logo/leaguelogo/sub/132.png",
@@ -154,6 +174,7 @@ SIDEBAR_FILTER_LEAGUES = [
     {"name": "Série A", "badge_class": "badge-brazil", "country": "Brazil"},
     {"name": "Copa Argentina", "badge_class": "badge-argentina", "country": "Argentina"},
     {"name": "Copa do Brasil", "badge_class": "badge-brazil", "country": "Brazil"},
+    {"name": "UEFA Nations League", "badge_class": "badge-nationsleague", "country": "Europe"},
 ]
 
 STOP_WORDS = {
@@ -185,14 +206,69 @@ INVALID_PLACEHOLDERS = {
     "a determinar", "por definir", "indefinido"
 }
 
+UNCONFIRMED_STATUS_KEYWORDS = {
+    "tbd", "tba", "postponed", "pospuesto", "postergado", "adíado", "adiado",
+    "cancelled", "canceled", "cancelado", "suspended", "suspenso", "interrupted",
+    "abandoned", "delayed", "retardado", "aplazado", "unconfirmed", "sin confirmar",
+    "por definir", "a definir", "indefinido"
+}
 
-def is_valid_fixture(m: Any) -> bool:
+
+def calculate_morocco_time_from_local(local_time_str: str) -> str:
     """
-    Match Integrity Verification:
-    - Validate that each scraped fixture contains non-empty home_team, away_team, start_time, and league_name.
-    - Ignore placeholder fixtures, missing teams, or invalid generic labels (e.g. 'TBD vs TBD').
-    - Disallows identical home and away teams.
-    - Strictly excludes Copa Paulista.
+    Calculates Morocco time strictly in GMT 0 (UTC+0) from Latam local time (GMT-3).
+    GMT-3 to GMT 0 is strictly +3 Hours (e.g. 18:00 Latam (GMT-3) -> 21:00 Morocco (GMT 0)).
+    """
+    if not local_time_str or not isinstance(local_time_str, str):
+        return "TBD"
+    clean = local_time_str.strip()
+    m = re.match(r"^(\d{1,2}):(\d{2})$", clean)
+    if not m:
+        return "TBD"
+    try:
+        h = int(m.group(1))
+        mins = int(m.group(2))
+        morocco_h = (h + 3) % 24
+        return f"{morocco_h:02d}:{mins:02d}"
+    except Exception:
+        return "TBD"
+
+
+calculate_morocco_time = calculate_morocco_time_from_local
+
+
+def format_match_times(match_dt: Optional[datetime]) -> Tuple[str, str]:
+    """
+    Formats (local_time, morocco_time) from a UTC match datetime.
+    - Morocco time: Strictly GMT 0 (UTC+0 / Africa/Casablanca standard without unwanted +1h offset).
+    - Latam local time: Strictly GMT-3 (UTC - 3 hours).
+    Example: 18:00 Latam (GMT-3) -> 21:00 Morocco (GMT 0).
+    """
+    if not match_dt:
+        return "TBD", "TBD"
+    try:
+        if match_dt.tzinfo is None:
+            dt_utc = match_dt.replace(tzinfo=timezone.utc)
+        else:
+            dt_utc = match_dt.astimezone(timezone.utc)
+        morocco_time = dt_utc.strftime("%H:%M")
+        local_time = (dt_utc - timedelta(hours=3)).strftime("%H:%M")
+        return local_time, morocco_time
+    except Exception:
+        return "TBD", "TBD"
+
+
+def is_valid_fixture(m: Any, current_dt: Optional[datetime] = None) -> bool:
+    """
+    Strict Match & Fixture Integrity Verification:
+    1. Rejects missing home_team, away_team, league_name, or invalid generic placeholders (e.g. 'TBD vs TBD').
+    2. Disallows identical home and away teams.
+    3. Strictly excludes Copa Paulista.
+    4. Rejects any fixture where the date/time or status is marked as 'TBD', 'TBA', 'Postponed',
+       'Cancelled', 'Suspended', 'Delayed', or where the fixture is just a default round placeholder
+       without official kickoff confirmation (e.g. 00:00 midnight local time placeholders).
+    5. Cross-checks UTC timestamps to ensure matches belong strictly to today's and tomorrow's
+       official 24-hour windows.
     """
     if not isinstance(m, dict):
         return False
@@ -201,45 +277,125 @@ def is_valid_fixture(m: Any) -> bool:
     away = str(m.get("away_team", "")).strip()
     league = str(m.get("league", "") or m.get("league_name", "")).strip()
 
-    # Check start time / local_time / morocco_time / time_str / time_val
-    time_str = str(
-        m.get("start_time", "") or
-        m.get("local_time", "") or
-        m.get("morocco_time", "") or
-        m.get("time_str", "") or
-        m.get("time_val", "")
-    ).strip()
-
     # 1. Non-empty check
-    if not home or not away or not league or not time_str:
+    if not home or not away or not league:
         return False
 
-    # 2. Reject placeholder names / labels
     home_lower = home.lower()
     away_lower = away.lower()
     league_lower = league.lower()
 
-    if home_lower in INVALID_PLACEHOLDERS or away_lower in INVALID_PLACEHOLDERS:
+    if home_lower in INVALID_PLACEHOLDERS or away_lower in INVALID_PLACEHOLDERS or league_lower in INVALID_PLACEHOLDERS:
         return False
 
-    if league_lower in INVALID_PLACEHOLDERS:
-        return False
-
-    if time_str.lower() in INVALID_PLACEHOLDERS:
-        return False
-
-    # Check for placeholder fixture titles
     if home_lower == "tbd vs tbd" or away_lower == "tbd vs tbd":
         return False
 
-    # 3. Ensure teams are not identical
+    # 2. Ensure teams are not identical
     home_norm = normalize_team(home)
     away_norm = normalize_team(away)
     if home_norm and away_norm and home_norm == away_norm:
         return False
 
-    # 4. Strictly exclude Copa Paulista
+    # 3. Strictly exclude Copa Paulista
     if "copa paulista" in league_lower:
+        return False
+
+    # 4. Status checks: Reject Postponed, Cancelled, Suspended, TBD, etc.
+    status_text = str(m.get("status_text", "") or m.get("status", "")).strip().lower()
+    status_class = str(m.get("status_class", "")).strip().lower()
+    for kw in UNCONFIRMED_STATUS_KEYWORDS:
+        if kw in status_text or kw in status_class:
+            return False
+
+    if bool(m.get("cancelled", False)) or bool(m.get("postponed", False)):
+        return False
+
+    # 5. Kickoff time check: Reject 'TBD', 'TBA', empty, or missing official kickoff confirmation
+    time_candidates = [
+        str(m.get("local_time", "")).strip(),
+        str(m.get("morocco_time", "")).strip(),
+        str(m.get("start_time", "")).strip(),
+        str(m.get("time_str", "")).strip(),
+        str(m.get("time_val", "")).strip()
+    ]
+    valid_times = [t for t in time_candidates if t]
+    if not valid_times:
+        return False
+
+    for t in valid_times:
+        t_low = t.lower()
+        if t_low in UNCONFIRMED_STATUS_KEYWORDS or t_low in INVALID_PLACEHOLDERS:
+            return False
+
+    has_confirmed_hhmm = any(re.match(r"^\d{1,2}:\d{2}$", t) for t in valid_times)
+    if not has_confirmed_hhmm:
+        return False
+
+    # Reject unconfirmed round placeholder set to default midnight 00:00 local time
+    local_t = str(m.get("local_time", "")).strip()
+    is_live = bool(m.get("is_live", False)) or "live" in status_text
+    is_finished = "finished" in status_text or status_class == "status-finished"
+    if local_t == "00:00" and not is_live and not is_finished:
+        return False
+
+    # 6. Cross-check UTC timestamps to ensure matches belong strictly to today's and tomorrow's official 24-hour windows
+    if current_dt is None:
+        now_utc = datetime.now(timezone.utc)
+    elif current_dt.tzinfo is None:
+        now_utc = current_dt.replace(tzinfo=timezone.utc)
+    else:
+        now_utc = current_dt.astimezone(timezone.utc)
+
+    today_start = datetime(now_utc.year, now_utc.month, now_utc.day, 0, 0, 0, tzinfo=timezone.utc)
+    tomorrow_end = today_start + timedelta(days=2)
+    today_str = today_start.strftime("%Y-%m-%d")
+    tomorrow_str = (today_start + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    match_dt: Optional[datetime] = None
+    if isinstance(m.get("match_dt"), datetime):
+        match_dt = m["match_dt"]
+    elif m.get("startTimestamp"):
+        try:
+            ts = int(m["startTimestamp"])
+            match_dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+        except Exception:
+            pass
+    elif m.get("timestamp"):
+        try:
+            ts = float(m["timestamp"])
+            if ts > 1e11:
+                ts /= 1000.0
+            match_dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+        except Exception:
+            pass
+    elif m.get("utcTime") or m.get("utc_time"):
+        raw_utc = str(m.get("utcTime") or m.get("utc_time")).strip()
+        try:
+            match_dt = datetime.fromisoformat(raw_utc.replace("Z", "+00:00"))
+        except Exception:
+            pass
+
+    if match_dt is not None:
+        if match_dt.tzinfo is None:
+            match_dt = match_dt.replace(tzinfo=timezone.utc)
+        else:
+            match_dt = match_dt.astimezone(timezone.utc)
+        if match_dt < (today_start - timedelta(hours=3, minutes=30)) or match_dt >= tomorrow_end:
+            return False
+
+    # Cross-check match_date if present
+    m_date = str(m.get("match_date", "") or m.get("date", "")).strip()
+    if m_date:
+        date_m = re.search(r"\d{4}-\d{2}-\d{2}", m_date)
+        if date_m:
+            clean_d = date_m.group(0)
+            if clean_d != today_str and clean_d != tomorrow_str:
+                return False
+
+    # Check explicit past/future day labels
+    day_label = str(m.get("day_label", "") or m.get("day", "")).strip().lower()
+    if day_label in ["yesterday", "past", "ontem", "ayer", "historico", "anterior"]:
         return False
 
     return True
@@ -384,6 +540,8 @@ def get_trophy_key(league_name: str, country_name: str) -> str:
     cc = (country_name or "").lower()
     full = f"{cc} {lg}"
 
+    if "nations league" in lg or "uefa nations league" in lg or "nations league" in full:
+        return "nationsleague"
     if "libertadores" in lg or "libertadores" in full:
         return "copa_libertadores"
     if "sudamericana" in lg or "sudamericana" in full:
@@ -444,7 +602,12 @@ def get_cached_trophy_image(trophy_key: str) -> Any:
         except Exception as e:
             logger.debug("Failed opening cached trophy %s: %s", cache_path, e)
 
-    for url_to_try in [config.get("url"), config.get("fallback_logo")]:
+    urls_to_try = []
+    if trophy_key in TROPHY_ICONS:
+        urls_to_try.append(TROPHY_ICONS[trophy_key])
+    urls_to_try.extend([config.get("url"), config.get("fallback_logo")])
+
+    for url_to_try in urls_to_try:
         if not url_to_try:
             continue
         try:
@@ -530,6 +693,13 @@ def create_league_background(trophy_key: str, width: int = 640, height: int = 38
     c_top = hex_to_rgb(cfg.get("bg_top", "#0f172a"))
     c_mid = hex_to_rgb(cfg.get("bg_mid", "#1e293b"))
     c_bot = hex_to_rgb(cfg.get("bg_bot", "#090d16"))
+
+    if trophy_key in LEAGUE_THEMES:
+        theme_cfg = LEAGUE_THEMES[trophy_key]
+        if "c_top" in theme_cfg:
+            c_top = theme_cfg["c_top"]
+        if "c_bottom" in theme_cfg:
+            c_bot = theme_cfg["c_bottom"]
     primary_color = hex_to_rgb(cfg.get("color", "#c59b27"))
     accent_color = hex_to_rgb(cfg.get("accent", "#e5c158"))
     ribbon_hexes = cfg.get("ribbons", ["#c59b27", "#e5c158", "#947118", "#fef08a"])
@@ -834,6 +1004,8 @@ def get_league_badge_info(league_name: str, country_name: str) -> Dict[str, str]
     cc = (country_name or "").lower()
     full = f"{cc} {lg}"
 
+    if "nations league" in lg or "uefa nations league" in lg or "nations league" in full:
+        return {"badge_class": "badge-nationsleague", "clean_league": "UEFA Nations League", "clean_country": "Europe", "badgeClass": "badge-nationsleague", "cleanLeague": "UEFA Nations League", "cleanCountry": "Europe"}
     if "libertadores" in lg or "libertadores" in full:
         return {"badge_class": "badge-libertadores", "clean_league": "Copa Libertadores", "clean_country": "South America"}
     if "sudamericana" in lg or "sudamericana" in full:
@@ -864,6 +1036,10 @@ def is_target_match(league_name: str, country_name: str) -> bool:
     # Explicit exclusion of Copa Paulista
     if "copa paulista" in lg or "copa paulista" in full:
         return False
+
+    # UEFA Nations League matches (e.g. Germany vs Netherlands, France vs Italy, etc.)
+    if "nations league" in lg or "uefa nations league" in lg or "nations league" in full:
+        return True
 
     # Reject European and non-target countries
     non_target_cc = ["ita", "italy", "italia", "esp", "spain", "españa", "eng", "england", "ger", "germany", "fra", "france", "por", "portugal", "ned", "saudi", "mex"]
@@ -1808,8 +1984,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                         except Exception:
                             pass
 
-                    m_time = match_dt.strftime("%H:%M") if match_dt else "TBD"
-                    local_time = (match_dt - timedelta(hours=4)).strftime("%H:%M") if match_dt else "TBD"
+                    local_time, m_time = format_match_times(match_dt)
 
                     started = bool(st.get("started", False))
                     finished = bool(st.get("finished", False))
@@ -1837,7 +2012,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                     a_clean = normalize_team(away_name)[:10]
                     default_cdn_banner = f"https://cdn-img.staticzz.com/img/noticias/jogos/{h_clean}_{a_clean}.jpg"
 
-                    matches.append({
+                    fixture_obj = {
                         "day": day_label.lower(),
                         "day_label": day_label.capitalize(),
                         "match_date": date_iso,
@@ -1857,8 +2032,11 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                         "banner_title": f"{home_name} vs {away_name}",
                         "banner_source_site": banner_site,
                         "has_scraped_banner": True,
-                        "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-                    })
+                        "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"],
+                        "match_dt": match_dt
+                    }
+                    if is_valid_fixture(fixture_obj, now_utc):
+                        matches.append(fixture_obj)
     except Exception as e:
         logger.warning("Fotmob fetch error for date %s: %s", date_fotmob, e)
 
@@ -1899,8 +2077,7 @@ def fetch_sofascore_matches(target_date: datetime, day_label: str) -> List[Dict[
                 badge_info = get_league_badge_info(t_name, cat_name)
                 ts = ev.get("startTimestamp")
                 match_dt = datetime.fromtimestamp(ts, tz=timezone.utc) if ts else None
-                m_time = match_dt.strftime("%H:%M") if match_dt else "TBD"
-                local_time = (match_dt - timedelta(hours=4)).strftime("%H:%M") if match_dt else "TBD"
+                local_time, m_time = format_match_times(match_dt)
 
                 st_obj = ev.get("status", {})
                 st_type = st_obj.get("type", "")
@@ -1931,7 +2108,7 @@ def fetch_sofascore_matches(target_date: datetime, day_label: str) -> List[Dict[
                 a_clean = normalize_team(away_name)[:10]
                 default_cdn_banner = f"https://cdn-img.staticzz.com/img/noticias/jogos/{h_clean}_{a_clean}.jpg"
 
-                matches.append({
+                fixture_obj = {
                     "day": day_label.lower(),
                     "day_label": day_label.capitalize(),
                     "match_date": date_iso,
@@ -1951,8 +2128,11 @@ def fetch_sofascore_matches(target_date: datetime, day_label: str) -> List[Dict[
                     "banner_title": f"{home_name} vs {away_name}",
                     "banner_source_site": banner_site,
                     "has_scraped_banner": True,
-                    "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-                })
+                    "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"],
+                    "match_dt": match_dt
+                }
+                if is_valid_fixture(fixture_obj, now_utc):
+                    matches.append(fixture_obj)
     except Exception as e:
         logger.warning("Sofascore fetch error for date %s: %s", date_iso, e)
 
@@ -2380,7 +2560,7 @@ def get_fallback_target_matches_for_date(target_date: datetime, day_label: str) 
             "home_logo": f["home_logo"],
             "away_logo": f["away_logo"],
             "local_time": f["local_time"],
-            "morocco_time": f["morocco_time"],
+            "morocco_time": calculate_morocco_time_from_local(f["local_time"]),
             "status": status_text,
             "status_text": status_text,
             "status_class": status_class,
@@ -2711,6 +2891,9 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
 
     with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
         html_content = f.read()
+
+    # Ensure header label is strictly MOROCCO TIME (GMT 0)
+    html_content = html_content.replace("MOROCCO TIME (GMT+1)", "MOROCCO TIME (GMT 0)")
 
     # 1. Update Sidebar League Filters
     new_sidebar_html = generate_sidebar_filters_html(all_matches)
