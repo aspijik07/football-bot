@@ -1343,27 +1343,35 @@ def filter_and_split_matches_by_date(
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     """
     Scrapes live TV broadcast channels & fixtures directly from livesoccertv.com
-    for Argentina & South American matches (e.g. Primera Division, Copa Libertadores, Copa Sudamericana).
+    for Argentina & Brazil / South American matches (e.g. Primera Division, Copa Libertadores, Copa Sudamericana).
+    Extracts International TV / International Coverage and segregates broadcasters into channels_arg and channels_bra.
     """
     listings: List[Dict[str, Any]] = []
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Language": "es-ES,es;q=0.9,en-US;q=0.8,pt-BR;q=0.7",
     }
 
     urls = [
         "https://www.livesoccertv.com/schedules/",
         "https://www.livesoccertv.com/competitions/argentina/primera-division/",
         "https://www.livesoccertv.com/competitions/argentina/copa-argentina/",
+        "https://www.livesoccertv.com/competitions/brazil/serie-a/",
         "https://www.livesoccertv.com/competitions/international-clubs/copa-libertadores/",
         "https://www.livesoccertv.com/competitions/international-clubs/copa-sudamericana/",
+        "https://www.livesoccertv.com/competitions/international-clubs/uefa-nations-league/",
     ]
 
-    target_networks = [
-        "ESPN Premium", "ESPN Argentina", "ESPN", "ESPN 2", "ESPN 3", "ESPN 4",
-        "TNT Sports", "TyC Sports", "TyC Sports Play", "Fox Sports", "Fox Sports 2",
-        "Star+", "Disney+", "DSports", "DirecTV Sports", "Telefe", "TV Pública"
+    target_arg_channels = [
+        "ESPN Argentina", "ESPN Premium", "Disney+ Premium Argentina", "Disney+", "Star+",
+        "TyC Sports", "TyC Sports Play", "TNT Sports", "Fox Sports", "Fox Sports 2",
+        "Fox Sports Argentina", "DSports", "Telefe", "TV Pública"
+    ]
+
+    target_bra_channels = [
+        "ESPN Brazil", "Disney+ Premium Brazil", "Disney+", "Star+", "SporTV",
+        "Premiere", "Globo", "CazéTV", "Prime Video", "Band", "Max", "Paramount+"
     ]
 
     for url in urls:
@@ -1404,30 +1412,65 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
                 if not (home_team and away_team):
                     continue
 
+                channels_arg: List[str] = []
+                channels_bra: List[str] = []
+
+                # Look for International TV / International Coverage tables or sections
+                coverage_tables = soup.select("table.international, table.broadcasts, table[class*='coverage']")
+                for cov in coverage_tables:
+                    cov_rows = cov.select("tr")
+                    for cr in cov_rows:
+                        ctext = cr.get_text(separator=" ", strip=True)
+                        if "argentina" in ctext.lower():
+                            for net in target_arg_channels:
+                                if net.lower() in ctext.lower() and net not in channels_arg:
+                                    channels_arg.append(net)
+                        if "brazil" in ctext.lower() or "brasil" in ctext.lower():
+                            for net in target_bra_channels:
+                                if net.lower() in ctext.lower() and net not in channels_bra:
+                                    channels_bra.append(net)
+
+                # Also inspect channels directly within the fixture row
                 chan_cells = row.select("td.chans a, td.channels a, span.channel, td.chans, td.channel")
-                detected_channels: List[str] = []
+                row_raw_text = row.get_text(separator=" ", strip=True)
 
-                for cell in chan_cells:
-                    ctext = cell.get_text(strip=True)
-                    for net in target_networks:
-                        if net.lower() in ctext.lower() and net not in detected_channels:
-                            detected_channels.append(net)
+                cell_texts = [c.get_text(strip=True) for c in chan_cells]
+                combined_chan_text = " ".join(cell_texts) if cell_texts else row_raw_text
 
-                if not detected_channels:
-                    row_text = row.get_text()
-                    for net in target_networks:
-                        if re.search(rf"\b{re.escape(net)}\b", row_text, re.IGNORECASE) and net not in detected_channels:
-                            detected_channels.append(net)
+                # Extract ARG channels
+                for net in target_arg_channels:
+                    if net.lower() in combined_chan_text.lower() and net not in channels_arg:
+                        channels_arg.append(net)
+
+                # Extract BRA channels
+                for net in target_bra_channels:
+                    if net.lower() in combined_chan_text.lower() and net not in channels_bra:
+                        channels_bra.append(net)
+
+                # Disambiguate generic channels like Disney+ based on competition
+                is_arg_comp = "argentina" in url or "argentina" in row_raw_text.lower() or "primera-division" in url
+                is_bra_comp = "brazil" in url or "serie-a" in url or "brasil" in row_raw_text.lower()
+                is_intl_comp = any(k in url for k in ["libertadores", "sudamericana", "nations-league"])
+
+                if "disney+" in combined_chan_text.lower() or "star+" in combined_chan_text.lower():
+                    if (is_arg_comp or is_intl_comp) and "Disney+" not in channels_arg:
+                        channels_arg.append("Disney+")
+                    if (is_bra_comp or is_intl_comp) and "Disney+" not in channels_bra:
+                        channels_bra.append("Disney+")
 
                 time_cell = row.select_one("td.time, span.time, .matchtime")
                 time_str = time_cell.get_text(strip=True) if time_cell else "20:00"
 
-                if detected_channels:
+                all_unique_chans = list(dict.fromkeys(channels_arg + channels_bra))
+
+                if channels_arg or channels_bra or all_unique_chans:
                     listings.append({
                         "home_team": home_team,
                         "away_team": away_team,
                         "time_str": time_str,
-                        "channels": detected_channels,
+                        "channels_arg": channels_arg,
+                        "channels_bra": channels_bra,
+                        "channels": all_unique_chans,
                         "source": "livesoccertv.com"
                     })
 
@@ -1526,6 +1569,72 @@ def scrape_futebolnatv_fixtures_and_channels() -> List[Dict[str, Any]]:
     return listings
 
 
+def get_dual_channels_for_match(
+    home_team: str,
+    away_team: str,
+    league_name: str,
+    country_name: str,
+    livesoccertv_listings: Optional[List[Dict[str, Any]]] = None,
+    futebolnatv_listings: Optional[List[Dict[str, Any]]] = None
+) -> Tuple[List[str], List[str]]:
+    """
+    Resolves categorized channels for Argentina (channels_arg) and Brazil (channels_bra).
+    1. Checks LiveSoccerTV scraped listings for dual channel payload.
+    2. Checks FutebolNaTV listings for Brazil channels.
+    3. Falls back to verified regional broadcaster taxonomy.
+    """
+    country_lower = (country_name or "").lower()
+    league_lower = (league_name or "").lower()
+    full = f"{country_lower} {league_lower}"
+
+    ch_arg: List[str] = []
+    ch_bra: List[str] = []
+
+    # 1. Search LiveSoccerTV listings
+    if livesoccertv_listings:
+        for item in livesoccertv_listings:
+            if match_fixture_teams(home_team, away_team, item.get("home_team", ""), item.get("away_team", "")):
+                if item.get("channels_arg"):
+                    for c in item["channels_arg"]:
+                        if c not in ch_arg:
+                            ch_arg.append(c)
+                if item.get("channels_bra"):
+                    for c in item["channels_bra"]:
+                        if c not in ch_bra:
+                            ch_bra.append(c)
+                break
+
+    # 2. Search FutebolNaTV listings for Brazil channels
+    if futebolnatv_listings:
+        for item in futebolnatv_listings:
+            if match_fixture_teams(home_team, away_team, item.get("home_team", ""), item.get("away_team", "")):
+                if item.get("channels"):
+                    for c in item["channels"]:
+                        if c not in ch_bra:
+                            ch_bra.append(c)
+                break
+
+    # 3. Categorized regional fallbacks if empty
+    if not ch_arg and not ch_bra:
+        if "nations league" in full:
+            ch_arg = ["ESPN Argentina", "Disney+"]
+            ch_bra = ["ESPN Brazil", "SporTV"]
+        elif "libertadores" in full:
+            ch_arg = ["ESPN Argentina", "Fox Sports", "Disney+"]
+            ch_bra = ["Globo", "ESPN Brazil", "SporTV"]
+        elif "sudamericana" in full:
+            ch_arg = ["DSports", "ESPN Argentina", "Disney+"]
+            ch_bra = ["Paramount+", "ESPN Brazil", "SporTV"]
+        elif "argentina" in full or "liga profesional" in full or "copa argentina" in full or "clausura" in full:
+            ch_arg = ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"]
+        elif "brazil" in full or "brasil" in full or "série a" in full or "serie a" in full or "copa do brasil" in full:
+            ch_bra = ["Premiere", "Globo", "SporTV", "CazéTV"]
+        else:
+            ch_arg = ["ESPN Premium", "TNT Sports"]
+
+    return ch_arg, ch_bra
+
+
 def get_channels_for_match(
     home_team: str,
     away_team: str,
@@ -1534,45 +1643,12 @@ def get_channels_for_match(
     livesoccertv_listings: Optional[List[Dict[str, Any]]] = None,
     futebolnatv_listings: Optional[List[Dict[str, Any]]] = None
 ) -> List[str]:
-    """
-    Resolves broadcast channels for a given match:
-    1. For Brazil matches: Fetch listings directly from futebolnatv.com.br.
-    2. For Argentina & South American matches: Fetch channels directly from livesoccertv.com.
-    3. Fallback to primary verified broadcast networks.
-    """
-    country_lower = (country_name or "").lower()
-    league_lower = (league_name or "").lower()
-    is_brazil = (
-        "brazil" in country_lower or "brasil" in country_lower or
-        any(k in league_lower for k in ["série a", "serie a", "brasileir", "copa do brasil", "paulistão", "carioca"])
+    """Resolves flat list of unique broadcast channels."""
+    ch_arg, ch_bra = get_dual_channels_for_match(
+        home_team, away_team, league_name, country_name,
+        livesoccertv_listings, futebolnatv_listings
     )
-
-    # 1. Brazil match -> search futebolnatv.com.br listings
-    if is_brazil and futebolnatv_listings:
-        for item in futebolnatv_listings:
-            if match_fixture_teams(home_team, away_team, item["home_team"], item["away_team"]):
-                if item.get("channels"):
-                    return item["channels"]
-
-    # 2. Argentina & South America match -> search livesoccertv.com listings
-    if not is_brazil and livesoccertv_listings:
-        for item in livesoccertv_listings:
-            if match_fixture_teams(home_team, away_team, item["home_team"], item["away_team"]):
-                if item.get("channels"):
-                    return item["channels"]
-
-    # 3. Fallback to verified Latin American broadcast networks
-    full = f"{country_lower} {league_lower}"
-    if "libertadores" in full:
-        return ["ESPN", "Fox Sports", "Star+", "Globo"]
-    if "sudamericana" in full:
-        return ["ESPN 3", "Star+", "DSports", "Paramount+"]
-    if "argentina" in full or "liga profesional" in full or "copa argentina" in full:
-        return ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"]
-    if is_brazil:
-        return ["Premiere", "Globo", "SporTV", "CazéTV"]
-
-    return ["TNT Sports", "ESPN Premium"]
+    return list(dict.fromkeys(ch_arg + ch_bra))
 
 
 def enrich_matches_with_tv_channels(
@@ -1582,7 +1658,7 @@ def enrich_matches_with_tv_channels(
 ) -> None:
     """
     Enriches match objects with TV channels scraped directly from:
-    - livesoccertv.com (Argentina & South American matches)
+    - livesoccertv.com (Argentina & Brazil / South American matches)
     - futebolnatv.com.br (Brazil matches)
     """
     if livesoccertv_listings is None:
@@ -1596,7 +1672,7 @@ def enrich_matches_with_tv_channels(
         league = m.get("league", "")
         country = m.get("country", "")
 
-        channels = get_channels_for_match(
+        ch_arg, ch_bra = get_dual_channels_for_match(
             home_team=home,
             away_team=away,
             league_name=league,
@@ -1605,8 +1681,11 @@ def enrich_matches_with_tv_channels(
             futebolnatv_listings=futebolnatv_listings,
         )
 
-        m["channels"] = channels
-        m["all_unique_channels"] = channels
+        m["channels_arg"] = ch_arg
+        m["channels_bra"] = ch_bra
+        all_ch = list(dict.fromkeys(ch_arg + ch_bra))
+        m["channels"] = all_ch
+        m["all_unique_channels"] = all_ch
 
 
 def cross_verify_matches_with_sources(
@@ -1637,34 +1716,38 @@ def cross_verify_matches_with_sources(
         league = m.get("league", "")
         country = m.get("country", "")
 
-        matched_channels: List[str] = []
+        matched_channels_arg: List[str] = []
+        matched_channels_bra: List[str] = []
 
         # Cross-verify with futebolnatv (Brazil)
         for item in (futebolnatv_listings or []):
             if match_fixture_teams(home, away, item.get("home_team", ""), item.get("away_team", "")):
                 if item.get("channels"):
-                    matched_channels.extend(item["channels"])
+                    matched_channels_bra.extend(item["channels"])
                 if m.get("local_time") in ["TBD", "", None] and item.get("time_val"):
                     m["local_time"] = item["time_val"]
 
-        # Cross-verify with livesoccertv (Argentina / South America)
+        # Cross-verify with livesoccertv (Argentina / Brazil / South America)
         for item in (livesoccertv_listings or []):
             if match_fixture_teams(home, away, item.get("home_team", ""), item.get("away_team", "")):
-                if item.get("channels"):
-                    matched_channels.extend(item["channels"])
+                if item.get("channels_arg"):
+                    matched_channels_arg.extend(item["channels_arg"])
+                if item.get("channels_bra"):
+                    matched_channels_bra.extend(item["channels_bra"])
+                if item.get("channels") and not item.get("channels_arg") and not item.get("channels_bra"):
+                    matched_channels_arg.extend(item["channels"])
                 if m.get("morocco_time") in ["TBD", "", None] and item.get("time_str"):
                     m["morocco_time"] = item["time_str"]
 
-        if matched_channels:
-            unique_chans: List[str] = []
-            for ch in matched_channels:
-                if ch not in unique_chans:
-                    unique_chans.append(ch)
-            m["channels"] = unique_chans
-            m["all_unique_channels"] = unique_chans
+        if matched_channels_arg or matched_channels_bra:
+            m["channels_arg"] = list(dict.fromkeys(matched_channels_arg))
+            m["channels_bra"] = list(dict.fromkeys(matched_channels_bra))
+            all_chans = list(dict.fromkeys(matched_channels_arg + matched_channels_bra))
+            m["channels"] = all_chans
+            m["all_unique_channels"] = all_chans
             m["verified_broadcast_source"] = True
         else:
-            resolved_chans = get_channels_for_match(
+            ch_arg, ch_bra = get_dual_channels_for_match(
                 home_team=home,
                 away_team=away,
                 league_name=league,
@@ -1672,8 +1755,11 @@ def cross_verify_matches_with_sources(
                 livesoccertv_listings=livesoccertv_listings,
                 futebolnatv_listings=futebolnatv_listings,
             )
-            m["channels"] = resolved_chans
-            m["all_unique_channels"] = resolved_chans
+            m["channels_arg"] = ch_arg
+            m["channels_bra"] = ch_bra
+            all_chans = list(dict.fromkeys(ch_arg + ch_bra))
+            m["channels"] = all_chans
+            m["all_unique_channels"] = all_chans
 
         # Re-verify integrity after multi-source cross-check
         if is_valid_fixture(m):
@@ -2782,8 +2868,26 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     is_soon = "SOON" in status_text
     match_id = f"{day_tag}_{normalize_team(home_team)[:8]}_{normalize_team(away_team)[:8]}_{idx}"
 
-    channels = m.get("channels") or m.get("all_unique_channels") or ["TNT Sports", "ESPN Premium"]
-    channels_html = "".join(f'<span class="channel-tag">{c}</span>' for c in channels)
+    channels_arg = m.get("channels_arg") or []
+    channels_bra = m.get("channels_bra") or []
+
+    if not channels_arg and not channels_bra:
+        ch_arg, ch_bra = get_dual_channels_for_match(home_team, away_team, league, country)
+        channels_arg = ch_arg
+        channels_bra = ch_bra
+
+    sub_rows: List[str] = []
+    if channels_arg:
+        arg_tags = " ".join(f'<span class="channel-tag tag-arg">{c}</span>' for c in channels_arg)
+        sub_rows.append(f'<div class="channel-subrow">🇦🇷 <strong>ARG:</strong> {arg_tags}</div>')
+    if channels_bra:
+        bra_tags = " ".join(f'<span class="channel-tag tag-bra">{c}</span>' for c in channels_bra)
+        sub_rows.append(f'<div class="channel-subrow">🇧🇷 <strong>BRA:</strong> {bra_tags}</div>')
+
+    if not sub_rows:
+        sub_rows.append('<span class="channel-tag">TBD</span>')
+
+    channels_html = "".join(sub_rows)
 
     home_norm = normalize_team(home_team)
     away_norm = normalize_team(away_team)

@@ -24,17 +24,24 @@
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "channels": [
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Disney+"
+            ],
+            "channels_bra": []
         }
     ],
     "tomorrow": [
@@ -62,17 +69,24 @@
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Disney+"
+            ],
+            "channels_bra": []
         },
         {
             "day": "tomorrow",
@@ -98,17 +112,24 @@
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Disney+"
+            ],
+            "channels_bra": []
         },
         {
             "day": "tomorrow",
@@ -134,17 +155,24 @@
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Disney+"
+            ],
+            "channels_bra": []
         },
         {
             "day": "tomorrow",
@@ -170,17 +198,24 @@
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Disney+"
+            ],
+            "channels_bra": []
         },
         {
             "day": "tomorrow",
@@ -206,17 +241,24 @@
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "all_unique_channels": [
                 "ESPN Premium",
                 "TNT Sports",
                 "TyC Sports",
-                "Star+"
+                "Disney+"
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [
+                "ESPN Premium",
+                "TNT Sports",
+                "TyC Sports",
+                "Disney+"
+            ],
+            "channels_bra": []
         },
         {
             "day": "tomorrow",
@@ -252,7 +294,14 @@
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
         },
         {
             "day": "tomorrow",
@@ -288,7 +337,14 @@
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
         },
         {
             "day": "tomorrow",
@@ -324,7 +380,14 @@
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
         },
         {
             "day": "tomorrow",
@@ -360,7 +423,14 @@
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
         },
         {
             "day": "tomorrow",
@@ -396,7 +466,14 @@
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
         },
         {
             "day": "tomorrow",
@@ -432,7 +509,14 @@
             ],
             "is_live": false,
             "live_minute": null,
-            "score": null
+            "score": null,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ]
         }
     ]
 }

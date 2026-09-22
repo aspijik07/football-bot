@@ -115,6 +115,74 @@ export function isTargetMatch(leagueName, countryName) {
   return false;
 }
 
+export function getCategorizedChannels(leagueName, countryName, existingArg = null, existingBra = null) {
+  if (Array.isArray(existingArg) && Array.isArray(existingBra) && (existingArg.length > 0 || existingBra.length > 0)) {
+    return { channels_arg: existingArg, channels_bra: existingBra };
+  }
+
+  const lg = (leagueName || '').toLowerCase();
+  const cc = (countryName || '').toLowerCase();
+  const full = `${cc} ${lg}`;
+
+  let channels_arg = [];
+  let channels_bra = [];
+
+  if (full.includes('nations league') || lg.includes('nations league')) {
+    channels_arg = ['ESPN Argentina', 'Disney+'];
+    channels_bra = ['ESPN Brazil', 'SporTV'];
+  } else if (full.includes('libertadores')) {
+    channels_arg = ['ESPN Argentina', 'Fox Sports', 'Disney+'];
+    channels_bra = ['Globo', 'ESPN Brazil', 'SporTV'];
+  } else if (full.includes('sudamericana')) {
+    channels_arg = ['DSports', 'ESPN Argentina', 'Disney+'];
+    channels_bra = ['Paramount+', 'ESPN Brazil', 'SporTV'];
+  } else if (full.includes('argentina') || cc.includes('arg') || lg.includes('liga profesional') || lg.includes('copa argentina') || lg.includes('clausura')) {
+    channels_arg = ['ESPN Premium', 'TNT Sports', 'TyC Sports', 'Disney+'];
+  } else if (full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('copa do brasil')) {
+    channels_bra = ['Premiere', 'Globo', 'SporTV', 'CazéTV'];
+  } else {
+    channels_arg = ['ESPN Premium', 'TNT Sports'];
+  }
+
+  return { channels_arg, channels_bra };
+}
+
+export function renderChannelsHtml(m) {
+  let channelsArg = Array.isArray(m.channels_arg) ? m.channels_arg : [];
+  let channelsBra = Array.isArray(m.channels_bra) ? m.channels_bra : [];
+
+  if (channelsArg.length === 0 && channelsBra.length === 0) {
+    const rawList = (m.channels && m.channels.length > 0) ? m.channels : (m.all_unique_channels || []);
+    const isArg = (m.country === 'Argentina' || (m.league && (m.league.includes('Argentina') || m.league.includes('Clausura'))));
+    const isBra = (m.country === 'Brazil' || (m.league && (m.league.includes('Série A') || m.league.includes('Brasil'))));
+    if (isArg) {
+      channelsArg = rawList;
+    } else if (isBra) {
+      channelsBra = rawList;
+    } else {
+      const cat = getCategorizedChannels(m.league, m.country);
+      channelsArg = cat.channels_arg;
+      channelsBra = cat.channels_bra;
+    }
+  }
+
+  const subRows = [];
+  if (channelsArg && channelsArg.length > 0) {
+    const argTags = channelsArg.map(c => `<span class="channel-tag tag-arg">${c}</span>`).join(' ');
+    subRows.push(`<div class="channel-subrow">🇦🇷 <strong>ARG:</strong> ${argTags}</div>`);
+  }
+  if (channelsBra && channelsBra.length > 0) {
+    const braTags = channelsBra.map(c => `<span class="channel-tag tag-bra">${c}</span>`).join(' ');
+    subRows.push(`<div class="channel-subrow">🇧🇷 <strong>BRA:</strong> ${braTags}</div>`);
+  }
+
+  if (subRows.length === 0) {
+    return '<span class="channel-tag">TBD</span>';
+  }
+
+  return subRows.join('');
+}
+
 export function getChannelsForMatch(leagueName, countryName) {
   const lg = (leagueName || '').toLowerCase();
   const cc = (countryName || '').toLowerCase();
@@ -398,22 +466,25 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
 
           const bannerUrl = generateBannerUrl(homeName, awayName);
 
-          const fixtureItem = {
-            day: dayLabel,
-            match_date: `${yyyy}-${mm}-${dd}`,
-            league: cleanLeague,
-            country: cleanCountry,
-            badge_class: badgeClass,
-            home_team: homeName,
-            away_team: awayName,
-            home_logo: homeLogo,
-            away_logo: awayLogo,
-            local_time: localTime,
-            morocco_time: mTime,
-            status_text: statusText,
-            status_class: statusClass,
-            channels: getChannelsForMatch(cleanLeague, cleanCountry),
-            banner_url: bannerUrl,
+            const cat = getCategorizedChannels(cleanLeague, cleanCountry);
+            const fixtureItem = {
+              day: dayLabel,
+              match_date: `${yyyy}-${mm}-${dd}`,
+              league: cleanLeague,
+              country: cleanCountry,
+              badge_class: badgeClass,
+              home_team: homeName,
+              away_team: awayName,
+              home_logo: homeLogo,
+              away_logo: awayLogo,
+              local_time: localTime,
+              morocco_time: mTime,
+              status_text: statusText,
+              status_class: statusClass,
+              channels_arg: cat.channels_arg,
+              channels_bra: cat.channels_bra,
+              channels: (cat.channels_arg.length > 0 || cat.channels_bra.length > 0) ? [...cat.channels_arg, ...cat.channels_bra] : getChannelsForMatch(cleanLeague, cleanCountry),
+              banner_url: bannerUrl,
             banner_title: `${homeName} vs ${awayName}`,
             banner_source_site: 'github.io',
             has_scraped_banner: true,
@@ -491,6 +562,7 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
 
         const bannerUrl = generateBannerUrl(homeName, awayName);
 
+        const cat = getCategorizedChannels(cleanLeague, cleanCountry);
         const fixtureItem = {
           day: dayLabel,
           match_date: `${yyyy}-${mm}-${dd}`,
@@ -505,7 +577,9 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
           morocco_time: mTime,
           status_text: statusText,
           status_class: statusClass,
-          channels: getChannelsForMatch(cleanLeague, cleanCountry),
+          channels_arg: cat.channels_arg,
+          channels_bra: cat.channels_bra,
+          channels: (cat.channels_arg.length > 0 || cat.channels_bra.length > 0) ? [...cat.channels_arg, ...cat.channels_bra] : getChannelsForMatch(cleanLeague, cleanCountry),
           banner_url: bannerUrl,
           banner_title: `${homeName} vs ${awayName}`,
           banner_source_site: 'github.io',
@@ -542,6 +616,7 @@ export function loadCachedMatches() {
 
         const localTime = item.local_time || '20:00';
         const moroccoTime = item.morocco_time ? calculateMoroccoTime(localTime) : '23:00';
+        const cat = getCategorizedChannels(item.league, item.country, item.channels_arg, item.channels_bra);
 
         return {
           day: day,
@@ -559,7 +634,9 @@ export function loadCachedMatches() {
           status: cleanStText,
           status_text: cleanStText,
           status_class: stClass,
-          channels: (item.channels && item.channels.length > 0) ? item.channels : (item.all_unique_channels || ['TNT Sports', 'ESPN Premium']),
+          channels_arg: cat.channels_arg,
+          channels_bra: cat.channels_bra,
+          channels: (item.channels && item.channels.length > 0) ? item.channels : (item.all_unique_channels || [...cat.channels_arg, ...cat.channels_bra]),
           banner_url: rewriteCdnImageUrl(item.banner_url || generateBannerUrl(item.home_team, item.away_team)),
           banner_title: item.banner_title || `${item.home_team} vs ${item.away_team}`,
           banner_source_site: item.banner_source_site || 'github.io',
@@ -630,6 +707,9 @@ export async function fetchAllMatches() {
         banner_title: m.banner_title || `${m.home_team} vs ${m.away_team}`,
         banner_source_site: m.banner_source_site || 'github.io',
         has_scraped_banner: m.has_scraped_banner ?? false,
+        channels_arg: m.channels_arg || [],
+        channels_bra: m.channels_bra || [],
+        channels: m.channels,
         all_unique_channels: m.channels
       }))
     };
