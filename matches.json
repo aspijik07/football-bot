@@ -42,7 +42,8 @@
                 "Disney+"
             ],
             "channels_bra": [],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T00:15:00Z"
         }
     ],
     "tomorrow": [
@@ -88,7 +89,8 @@
                 "Disney+"
             ],
             "channels_bra": [],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-24T01:30:00Z"
         },
         {
             "day": "tomorrow",
@@ -132,7 +134,8 @@
                 "Disney+"
             ],
             "channels_bra": [],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T18:45:00Z"
         },
         {
             "day": "tomorrow",
@@ -176,7 +179,8 @@
                 "Disney+"
             ],
             "channels_bra": [],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T18:45:00Z"
         },
         {
             "day": "tomorrow",
@@ -220,7 +224,8 @@
                 "Disney+"
             ],
             "channels_bra": [],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T21:30:00Z"
         },
         {
             "day": "tomorrow",
@@ -264,7 +269,8 @@
                 "Disney+"
             ],
             "channels_bra": [],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-24T00:00:00Z"
         },
         {
             "day": "tomorrow",
@@ -308,7 +314,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-24T01:00:00Z"
         },
         {
             "day": "tomorrow",
@@ -352,7 +359,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T20:00:00Z"
         },
         {
             "day": "tomorrow",
@@ -396,7 +404,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T20:00:00Z"
         },
         {
             "day": "tomorrow",
@@ -440,7 +449,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T21:00:00Z"
         },
         {
             "day": "tomorrow",
@@ -484,7 +494,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-23T22:30:00Z"
         },
         {
             "day": "tomorrow",
@@ -528,7 +539,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_shared_league": false
+            "is_shared_league": false,
+            "kickoff_utc": "2026-09-24T00:30:00Z"
         }
     ]
 }

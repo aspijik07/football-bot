@@ -35,8 +35,40 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Tuple, Union
 from urllib.parse import urlparse, quote
 
-import requests
-from bs4 import BeautifulSoup
+try:
+    import requests
+except ImportError:
+    import urllib.request
+    import urllib.error
+
+    class MockResponse:
+        def __init__(self, data: bytes, status_code: int = 200):
+            self.content = data
+            self.status_code = status_code
+        def json(self):
+            return json.loads(self.content.decode("utf-8"))
+        @property
+        def text(self):
+            return self.content.decode("utf-8", errors="replace")
+
+    class RequestsShim:
+        @staticmethod
+        def get(url, headers=None, timeout=10, **kwargs):
+            req = urllib.request.Request(url, headers=headers or {})
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    return MockResponse(r.read(), r.status)
+            except urllib.error.HTTPError as e:
+                return MockResponse(e.read() if hasattr(e, 'read') else b"", e.code)
+            except Exception:
+                return MockResponse(b"", 500)
+
+    requests = RequestsShim()
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 try:
     from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -1234,6 +1266,73 @@ def calculate_status(
     return res["status_text"], res["status_class"]
 
 
+def derive_kickoff_utc(m: Dict[str, Any], fallback_date_str: Optional[str] = None) -> Optional[str]:
+    """
+    Derives exact ISO UTC kickoff timestamp (e.g. 2026-09-22T20:15:00Z) for any fixture.
+    Resolves from kickoff_utc, match_dt, Fotmob utcTime, or morocco_time (GMT 0) / local_time (GMT-3).
+    """
+    if not isinstance(m, dict):
+        return None
+
+    # 1. Existing kickoff_utc
+    if m.get("kickoff_utc"):
+        val = str(m["kickoff_utc"]).strip()
+        if "T" in val:
+            return val if (val.endswith("Z") or "+" in val) else f"{val}Z"
+
+    # 2. match_dt datetime object
+    mdt = m.get("match_dt")
+    if isinstance(mdt, datetime):
+        dt_utc = mdt if mdt.tzinfo else mdt.replace(tzinfo=timezone.utc)
+        return dt_utc.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # 3. Fotmob utcTime in status
+    st = m.get("status")
+    if isinstance(st, dict) and st.get("utcTime"):
+        val = str(st["utcTime"]).strip()
+        if "T" in val:
+            return val if (val.endswith("Z") or "+" in val) else f"{val}Z"
+
+    # 4. Direct timestamp or utc_time keys
+    for k in ["utc_time", "utc_time_str", "utcTime"]:
+        val = m.get(k)
+        if val and isinstance(val, str) and "T" in val:
+            v_clean = val.strip()
+            return v_clean if (v_clean.endswith("Z") or "+" in v_clean) else f"{v_clean}Z"
+
+    # 5. Derive from morocco_time (which is GMT 0 / UTC+0) or local_time (GMT-3)
+    date_str = m.get("match_date") or fallback_date_str
+    if not date_str:
+        return None
+
+    morocco_time = m.get("morocco_time")
+    local_time = m.get("local_time")
+
+    if morocco_time and morocco_time != "TBD" and ":" in str(morocco_time):
+        try:
+            mh, mm = map(int, str(morocco_time).split(":")[:2])
+            d_parts = list(map(int, str(date_str).split("-")[:3]))
+            m_dt = datetime(d_parts[0], d_parts[1], d_parts[2], mh, mm, tzinfo=timezone.utc)
+            if local_time and local_time != "TBD" and ":" in str(local_time):
+                lh = int(str(local_time).split(":")[0])
+                if mh < lh:  # Match kicked off evening local time (GMT-3), crossed midnight into next UTC day
+                    m_dt += timedelta(days=1)
+            return m_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+        except Exception:
+            pass
+
+    if local_time and local_time != "TBD" and ":" in str(local_time):
+        try:
+            lh, lm = map(int, str(local_time).split(":")[:2])
+            d_parts = list(map(int, str(date_str).split("-")[:3]))
+            local_dt = datetime(d_parts[0], d_parts[1], d_parts[2], lh, lm, tzinfo=timezone(timedelta(hours=-3)))
+            return local_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        except Exception:
+            pass
+
+    return None
+
+
 def is_past_match(match: Dict[str, Any], current_dt: Optional[datetime] = None) -> bool:
     """
     Strict Date Comparison:
@@ -2148,6 +2247,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                         "status": status_text,
                         "status_text": status_text,
                         "status_class": status_class,
+                        "kickoff_utc": match_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if match_dt else None,
                         "banner_url": default_cdn_banner,
                         "banner_title": f"{home_name} vs {away_name}",
                         "banner_source_site": banner_site,
@@ -2244,6 +2344,7 @@ def fetch_sofascore_matches(target_date: datetime, day_label: str) -> List[Dict[
                     "status": status_text,
                     "status_text": status_text,
                     "status_class": status_class,
+                    "kickoff_utc": match_dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if match_dt else None,
                     "banner_url": default_cdn_banner,
                     "banner_title": f"{home_name} vs {away_name}",
                     "banner_source_site": banner_site,
@@ -2684,6 +2785,8 @@ def get_fallback_target_matches_for_date(target_date: datetime, day_label: str) 
             "status": status_text,
             "status_text": status_text,
             "status_class": status_class,
+            "kickoff_utc": match_dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "match_dt": match_dt,
             "banner_url": construct_cdn_banner_url(extract_match_or_news_id(f["banner_url"])) if extract_match_or_news_id(f["banner_url"]) else fix_cdn_url(f["banner_url"]),
             "banner_title": f["banner_title"],
             "banner_source_site": f["banner_source_site"],
@@ -2795,33 +2898,39 @@ def save_matches_to_disk(
         m["day"] = "today"
         m["day_label"] = "Today"
         m["match_date"] = today_date_str
-        st_text = m.get("status_text") or m.get("status") or "SCHEDULED"
-        if st_text.upper() in ["UNDEFINED", "NONE", "NULL", ""]:
-            st_text = "SCHEDULED"
-        st_class = m.get("status_class")
-        if not st_class:
-            if "LIVE" in st_text:
-                st_class = "status-live"
-            elif "SOON" in st_text:
-                st_class = "status-soon"
-            elif "FINISHED" in st_text:
-                st_class = "status-finished"
-            else:
-                st_class = "status-scheduled"
-        is_live = bool(m.get("is_live", False)) or "LIVE" in st_text.upper()
-        live_minute = m.get("live_minute")
-        score = m.get("score")
-        if is_live:
-            st_class = "status-live"
-            min_str = f" {live_minute}" if live_minute else ""
-            sc_str = f" ({score})" if score else ""
-            st_text = f"LIVE 🔴{min_str}{sc_str}".strip()
-        m["status"] = st_text
-        m["status_text"] = st_text
-        m["status_class"] = st_class
-        m["is_live"] = is_live
-        m["live_minute"] = live_minute
-        m["score"] = score
+
+        # Derive exact kickoff_utc
+        kickoff_utc = derive_kickoff_utc(m, fallback_date_str=today_date_str)
+        m["kickoff_utc"] = kickoff_utc
+        match_dt = None
+        if kickoff_utc:
+            try:
+                match_dt = datetime.fromisoformat(kickoff_utc.replace("Z", "+00:00"))
+            except Exception:
+                pass
+
+        started = bool(m.get("is_live", False)) or "started" in str(m.get("status", "")).lower()
+        finished = ("finished" in str(m.get("status_text", "") or m.get("status", "")).lower()) or (m.get("status_class") == "status-finished")
+        cancelled = ("cancelled" in str(m.get("status_text", "") or m.get("status", "")).lower())
+        score_str = m.get("score") or m.get("scoreStr")
+        live_time = m.get("live_minute")
+
+        st_eval = evaluate_match_state(
+            match_dt=match_dt,
+            started=started,
+            finished=finished,
+            cancelled=cancelled,
+            score_str=score_str,
+            live_time=live_time,
+            current_utc=now
+        )
+        m["status"] = st_eval["status_text"]
+        m["status_text"] = st_eval["status_text"]
+        m["status_class"] = st_eval["status_class"]
+        m["is_live"] = st_eval["is_live"]
+        m["live_minute"] = st_eval["live_minute"]
+        m["score"] = st_eval["score"]
+
         shared = is_shared_league(m.get("league", ""), m.get("country", "")) if m.get("is_shared_league") is None else bool(m.get("is_shared_league"))
         m["is_shared_league"] = shared
         if not shared:
@@ -2846,33 +2955,39 @@ def save_matches_to_disk(
         m["day"] = "tomorrow"
         m["day_label"] = "Tomorrow"
         m["match_date"] = tomorrow_date_str
-        st_text = m.get("status_text") or m.get("status") or "SCHEDULED"
-        if st_text.upper() in ["UNDEFINED", "NONE", "NULL", ""]:
-            st_text = "SCHEDULED"
-        st_class = m.get("status_class")
-        if not st_class:
-            if "LIVE" in st_text:
-                st_class = "status-live"
-            elif "SOON" in st_text:
-                st_class = "status-soon"
-            elif "FINISHED" in st_text:
-                st_class = "status-finished"
-            else:
-                st_class = "status-scheduled"
-        is_live = bool(m.get("is_live", False)) or "LIVE" in st_text.upper()
-        live_minute = m.get("live_minute")
-        score = m.get("score")
-        if is_live:
-            st_class = "status-live"
-            min_str = f" {live_minute}" if live_minute else ""
-            sc_str = f" ({score})" if score else ""
-            st_text = f"LIVE 🔴{min_str}{sc_str}".strip()
-        m["status"] = st_text
-        m["status_text"] = st_text
-        m["status_class"] = st_class
-        m["is_live"] = is_live
-        m["live_minute"] = live_minute
-        m["score"] = score
+
+        # Derive exact kickoff_utc
+        kickoff_utc = derive_kickoff_utc(m, fallback_date_str=tomorrow_date_str)
+        m["kickoff_utc"] = kickoff_utc
+        match_dt = None
+        if kickoff_utc:
+            try:
+                match_dt = datetime.fromisoformat(kickoff_utc.replace("Z", "+00:00"))
+            except Exception:
+                pass
+
+        started = bool(m.get("is_live", False)) or "started" in str(m.get("status", "")).lower()
+        finished = ("finished" in str(m.get("status_text", "") or m.get("status", "")).lower()) or (m.get("status_class") == "status-finished")
+        cancelled = ("cancelled" in str(m.get("status_text", "") or m.get("status", "")).lower())
+        score_str = m.get("score") or m.get("scoreStr")
+        live_time = m.get("live_minute")
+
+        st_eval = evaluate_match_state(
+            match_dt=match_dt,
+            started=started,
+            finished=finished,
+            cancelled=cancelled,
+            score_str=score_str,
+            live_time=live_time,
+            current_utc=now
+        )
+        m["status"] = st_eval["status_text"]
+        m["status_text"] = st_eval["status_text"]
+        m["status_class"] = st_eval["status_class"]
+        m["is_live"] = st_eval["is_live"]
+        m["live_minute"] = st_eval["live_minute"]
+        m["score"] = st_eval["score"]
+
         shared = is_shared_league(m.get("league", ""), m.get("country", "")) if m.get("is_shared_league") is None else bool(m.get("is_shared_league"))
         m["is_shared_league"] = shared
         if not shared:

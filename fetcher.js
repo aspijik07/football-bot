@@ -232,30 +232,106 @@ export function getChannelsForMatch(leagueName, countryName) {
 }
 
 export function calculateStatus(matchDt, started = false, finished = false, cancelled = false, scoreStr = null, liveTime = null) {
+  const cleanScore = (scoreStr && scoreStr.trim() && !['-', 'vs', 'undefined', 'null', 'None'].includes(scoreStr.trim())) ? scoreStr.trim() : null;
+
   if (cancelled) return { text: 'CANCELLED', statusClass: 'status-cancelled' };
   if (finished) {
-    const text = scoreStr ? `FINISHED (${scoreStr})` : 'FINISHED';
+    const text = cleanScore ? `FINISHED (${cleanScore})` : 'FINISHED';
     return { text, statusClass: 'status-finished' };
   }
   if (started) {
-    let text = 'LIVE 🔴';
-    if (liveTime) text = `LIVE 🔴 ${liveTime}`;
-    else if (scoreStr) text = `LIVE 🔴 (${scoreStr})`;
+    const minDisp = liveTime ? liveTime.trim() : 'LIVE';
+    let text = (minDisp !== 'LIVE') ? `LIVE 🔴 ${minDisp}` : 'LIVE 🔴';
+    if (cleanScore) text += ` (${cleanScore})`;
     return { text, statusClass: 'status-live' };
   }
   if (!matchDt) return { text: 'SCHEDULED', statusClass: 'status-scheduled' };
 
   const now = new Date();
-  const diffMs = matchDt.getTime() - now.getTime();
-  if (diffMs <= 0) {
-    const text = scoreStr ? `LIVE 🔴 (${scoreStr})` : 'LIVE 🔴';
+  const dt = (matchDt instanceof Date) ? matchDt : new Date(matchDt);
+  if (isNaN(dt.getTime())) return { text: 'SCHEDULED', statusClass: 'status-scheduled' };
+
+  const diffSec = (now.getTime() - dt.getTime()) / 1000;
+
+  if (diffSec > 7200) {
+    // Over 2 hours since kickoff -> Finished
+    const text = cleanScore ? `FINISHED (${cleanScore})` : 'FINISHED';
+    return { text, statusClass: 'status-finished' };
+  } else if (diffSec >= 0) {
+    // 0 to 120 minutes since kickoff -> Live
+    const elapsedMins = Math.max(1, Math.floor(diffSec / 60));
+    let minDisp = `${elapsedMins}'`;
+    if (liveTime) {
+      minDisp = liveTime;
+    } else if (elapsedMins <= 45) {
+      minDisp = `${elapsedMins}'`;
+    } else if (elapsedMins <= 60) {
+      minDisp = 'HT';
+    } else if (elapsedMins <= 105) {
+      minDisp = `${elapsedMins - 15}'`;
+    } else {
+      minDisp = "90+'";
+    }
+    let text = `LIVE 🔴 ${minDisp}`;
+    if (cleanScore) text += ` (${cleanScore})`;
     return { text, statusClass: 'status-live' };
-  } else if (diffMs <= 3600 * 1000) {
-    const mins = Math.max(1, Math.floor(diffMs / 60000));
+  } else if (-diffSec <= 3600) {
+    // Starts within next 60 minutes -> Soon
+    const mins = Math.max(1, Math.floor(-diffSec / 60));
     return { text: `SOON (${mins}m)`, statusClass: 'status-soon' };
   } else {
     return { text: 'SCHEDULED', statusClass: 'status-scheduled' };
   }
+}
+
+export function getMatchKickoffDate(m, fallbackDateStr) {
+  if (!m || typeof m !== 'object') return null;
+
+  if (m.kickoff_utc) {
+    const d = new Date(m.kickoff_utc);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (m.match_dt) {
+    const d = (m.match_dt instanceof Date) ? m.match_dt : new Date(m.match_dt);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (m.status && typeof m.status === 'object' && m.status.utcTime) {
+    const d = new Date(m.status.utcTime);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  const dateStr = m.match_date || fallbackDateStr;
+  if (!dateStr || typeof dateStr !== 'string') return null;
+
+  const mTime = m.morocco_time;
+  const lTime = m.local_time;
+
+  if (mTime && mTime !== 'TBD' && mTime.includes(':')) {
+    const [mh, mm] = mTime.split(':').map(Number);
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    if (!isNaN(mh) && !isNaN(mm) && !isNaN(y) && !isNaN(mo) && !isNaN(d)) {
+      let dtUtc = new Date(Date.UTC(y, mo - 1, d, mh, mm, 0));
+      if (lTime && lTime !== 'TBD' && lTime.includes(':')) {
+        const lh = parseInt(lTime.split(':')[0], 10);
+        if (!isNaN(lh) && mh < lh) {
+          // Crosses midnight UTC
+          dtUtc = new Date(dtUtc.getTime() + 86400000);
+        }
+      }
+      return dtUtc;
+    }
+  }
+
+  if (lTime && lTime !== 'TBD' && lTime.includes(':')) {
+    const [lh, lm] = lTime.split(':').map(Number);
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    if (!isNaN(lh) && !isNaN(lm) && !isNaN(y) && !isNaN(mo) && !isNaN(d)) {
+      // Local time is GMT-3 -> add 3 hours for UTC
+      return new Date(Date.UTC(y, mo - 1, d, lh + 3, lm, 0));
+    }
+  }
+
+  return null;
 }
 
 export function rewriteCdnImageUrl(url) {
@@ -510,6 +586,7 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
               morocco_time: mTime,
               status_text: statusText,
               status_class: statusClass,
+              kickoff_utc: matchDt ? matchDt.toISOString() : null,
               is_shared_league: cat.is_shared_league,
               channels_arg: cat.channels_arg,
               channels_bra: cat.channels_bra,
@@ -607,6 +684,7 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
           morocco_time: mTime,
           status_text: statusText,
           status_class: statusClass,
+          kickoff_utc: matchDt ? matchDt.toISOString() : null,
           is_shared_league: cat.is_shared_league,
           channels_arg: cat.channels_arg,
           channels_bra: cat.channels_bra,
