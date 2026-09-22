@@ -232,19 +232,29 @@ export function getChannelsForMatch(leagueName, countryName) {
 }
 
 export function calculateStatus(matchDt, started = false, finished = false, cancelled = false, scoreStr = null, liveTime = null) {
-  const cleanScore = (scoreStr && scoreStr.trim() && !['-', 'vs', 'undefined', 'null', 'None'].includes(scoreStr.trim())) ? scoreStr.trim() : null;
+  const cleanScore = (scoreStr && String(scoreStr).trim() && !['-', 'vs', 'undefined', 'null', 'None'].includes(String(scoreStr).trim())) ? String(scoreStr).trim() : null;
 
+  // RULE 3 (CANCELLED / POSTPONED)
   if (cancelled) return { text: 'CANCELLED', statusClass: 'status-cancelled' };
-  if (finished) {
+
+  // RULE 1 (FINISHED PRIORITY):
+  // If finished flag is True OR cleanScore exists on a non-live match:
+  // DO NOT let timestamp math override an officially finished match!
+  if (finished || (cleanScore && !started)) {
     const text = cleanScore ? `FINISHED (${cleanScore})` : 'FINISHED';
     return { text, statusClass: 'status-finished' };
   }
-  if (started) {
-    const minDisp = liveTime ? liveTime.trim() : 'LIVE';
+
+  // RULE 2 (LIVE PRIORITY):
+  // If started is True OR liveTime exists:
+  if (started || liveTime) {
+    const minDisp = liveTime ? String(liveTime).trim() : 'LIVE';
     let text = (minDisp !== 'LIVE') ? `LIVE 🔴 ${minDisp}` : 'LIVE 🔴';
     if (cleanScore) text += ` (${cleanScore})`;
     return { text, statusClass: 'status-live' };
   }
+
+  // RULE 4 (FUTURE / SCHEDULED FALLBACK ONLY):
   if (!matchDt) return { text: 'SCHEDULED', statusClass: 'status-scheduled' };
 
   const now = new Date();
@@ -552,8 +562,9 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
           const { localTime, moroccoTime: mTime } = formatMatchTimes(matchDt);
 
           const started = Boolean(st.started);
-          const finished = Boolean(st.finished);
-          const cancelled = Boolean(st.cancelled);
+          const reasonShort = (st.reason && typeof st.reason === 'object') ? st.reason.short : (st.reason || '');
+          const finished = Boolean(st.finished) || (reasonShort === 'FT') || (Boolean(st.scoreStr) && !started);
+          const cancelled = Boolean(st.cancelled) || (typeof st.statusStr === 'string' && st.statusStr.toLowerCase().includes('postpon'));
           const scoreStr = st.scoreStr || null;
           const liveTime = typeof st.liveTime === 'object' && st.liveTime ? st.liveTime.short : null;
 

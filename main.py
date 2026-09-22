@@ -1139,12 +1139,27 @@ def evaluate_match_state(
 ) -> Dict[str, Any]:
     """
     Computes status_text, status_class, is_live, live_minute, and clean score.
-    Guarantees valid status strings (LIVE 🔴, FINISHED, SOON, or SCHEDULED).
+    PRIORITY-BASED STATUS EVALUATION:
+    - RULE 1 (FINISHED PRIORITY):
+      If finished is True OR score_str exists on a non-live match:
+      -> Return text f"FINISHED ({clean_score})" (or "FINISHED") with class status-finished.
+      DO NOT let timestamp math override an officially finished match!
+    - RULE 2 (LIVE PRIORITY):
+      If started is True OR live_time exists:
+      -> Return text f"LIVE 🔴 {min_disp} ({clean_score})" (or LIVE 🔴) with class status-live.
+    - RULE 3 (CANCELLED / POSTPONED):
+      If cancelled is True:
+      -> Return text "CANCELLED" with class status-cancelled.
+    - RULE 4 (FUTURE / SCHEDULED FALLBACK ONLY):
+      Only if Rules 1, 2, and 3 do not apply:
+      * If kickoff is within 60 mins: "SOON ({mins}m)" (class status-soon).
+      * Otherwise: "SCHEDULED" (class status-scheduled).
     """
-    clean_score = score_str.strip() if score_str and score_str.strip() not in ["-", "vs", "undefined", "null", "None"] else None
+    clean_score = str(score_str).strip() if score_str and str(score_str).strip() not in ["-", "vs", "undefined", "null", "None"] else None
     if current_utc is None:
         current_utc = datetime.now(timezone.utc)
 
+    # RULE 3 (CANCELLED / POSTPONED)
     if cancelled:
         return {
             "status_text": "CANCELLED",
@@ -1154,7 +1169,8 @@ def evaluate_match_state(
             "score": clean_score
         }
 
-    if finished:
+    # RULE 1 (FINISHED PRIORITY) - DO NOT let timestamp math override
+    if finished or (clean_score and not started):
         text = f"FINISHED ({clean_score})" if clean_score else "FINISHED"
         return {
             "status_text": text,
@@ -1164,8 +1180,9 @@ def evaluate_match_state(
             "score": clean_score
         }
 
-    if started:
-        min_disp = live_time.strip() if live_time else "LIVE"
+    # RULE 2 (LIVE PRIORITY)
+    if started or live_time:
+        min_disp = str(live_time).strip() if live_time else "LIVE"
         text = f"LIVE 🔴 {min_disp}" if min_disp != "LIVE" else "LIVE 🔴"
         if clean_score:
             text = f"{text} ({clean_score})"
@@ -1177,6 +1194,7 @@ def evaluate_match_state(
             "score": clean_score
         }
 
+    # RULE 4 (FUTURE / SCHEDULED FALLBACK ONLY)
     if not match_dt:
         return {
             "status_text": "SCHEDULED",
@@ -1200,9 +1218,7 @@ def evaluate_match_state(
         }
     elif diff_sec >= 0:  # 0 to 120 mins past kickoff -> Currently Live
         min_elapsed = max(1, int(diff_sec // 60))
-        if live_time:
-            min_disp = live_time
-        elif min_elapsed <= 45:
+        if min_elapsed <= 45:
             min_disp = f"{min_elapsed}'"
         elif min_elapsed <= 60:
             min_disp = "HT"
@@ -2205,9 +2221,11 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
 
                     local_time, m_time = format_match_times(match_dt)
 
+                    reason = st.get("reason", {})
+                    reason_short = reason.get("short") if isinstance(reason, dict) else str(reason)
                     started = bool(st.get("started", False))
-                    finished = bool(st.get("finished", False))
-                    cancelled = bool(st.get("cancelled", False))
+                    finished = bool(st.get("finished", False)) or (reason_short == "FT") or (bool(st.get("scoreStr")) and not started)
+                    cancelled = bool(st.get("cancelled", False)) or ("postpon" in str(st.get("statusStr", "")).lower())
                     score_str = st.get("scoreStr")
                     live_time = st.get("liveTime", {}).get("short") if isinstance(st.get("liveTime"), dict) else None
 
