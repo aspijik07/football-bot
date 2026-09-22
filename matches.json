@@ -41,7 +41,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "channels_bra": []
+            "channels_bra": [],
+            "is_shared_league": false
         }
     ],
     "tomorrow": [
@@ -86,7 +87,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "channels_bra": []
+            "channels_bra": [],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -129,7 +131,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "channels_bra": []
+            "channels_bra": [],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -172,7 +175,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "channels_bra": []
+            "channels_bra": [],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -215,7 +219,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "channels_bra": []
+            "channels_bra": [],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -258,7 +263,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "channels_bra": []
+            "channels_bra": [],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -301,7 +307,8 @@
                 "Globo",
                 "SporTV",
                 "CazéTV"
-            ]
+            ],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -344,7 +351,8 @@
                 "Globo",
                 "SporTV",
                 "CazéTV"
-            ]
+            ],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -387,7 +395,8 @@
                 "Globo",
                 "SporTV",
                 "CazéTV"
-            ]
+            ],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -430,7 +439,8 @@
                 "Globo",
                 "SporTV",
                 "CazéTV"
-            ]
+            ],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -473,7 +483,8 @@
                 "Globo",
                 "SporTV",
                 "CazéTV"
-            ]
+            ],
+            "is_shared_league": false
         },
         {
             "day": "tomorrow",
@@ -516,7 +527,8 @@
                 "Globo",
                 "SporTV",
                 "CazéTV"
-            ]
+            ],
+            "is_shared_league": false
         }
     ]
 }

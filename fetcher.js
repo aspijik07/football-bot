@@ -115,11 +115,14 @@ export function isTargetMatch(leagueName, countryName) {
   return false;
 }
 
-export function getCategorizedChannels(leagueName, countryName, existingArg = null, existingBra = null) {
-  if (Array.isArray(existingArg) && Array.isArray(existingBra) && (existingArg.length > 0 || existingBra.length > 0)) {
-    return { channels_arg: existingArg, channels_bra: existingBra };
-  }
+export function isSharedTournament(leagueName, countryName = '') {
+  const full = `${leagueName || ''} ${countryName || ''}`.toLowerCase();
+  const sharedKeywords = ['libertadores', 'sudamericana', 'nations league', 'recopa'];
+  return sharedKeywords.some(k => full.includes(k));
+}
 
+export function getCategorizedChannels(leagueName, countryName, existingArg = null, existingBra = null) {
+  const shared = isSharedTournament(leagueName, countryName);
   const lg = (leagueName || '').toLowerCase();
   const cc = (countryName || '').toLowerCase();
   const full = `${cc} ${lg}`;
@@ -127,60 +130,86 @@ export function getCategorizedChannels(leagueName, countryName, existingArg = nu
   let channels_arg = [];
   let channels_bra = [];
 
-  if (full.includes('nations league') || lg.includes('nations league')) {
-    channels_arg = ['ESPN Argentina', 'Disney+'];
-    channels_bra = ['ESPN Brazil', 'SporTV'];
-  } else if (full.includes('libertadores')) {
-    channels_arg = ['ESPN Argentina', 'Fox Sports', 'Disney+'];
-    channels_bra = ['Globo', 'ESPN Brazil', 'SporTV'];
-  } else if (full.includes('sudamericana')) {
-    channels_arg = ['DSports', 'ESPN Argentina', 'Disney+'];
-    channels_bra = ['Paramount+', 'ESPN Brazil', 'SporTV'];
-  } else if (full.includes('argentina') || cc.includes('arg') || lg.includes('liga profesional') || lg.includes('copa argentina') || lg.includes('clausura')) {
-    channels_arg = ['ESPN Premium', 'TNT Sports', 'TyC Sports', 'Disney+'];
-  } else if (full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('copa do brasil')) {
-    channels_bra = ['Premiere', 'Globo', 'SporTV', 'CazéTV'];
-  } else {
-    channels_arg = ['ESPN Premium', 'TNT Sports'];
+  if (shared) {
+    if (Array.isArray(existingArg) && existingArg.length > 0) {
+      channels_arg = [...existingArg];
+    } else {
+      channels_arg = ['ESPN Premium', 'Fox Sports', 'Star+', 'Disney+', 'DSports', 'TyC Sports'];
+    }
+
+    if (Array.isArray(existingBra) && existingBra.length > 0) {
+      channels_bra = [...existingBra];
+    } else {
+      channels_bra = ['Globo', 'SporTV', 'Premiere', 'CazéTV', 'Paramount+'];
+    }
+
+    return {
+      is_shared_league: true,
+      channels_arg,
+      channels_bra
+    };
   }
 
-  return { channels_arg, channels_bra };
+  // Domestic Leagues: Show ONLY single relevant country channels
+  const isBra = full.includes('brazil') || full.includes('brasil') || cc.includes('bra') || lg.includes('série a') || lg.includes('serie a') || lg.includes('copa do brasil') || lg.includes('paulistão');
+
+  if (isBra) {
+    if (Array.isArray(existingBra) && existingBra.length > 0) {
+      channels_bra = [...existingBra];
+    } else {
+      channels_bra = ['Premiere', 'Globo', 'SporTV', 'CazéTV'];
+    }
+    channels_arg = [];
+    return {
+      is_shared_league: false,
+      channels_arg: [],
+      channels_bra
+    };
+  }
+
+  // Domestic Argentina
+  if (Array.isArray(existingArg) && existingArg.length > 0) {
+    channels_arg = [...existingArg];
+  } else {
+    channels_arg = ['ESPN Premium', 'TNT Sports', 'TyC Sports', 'Disney+'];
+  }
+  channels_bra = [];
+
+  return {
+    is_shared_league: false,
+    channels_arg,
+    channels_bra: []
+  };
 }
 
 export function renderChannelsHtml(m) {
+  const isShared = (m.is_shared_league !== undefined) ? Boolean(m.is_shared_league) : isSharedTournament(m.league, m.country);
   let channelsArg = Array.isArray(m.channels_arg) ? m.channels_arg : [];
   let channelsBra = Array.isArray(m.channels_bra) ? m.channels_bra : [];
 
   if (channelsArg.length === 0 && channelsBra.length === 0) {
-    const rawList = (m.channels && m.channels.length > 0) ? m.channels : (m.all_unique_channels || []);
-    const isArg = (m.country === 'Argentina' || (m.league && (m.league.includes('Argentina') || m.league.includes('Clausura'))));
-    const isBra = (m.country === 'Brazil' || (m.league && (m.league.includes('Série A') || m.league.includes('Brasil'))));
-    if (isArg) {
-      channelsArg = rawList;
-    } else if (isBra) {
-      channelsBra = rawList;
-    } else {
-      const cat = getCategorizedChannels(m.league, m.country);
-      channelsArg = cat.channels_arg;
-      channelsBra = cat.channels_bra;
-    }
+    const cat = getCategorizedChannels(m.league, m.country);
+    channelsArg = cat.channels_arg;
+    channelsBra = cat.channels_bra;
   }
 
-  const subRows = [];
-  if (channelsArg && channelsArg.length > 0) {
-    const argTags = channelsArg.map(c => `<span class="channel-tag tag-arg">${c}</span>`).join(' ');
-    subRows.push(`<div class="channel-subrow">🇦🇷 <strong>ARG:</strong> ${argTags}</div>`);
-  }
-  if (channelsBra && channelsBra.length > 0) {
-    const braTags = channelsBra.map(c => `<span class="channel-tag tag-bra">${c}</span>`).join(' ');
-    subRows.push(`<div class="channel-subrow">🇧🇷 <strong>BRA:</strong> ${braTags}</div>`);
+  const argSpans = channelsArg.map(c => `<span class="channel-tag tag-arg">${c}</span>`).join(' ');
+  const braSpans = channelsBra.map(c => `<span class="channel-tag tag-bra">${c}</span>`).join(' ');
+
+  if (isShared) {
+    const leftCol = `<div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack">${argSpans || '<span class="channel-tag">TBD</span>'}</div></div>`;
+    const rightCol = `<div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack">${braSpans || '<span class="channel-tag">TBD</span>'}</div></div>`;
+    return `<div style="display:flex; gap:14px; align-items:flex-start;">${leftCol}${rightCol}</div>`;
   }
 
-  if (subRows.length === 0) {
-    return '<span class="channel-tag">TBD</span>';
+  // Domestic League
+  if (channelsArg.length > 0) {
+    return `<div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack">${argSpans}</div></div>`;
+  } else if (channelsBra.length > 0) {
+    return `<div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack">${braSpans}</div></div>`;
   }
 
-  return subRows.join('');
+  return '<span class="channel-tag">TBD</span>';
 }
 
 export function getChannelsForMatch(leagueName, countryName) {
@@ -481,6 +510,7 @@ export async function fetchFotmobMatches(targetDate, dayLabel) {
               morocco_time: mTime,
               status_text: statusText,
               status_class: statusClass,
+              is_shared_league: cat.is_shared_league,
               channels_arg: cat.channels_arg,
               channels_bra: cat.channels_bra,
               channels: (cat.channels_arg.length > 0 || cat.channels_bra.length > 0) ? [...cat.channels_arg, ...cat.channels_bra] : getChannelsForMatch(cleanLeague, cleanCountry),
@@ -577,6 +607,7 @@ export async function fetchSofascoreMatches(targetDate, dayLabel) {
           morocco_time: mTime,
           status_text: statusText,
           status_class: statusClass,
+          is_shared_league: cat.is_shared_league,
           channels_arg: cat.channels_arg,
           channels_bra: cat.channels_bra,
           channels: (cat.channels_arg.length > 0 || cat.channels_bra.length > 0) ? [...cat.channels_arg, ...cat.channels_bra] : getChannelsForMatch(cleanLeague, cleanCountry),
@@ -634,6 +665,7 @@ export function loadCachedMatches() {
           status: cleanStText,
           status_text: cleanStText,
           status_class: stClass,
+          is_shared_league: cat.is_shared_league,
           channels_arg: cat.channels_arg,
           channels_bra: cat.channels_bra,
           channels: (item.channels && item.channels.length > 0) ? item.channels : (item.all_unique_channels || [...cat.channels_arg, ...cat.channels_bra]),
@@ -707,6 +739,7 @@ export async function fetchAllMatches() {
         banner_title: m.banner_title || `${m.home_team} vs ${m.away_team}`,
         banner_source_site: m.banner_source_site || 'github.io',
         has_scraped_banner: m.has_scraped_banner ?? false,
+        is_shared_league: (m.is_shared_league !== undefined) ? Boolean(m.is_shared_league) : isSharedTournament(m.league, m.country),
         channels_arg: m.channels_arg || [],
         channels_bra: m.channels_bra || [],
         channels: m.channels,

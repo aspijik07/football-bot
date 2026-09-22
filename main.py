@@ -1569,6 +1569,26 @@ def scrape_futebolnatv_fixtures_and_channels() -> List[Dict[str, Any]]:
     return listings
 
 
+SHARED_TOURNAMENT_KEYWORDS = [
+    "libertadores",
+    "sudamericana",
+    "nations league",
+    "recopa"
+]
+
+
+def is_shared_league(league_name: str, country_name: str = "") -> bool:
+    """
+    Checks if tournament is a shared / continental competition:
+    - Copa Libertadores
+    - Copa Sudamericana
+    - UEFA Nations League
+    - Recopa Sudamericana
+    """
+    full = f"{league_name or ''} {country_name or ''}".lower()
+    return any(k in full for k in SHARED_TOURNAMENT_KEYWORDS)
+
+
 def get_dual_channels_for_match(
     home_team: str,
     away_team: str,
@@ -1581,11 +1601,12 @@ def get_dual_channels_for_match(
     Resolves categorized channels for Argentina (channels_arg) and Brazil (channels_bra).
     1. Checks LiveSoccerTV scraped listings for dual channel payload.
     2. Checks FutebolNaTV listings for Brazil channels.
-    3. Falls back to verified regional broadcaster taxonomy.
+    3. Enforces single-country channels for domestic leagues, and dual channels for shared tournaments.
     """
     country_lower = (country_name or "").lower()
     league_lower = (league_name or "").lower()
     full = f"{country_lower} {league_lower}"
+    shared = is_shared_league(league_name, country_name)
 
     ch_arg: List[str] = []
     ch_bra: List[str] = []
@@ -1614,23 +1635,22 @@ def get_dual_channels_for_match(
                             ch_bra.append(c)
                 break
 
-    # 3. Categorized regional fallbacks if empty
-    if not ch_arg and not ch_bra:
-        if "nations league" in full:
-            ch_arg = ["ESPN Argentina", "Disney+"]
-            ch_bra = ["ESPN Brazil", "SporTV"]
-        elif "libertadores" in full:
-            ch_arg = ["ESPN Argentina", "Fox Sports", "Disney+"]
-            ch_bra = ["Globo", "ESPN Brazil", "SporTV"]
-        elif "sudamericana" in full:
-            ch_arg = ["DSports", "ESPN Argentina", "Disney+"]
-            ch_bra = ["Paramount+", "ESPN Brazil", "SporTV"]
-        elif "argentina" in full or "liga profesional" in full or "copa argentina" in full or "clausura" in full:
-            ch_arg = ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"]
-        elif "brazil" in full or "brasil" in full or "série a" in full or "serie a" in full or "copa do brasil" in full:
-            ch_bra = ["Premiere", "Globo", "SporTV", "CazéTV"]
+    # 3. Categorized regional fallbacks & domestic isolation
+    if shared:
+        if not ch_arg:
+            ch_arg = ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"]
+        if not ch_bra:
+            ch_bra = ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"]
+    else:
+        is_bra = "brazil" in full or "brasil" in full or "série a" in full or "serie a" in full or "copa do brasil" in full or "paulistão" in full
+        if is_bra:
+            if not ch_bra:
+                ch_bra = ["Premiere", "Globo", "SporTV", "CazéTV"]
+            ch_arg = []
         else:
-            ch_arg = ["ESPN Premium", "TNT Sports"]
+            if not ch_arg:
+                ch_arg = ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"]
+            ch_bra = []
 
     return ch_arg, ch_bra
 
@@ -1671,6 +1691,9 @@ def enrich_matches_with_tv_channels(
         away = m.get("away_team", "")
         league = m.get("league", "")
         country = m.get("country", "")
+
+        shared = is_shared_league(league, country)
+        m["is_shared_league"] = shared
 
         ch_arg, ch_bra = get_dual_channels_for_match(
             home_team=home,
@@ -1739,10 +1762,21 @@ def cross_verify_matches_with_sources(
                 if m.get("morocco_time") in ["TBD", "", None] and item.get("time_str"):
                     m["morocco_time"] = item["time_str"]
 
+        shared = is_shared_league(league, country)
+        m["is_shared_league"] = shared
+
         if matched_channels_arg or matched_channels_bra:
-            m["channels_arg"] = list(dict.fromkeys(matched_channels_arg))
-            m["channels_bra"] = list(dict.fromkeys(matched_channels_bra))
-            all_chans = list(dict.fromkeys(matched_channels_arg + matched_channels_bra))
+            final_arg = list(dict.fromkeys(matched_channels_arg))
+            final_bra = list(dict.fromkeys(matched_channels_bra))
+            if not shared:
+                is_bra = "brazil" in f"{country} {league}".lower() or "série a" in league.lower() or "copa do brasil" in league.lower()
+                if is_bra:
+                    final_arg = []
+                else:
+                    final_bra = []
+            m["channels_arg"] = final_arg
+            m["channels_bra"] = final_bra
+            all_chans = list(dict.fromkeys(final_arg + final_bra))
             m["channels"] = all_chans
             m["all_unique_channels"] = all_chans
             m["verified_broadcast_source"] = True
@@ -2788,6 +2822,14 @@ def save_matches_to_disk(
         m["is_live"] = is_live
         m["live_minute"] = live_minute
         m["score"] = score
+        shared = is_shared_league(m.get("league", ""), m.get("country", "")) if m.get("is_shared_league") is None else bool(m.get("is_shared_league"))
+        m["is_shared_league"] = shared
+        if not shared:
+            is_bra = "brazil" in f"{m.get('country', '')} {m.get('league', '')}".lower() or "série a" in str(m.get("league", "")).lower() or "copa do brasil" in str(m.get("league", "")).lower()
+            if is_bra:
+                m["channels_arg"] = []
+            else:
+                m["channels_bra"] = []
         clean_today.append(m)
 
     clean_tomorrow: List[Dict[str, Any]] = []
@@ -2831,6 +2873,14 @@ def save_matches_to_disk(
         m["is_live"] = is_live
         m["live_minute"] = live_minute
         m["score"] = score
+        shared = is_shared_league(m.get("league", ""), m.get("country", "")) if m.get("is_shared_league") is None else bool(m.get("is_shared_league"))
+        m["is_shared_league"] = shared
+        if not shared:
+            is_bra = "brazil" in f"{m.get('country', '')} {m.get('league', '')}".lower() or "série a" in str(m.get("league", "")).lower() or "copa do brasil" in str(m.get("league", "")).lower()
+            if is_bra:
+                m["channels_arg"] = []
+            else:
+                m["channels_bra"] = []
         clean_tomorrow.append(m)
 
     # Output Schema: strictly two keys: 'today' and 'tomorrow'
@@ -2876,18 +2926,32 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
         channels_arg = ch_arg
         channels_bra = ch_bra
 
-    sub_rows: List[str] = []
-    if channels_arg:
-        arg_tags = " ".join(f'<span class="channel-tag tag-arg">{c}</span>' for c in channels_arg)
-        sub_rows.append(f'<div class="channel-subrow">🇦🇷 <strong>ARG:</strong> {arg_tags}</div>')
-    if channels_bra:
-        bra_tags = " ".join(f'<span class="channel-tag tag-bra">{c}</span>' for c in channels_bra)
-        sub_rows.append(f'<div class="channel-subrow">🇧🇷 <strong>BRA:</strong> {bra_tags}</div>')
+    shared = m.get("is_shared_league")
+    if shared is None:
+        shared = is_shared_league(league, country)
 
-    if not sub_rows:
-        sub_rows.append('<span class="channel-tag">TBD</span>')
+    arg_tags = " ".join(f'<span class="channel-tag tag-arg">{c}</span>' for c in channels_arg)
+    bra_tags = " ".join(f'<span class="channel-tag tag-bra">{c}</span>' for c in channels_bra)
 
-    channels_html = "".join(sub_rows)
+    arg_content = arg_tags if arg_tags else '<span class="channel-tag">TBD</span>'
+    bra_content = bra_tags if bra_tags else '<span class="channel-tag">TBD</span>'
+
+    if shared:
+        col_arg = f'<div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack">{arg_content}</div></div>'
+        col_bra = f'<div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack">{bra_content}</div></div>'
+        channels_html = f'<div style="display:flex; gap:14px; align-items:flex-start;">{col_arg}{col_bra}</div>'
+    else:
+        # Domestic league: show only single relevant country channels
+        if channels_arg:
+            channels_html = f'<div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack">{arg_tags}</div></div>'
+        elif channels_bra:
+            channels_html = f'<div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack">{bra_tags}</div></div>'
+        else:
+            is_bra = "brazil" in f"{country} {league}".lower() or "série a" in league.lower() or "copa do brasil" in league.lower()
+            if is_bra:
+                channels_html = '<div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag">TBD</span></div></div>'
+            else:
+                channels_html = '<div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag">TBD</span></div></div>'
 
     home_norm = normalize_team(home_team)
     away_norm = normalize_team(away_team)
