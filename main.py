@@ -387,6 +387,11 @@ def is_valid_fixture(m: Any, current_dt: Optional[datetime] = None) -> bool:
     match_dt: Optional[datetime] = None
     if isinstance(m.get("match_dt"), datetime):
         match_dt = m["match_dt"]
+    elif isinstance(m.get("match_dt"), str) and m["match_dt"]:
+        try:
+            match_dt = datetime.fromisoformat(m["match_dt"].replace("Z", "+00:00"))
+        except Exception:
+            pass
     elif m.get("startTimestamp"):
         try:
             ts = int(m["startTimestamp"])
@@ -1296,11 +1301,13 @@ def derive_kickoff_utc(m: Dict[str, Any], fallback_date_str: Optional[str] = Non
         if "T" in val:
             return val if (val.endswith("Z") or "+" in val) else f"{val}Z"
 
-    # 2. match_dt datetime object
+    # 2. match_dt datetime object or string
     mdt = m.get("match_dt")
     if isinstance(mdt, datetime):
         dt_utc = mdt if mdt.tzinfo else mdt.replace(tzinfo=timezone.utc)
         return dt_utc.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    elif isinstance(mdt, str) and "T" in mdt:
+        return mdt if (mdt.endswith("Z") or "+" in mdt) else f"{mdt}Z"
 
     # 3. Fotmob utcTime in status
     st = m.get("status")
@@ -2271,7 +2278,7 @@ def fetch_fotmob_matches(target_date: datetime, day_label: str) -> List[Dict[str
                         "banner_source_site": banner_site,
                         "has_scraped_banner": True,
                         "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"],
-                        "match_dt": match_dt
+                        "match_dt": match_dt.isoformat() if match_dt else None
                     }
                     if is_valid_fixture(fixture_obj, now_utc):
                         matches.append(fixture_obj)
@@ -2368,7 +2375,7 @@ def fetch_sofascore_matches(target_date: datetime, day_label: str) -> List[Dict[
                     "banner_source_site": banner_site,
                     "has_scraped_banner": True,
                     "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Star+"],
-                    "match_dt": match_dt
+                    "match_dt": match_dt.isoformat() if match_dt else None
                 }
                 if is_valid_fixture(fixture_obj, now_utc):
                     matches.append(fixture_obj)
@@ -2804,7 +2811,7 @@ def get_fallback_target_matches_for_date(target_date: datetime, day_label: str) 
             "status_text": status_text,
             "status_class": status_class,
             "kickoff_utc": match_dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "match_dt": match_dt,
+            "match_dt": match_dt.isoformat() if match_dt else None,
             "banner_url": construct_cdn_banner_url(extract_match_or_news_id(f["banner_url"])) if extract_match_or_news_id(f["banner_url"]) else fix_cdn_url(f["banner_url"]),
             "banner_title": f["banner_title"],
             "banner_source_site": f["banner_source_site"],
@@ -3023,7 +3030,7 @@ def save_matches_to_disk(
     }
 
     with open(MATCHES_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=4)
+        json.dump(payload, f, ensure_ascii=False, indent=4, default=str)
 
     logger.info(
         "Saved %s strictly organized into 'today' (%d) and 'tomorrow' (%d).",
@@ -3287,7 +3294,7 @@ def update_dashboard_html(today_matches: List[Dict[str, Any]], tomorrow_matches:
         "tomorrow": tomorrow_matches,
         "matches": all_matches
     }
-    json_str = json.dumps(embedded_payload, ensure_ascii=False)
+    json_str = json.dumps(embedded_payload, ensure_ascii=False, default=str)
     injected_block = (
         '    <!-- Hard Fallback: Injected by main.py -->\n'
         '    <script id="embedded-initial-matches">\n'
