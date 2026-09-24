@@ -421,9 +421,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8495.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 HT",
+            "status_text": "LIVE 🔴 HT",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-24T16:00:00Z",
             "banner_url": "./banners/andorra_malta.jpg",
             "banner_title": "Andorra vs Malta",
@@ -472,8 +472,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "HT",
             "score": null
         },
         {
