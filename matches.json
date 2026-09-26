@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10155.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T18:45:00Z",
             "banner_url": "./banners/czechia_croatia.jpg",
             "banner_title": "Czechia vs Croatia",
@@ -65,7 +65,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -81,9 +81,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6720.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T18:45:00Z",
             "banner_url": "./banners/england_spain.jpg",
             "banner_title": "England vs Spain",
@@ -133,7 +133,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6717.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T18:45:00Z",
             "banner_url": "./banners/northmacedonia_switzerland.jpg",
             "banner_title": "North Macedonia vs Switzerland",
@@ -269,7 +269,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -353,9 +353,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10057.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T18:45:00Z",
             "banner_url": "./banners/albania_belarus.jpg",
             "banner_title": "Albania vs Belarus",
@@ -405,7 +405,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -489,9 +489,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5794.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T18:45:00Z",
             "banner_url": "./banners/slovakia_moldova.jpg",
             "banner_title": "Slovakia vs Moldova",
@@ -541,7 +541,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -965,9 +965,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/262135.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 90+'",
+            "status_text": "LIVE 🔴 90+'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T19:00:00Z",
             "banner_url": "./banners/montserrat_britishvirginislands.jpg",
             "banner_title": "Montserrat vs British Virgin Islands",
@@ -1016,8 +1016,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "90+'",
             "score": null
         },
         {
@@ -1033,9 +1033,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/262136.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 HT",
+            "status_text": "LIVE 🔴 HT",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T20:00:00Z",
             "banner_url": "./banners/saintmartin_usvirginislands.jpg",
             "banner_title": "Saint Martin vs U.S. Virgin Islands",
@@ -1084,8 +1084,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "HT",
             "score": null
         },
         {
@@ -1101,9 +1101,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/835267.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "SOON (9m)",
+            "status_text": "SOON (9m)",
+            "status_class": "status-soon",
             "kickoff_utc": "2026-09-26T21:00:00Z",
             "banner_url": "./banners/saintvincentandthegrenadines_frenchguiana.jpg",
             "banner_title": "Saint Vincent and The Grenadines vs French Guiana",
@@ -1237,9 +1237,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10084.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 90+'",
+            "status_text": "LIVE 🔴 90+'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T19:00:00Z",
             "banner_url": "./banners/estudiantes_rosariocentral.jpg",
             "banner_title": "Estudiantes vs Rosario Central",
@@ -1266,8 +1266,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "90+'",
             "score": null
         }
     ],
