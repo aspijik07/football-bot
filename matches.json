@@ -1101,9 +1101,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/835267.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SOON (9m)",
-            "status_text": "SOON (9m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T21:00:00Z",
             "banner_url": "./banners/saintvincentandthegrenadines_frenchguiana.jpg",
             "banner_title": "Saint Vincent and The Grenadines vs French Guiana",
@@ -1153,7 +1153,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -1169,9 +1169,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/262132.png",
             "local_time": "20:00",
             "morocco_time": "23:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 26'",
+            "status_text": "LIVE 🔴 26'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T23:00:00Z",
             "banner_url": "./banners/antiguaandbarbuda_anguilla.jpg",
             "banner_title": "Antigua and Barbuda vs Anguilla",
@@ -1220,8 +1220,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "26'",
             "score": null
         },
         {
