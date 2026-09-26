@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8498.png",
             "local_time": "10:00",
             "morocco_time": "13:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-26T13:00:00Z",
             "banner_url": "./banners/slovenia_scotland.jpg",
             "banner_title": "Slovenia vs Scotland",
@@ -201,7 +201,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -285,9 +285,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7871.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 4'",
+            "status_text": "LIVE 🔴 4'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T16:00:00Z",
             "banner_url": "./banners/sanmarino_finland.jpg",
             "banner_title": "San Marino vs Finland",
@@ -336,8 +336,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "4'",
             "score": null
         },
         {
@@ -421,9 +421,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8265.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 4'",
+            "status_text": "LIVE 🔴 4'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T16:00:00Z",
             "banner_url": "./banners/faroeislands_kazakhstan.jpg",
             "banner_title": "Faroe Islands vs Kazakhstan",
@@ -472,8 +472,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "4'",
             "score": null
         },
         {
@@ -557,9 +557,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5792.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 4'",
+            "status_text": "LIVE 🔴 4'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T16:00:00Z",
             "banner_url": "./banners/bulgaria_luxembourg.jpg",
             "banner_title": "Bulgaria vs Luxembourg",
@@ -608,8 +608,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "4'",
             "score": null
         },
         {
@@ -625,9 +625,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8261.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 4'",
+            "status_text": "LIVE 🔴 4'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-26T16:00:00Z",
             "banner_url": "./banners/iceland_estonia.jpg",
             "banner_title": "Iceland vs Estonia",
@@ -676,8 +676,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "4'",
             "score": null
         },
         {
