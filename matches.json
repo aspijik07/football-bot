@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6708.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 41'",
+            "status_text": "LIVE 🔴 41'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-27T16:00:00Z",
             "banner_url": "./banners/serbia_netherlands.jpg",
             "banner_title": "Serbia vs Netherlands",
@@ -64,8 +64,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "41'",
             "score": null
         },
         {
@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5790.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 41'",
+            "status_text": "LIVE 🔴 41'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-27T16:00:00Z",
             "banner_url": "./banners/denmark_wales.jpg",
             "banner_title": "Denmark vs Wales",
@@ -200,8 +200,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "41'",
             "score": null
         },
         {
@@ -285,9 +285,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/430156.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 41'",
+            "status_text": "LIVE 🔴 41'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-27T16:00:00Z",
             "banner_url": "./banners/austria_kosovo.jpg",
             "banner_title": "Austria vs Kosovo",
@@ -336,8 +336,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "41'",
             "score": null
         },
         {
@@ -421,9 +421,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8566.png",
             "local_time": "10:00",
             "morocco_time": "13:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-27T13:00:00Z",
             "banner_url": "./banners/lithuania_azerbaijan.jpg",
             "banner_title": "Lithuania vs Azerbaijan",
@@ -473,7 +473,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -489,9 +489,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10045.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 41'",
+            "status_text": "LIVE 🔴 41'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-27T16:00:00Z",
             "banner_url": "./banners/gibraltar_andorra.jpg",
             "banner_title": "Gibraltar vs Andorra",
@@ -540,8 +540,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "41'",
             "score": null
         },
         {
