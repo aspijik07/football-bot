@@ -81,9 +81,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6383.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-27T18:45:00Z",
             "banner_url": "./banners/germany_greece.jpg",
             "banner_title": "Germany vs Greece",
@@ -133,7 +133,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8361.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-27T18:45:00Z",
             "banner_url": "./banners/norway_portugal.jpg",
             "banner_title": "Norway vs Portugal",
@@ -269,7 +269,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -353,9 +353,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5791.png",
             "local_time": "15:45",
             "morocco_time": "18:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-27T18:45:00Z",
             "banner_url": "./banners/israel_ireland.jpg",
             "banner_title": "Israel vs Ireland",
@@ -405,7 +405,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -625,9 +625,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/287982.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-09-27T19:00:00Z",
             "banner_url": "./banners/guyana_caymanislands.jpg",
             "banner_title": "Guyana vs Cayman Islands",
@@ -677,7 +677,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -761,9 +761,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 52'",
+            "status_text": "LIVE 🔴 52'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-09-27T20:00:00Z",
             "banner_url": "./banners/racingclub_bocajuniors.jpg",
             "banner_title": "Racing Club vs Boca Juniors",
@@ -790,8 +790,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "52'",
             "score": null
         }
     ],
