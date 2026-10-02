@@ -421,9 +421,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5794.png",
             "local_time": "11:00",
             "morocco_time": "14:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-02T14:00:00Z",
             "banner_url": "./banners/kazakhstan_moldova.jpg",
             "banner_title": "Kazakhstan vs Moldova",
@@ -473,7 +473,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -557,9 +557,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6583.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 85'",
+            "status_text": "LIVE 🔴 85'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-02T16:00:00Z",
             "banner_url": "./banners/cyprus_armenia.jpg",
             "banner_title": "Cyprus vs Armenia",
@@ -608,8 +608,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "85'",
             "score": null
         },
         {
@@ -625,9 +625,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/49437.png",
             "local_time": "13:00",
             "morocco_time": "16:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 85'",
+            "status_text": "LIVE 🔴 85'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-02T16:00:00Z",
             "banner_url": "./banners/latvia_montenegro.jpg",
             "banner_title": "Latvia vs Montenegro",
@@ -676,8 +676,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "85'",
             "score": null
         },
         {
