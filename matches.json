@@ -761,9 +761,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6705.png",
             "local_time": "23:00",
             "morocco_time": "02:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-02T02:00:00Z",
             "banner_url": "./banners/nicaragua_costarica.jpg",
             "banner_title": "Nicaragua vs Costa Rica",
@@ -813,7 +813,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
