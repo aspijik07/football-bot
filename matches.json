@@ -829,9 +829,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5923.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SOON (11m)",
-            "status_text": "SOON (11m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-03T21:00:00Z",
             "banner_url": "./banners/sintmaarten_saintvincentandthegrenadines.jpg",
             "banner_title": "Sint Maarten vs Saint Vincent and The Grenadines",
@@ -881,7 +881,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -1127,9 +1127,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png",
             "local_time": "18:30",
             "morocco_time": "21:30",
-            "status": "SOON (41m)",
-            "status_text": "SOON (41m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-03T21:30:00Z",
             "banner_url": "./banners/atlticomg_rbbragantino.jpg",
             "banner_title": "Atlético-MG vs RB Bragantino",
@@ -1157,7 +1157,7 @@
                 "CazéTV"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         }
     ],
