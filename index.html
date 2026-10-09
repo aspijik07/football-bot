@@ -1154,11 +1154,11 @@
         <div class="stats-bar">
             <div class="stat-card">
                 <div class="label">Total Fixtures</div>
-                <div class="value" id="stat-total-val">9</div>
+                <div class="value" id="stat-total-val">12</div>
             </div>
             <div class="stat-card">
                 <div class="label">Live In Progress</div>
-                <div class="value" id="stat-live-val" style="color: #ef4444;">1</div>
+                <div class="value" id="stat-live-val" style="color: #ef4444;">2</div>
             </div>
             <div class="stat-card">
                 <div class="label">Starting Soon</div>
@@ -1166,7 +1166,7 @@
             </div>
             <div class="stat-card">
                 <div class="label">Today / Tomorrow</div>
-                <div class="value" id="stat-split-val" style="color: #38bdf8;">3 / 6</div>
+                <div class="value" id="stat-split-val" style="color: #38bdf8;">6 / 6</div>
             </div>
         </div>
 
@@ -1188,7 +1188,7 @@
         <label class="sidebar-league-item" for="filter-Liga Profesional Clausura">
             <input type="checkbox" id="filter-Liga Profesional Clausura" class="league-checkbox" value="Liga Profesional Clausura" checked onchange="filterLeagues()">
             <span class="badge badge-argentina sidebar-badge-chip">Liga Profesional Clausura</span>
-            <span class="league-count-tag">3</span>
+            <span class="league-count-tag">7</span>
         </label>
         <label class="sidebar-league-item" for="filter-Copa Libertadores">
             <input type="checkbox" id="filter-Copa Libertadores" class="league-checkbox" value="Copa Libertadores" checked onchange="filterLeagues()">
@@ -1198,12 +1198,12 @@
         <label class="sidebar-league-item" for="filter-Copa Sudamericana">
             <input type="checkbox" id="filter-Copa Sudamericana" class="league-checkbox" value="Copa Sudamericana" checked onchange="filterLeagues()">
             <span class="badge badge-sudamericana sidebar-badge-chip">Copa Sudamericana</span>
-            <span class="league-count-tag">1</span>
+            <span class="league-count-tag">2</span>
         </label>
         <label class="sidebar-league-item" for="filter-Série A">
             <input type="checkbox" id="filter-Série A" class="league-checkbox" value="Série A" checked onchange="filterLeagues()">
             <span class="badge badge-brazil sidebar-badge-chip">Série A</span>
-            <span class="league-count-tag">5</span>
+            <span class="league-count-tag">3</span>
         </label>
         <label class="sidebar-league-item" for="filter-Copa Argentina">
             <input type="checkbox" id="filter-Copa Argentina" class="league-checkbox" value="Copa Argentina" checked onchange="filterLeagues()">
@@ -1239,123 +1239,9 @@
                         </thead>
                         <tbody>
                             <!-- Today Section Header -->
-                            <tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — 08/10/2026 (<span id="hdr-today-count">3</span>)</td></tr>
+                            <tr id="hdr-today"><td colspan="6" class="section-hdr">📅 TODAY'S MATCHES — 09/10/2026 (<span id="hdr-today-count">6</span>)</td></tr>
                             <tr id="empty-today-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for today.</td></tr>
-        <tr data-league="Série A" data-day="today" data-is-live="true" data-is-soon="false" data-id="today_cruzeiro_sopaulo_0">
-            <td>
-                <span class="badge badge-brazil">Série A</span><br>
-                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
-            </td>
-            <td>
-                <div class="match-headline">
-                    <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9781.png" alt="Cruzeiro" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
-                        <strong class="team-title">Cruzeiro</strong>
-                    </span>
-                    <span class="vs-glow">VS</span>
-                    <span class="team-item">
-                        <strong class="team-title">São Paulo</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10277.png" alt="São Paulo" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
-                    </span>
-                </div>
-
-                <!-- Large Match Preview Banner -->
-                <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('today_cruzeiro_sopaulo_0')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/cruzeiro_sopaulo.jpg" alt="Cruzeiro vs São Paulo" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Cruzeiro', 'São Paulo', 'https://images.fotmob.com/image_resources/logo/teamlogo/9781.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10277.png', 'today_cruzeiro_sopaulo_0')">
-                        <div class="banner-hover-overlay">
-                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
-                            <span class="banner-source-pill">github.io</span>
-                        </div>
-                    </div>
-                    <div class="banner-actions-subrow">
-                        <a href="./banners/cruzeiro_sopaulo.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/cruzeiro_sopaulo.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-                    </div>
-                </div>
-            </td>
-            <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
-            <td><strong style="color:#38bdf8; font-size:1.05em;">00:30</strong></td>
-            <td><span class="status-badge status-live"><span class="pulse-dot-red" style="background:#fff; box-shadow:0 0 6px #fff; width:6px; height:6px; margin-right:4px;"></span>LIVE 🔴 20'</span></td>
-            <td><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">CazéTV</span></div></div></td>
-        </tr>
-        <tr data-league="Série A" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_santos_flamengo_1">
-            <td>
-                <span class="badge badge-brazil">Série A</span><br>
-                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
-            </td>
-            <td>
-                <div class="match-headline">
-                    <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/8514.png" alt="Santos" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
-                        <strong class="team-title">Santos</strong>
-                    </span>
-                    <span class="vs-glow">VS</span>
-                    <span class="team-item">
-                        <strong class="team-title">Flamengo</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/9770.png" alt="Flamengo" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
-                    </span>
-                </div>
-
-                <!-- Large Match Preview Banner -->
-                <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('today_santos_flamengo_1')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/santos_flamengo.jpg" alt="Santos vs Flamengo" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Santos', 'Flamengo', 'https://images.fotmob.com/image_resources/logo/teamlogo/8514.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/9770.png', 'today_santos_flamengo_1')">
-                        <div class="banner-hover-overlay">
-                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
-                            <span class="banner-source-pill">github.io</span>
-                        </div>
-                    </div>
-                    <div class="banner-actions-subrow">
-                        <a href="./banners/santos_flamengo.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/santos_flamengo.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-                    </div>
-                </div>
-            </td>
-            <td style="color:#cbd5e1; font-weight:500;">19:30 <small style="color:#64748b;">(GMT-3)</small></td>
-            <td><strong style="color:#38bdf8; font-size:1.05em;">22:30</strong></td>
-            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
-            <td><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">CazéTV</span></div></div></td>
-        </tr>
-        <tr data-league="Série A" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_athletic_atlticom_2">
-            <td>
-                <span class="badge badge-brazil">Série A</span><br>
-                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
-            </td>
-            <td>
-                <div class="match-headline">
-                    <span class="team-item">
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10273.png" alt="Athletico Paranaense" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
-                        <strong class="team-title">Athletico Paranaense</strong>
-                    </span>
-                    <span class="vs-glow">VS</span>
-                    <span class="team-item">
-                        <strong class="team-title">Atlético-MG</strong>
-                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10272.png" alt="Atlético-MG" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
-                    </span>
-                </div>
-
-                <!-- Large Match Preview Banner -->
-                <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('today_athletic_atlticom_2')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/athleticoparanaense_atlticomg.jpg" alt="Athletico Paranaense vs Atlético-MG" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Athletico Paranaense', 'Atlético-MG', 'https://images.fotmob.com/image_resources/logo/teamlogo/10273.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10272.png', 'today_athletic_atlticom_2')">
-                        <div class="banner-hover-overlay">
-                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
-                            <span class="banner-source-pill">github.io</span>
-                        </div>
-                    </div>
-                    <div class="banner-actions-subrow">
-                        <a href="./banners/athleticoparanaense_atlticomg.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/athleticoparanaense_atlticomg.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
-                    </div>
-                </div>
-            </td>
-            <td style="color:#cbd5e1; font-weight:500;">20:00 <small style="color:#64748b;">(GMT-3)</small></td>
-            <td><strong style="color:#38bdf8; font-size:1.05em;">23:00</strong></td>
-            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
-            <td><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">CazéTV</span></div></div></td>
-        </tr>
-                            <!-- Tomorrow Section Header -->
-                            <tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — 09/10/2026 (<span id="hdr-tomorrow-count">6</span>)</td></tr>
-                            <tr id="empty-tomorrow-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>
-        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_aldosivi_sarmient_0">
+        <tr data-league="Liga Profesional Clausura" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_aldosivi_sarmient_0">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
@@ -1375,8 +1261,8 @@
 
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_aldosivi_sarmient_0')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/aldosivi_sarmiento.jpg" alt="Aldosivi vs Sarmiento" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Aldosivi', 'Sarmiento', 'https://images.fotmob.com/image_resources/logo/teamlogo/161728.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/202757.png', 'tomorrow_aldosivi_sarmient_0')">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_aldosivi_sarmient_0')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/aldosivi_sarmiento.jpg" alt="Aldosivi vs Sarmiento" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Aldosivi', 'Sarmiento', 'https://images.fotmob.com/image_resources/logo/teamlogo/161728.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/202757.png', 'today_aldosivi_sarmient_0')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">github.io</span>
@@ -1392,7 +1278,7 @@
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
         </tr>
-        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_gimnasia_atlticot_1">
+        <tr data-league="Liga Profesional Clausura" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_gimnasia_atlticot_1">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
@@ -1412,8 +1298,8 @@
 
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_gimnasia_atlticot_1')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/gimnasialp_atlticotucumn.jpg" alt="Gimnasia LP vs Atlético Tucumán" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Gimnasia LP', 'Atlético Tucumán', 'https://images.fotmob.com/image_resources/logo/teamlogo/10103.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/161727.png', 'tomorrow_gimnasia_atlticot_1')">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_gimnasia_atlticot_1')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/gimnasialp_atlticotucumn.jpg" alt="Gimnasia LP vs Atlético Tucumán" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Gimnasia LP', 'Atlético Tucumán', 'https://images.fotmob.com/image_resources/logo/teamlogo/10103.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/161727.png', 'today_gimnasia_atlticot_1')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">github.io</span>
@@ -1429,7 +1315,7 @@
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
         </tr>
-        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_institut_bocajuni_2">
+        <tr data-league="Liga Profesional Clausura" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_institut_bocajuni_2">
             <td>
                 <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Argentina</small>
@@ -1449,8 +1335,8 @@
 
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_institut_bocajuni_2')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/instituto_bocajuniors.jpg" alt="Instituto vs Boca Juniors" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Instituto', 'Boca Juniors', 'https://images.fotmob.com/image_resources/logo/teamlogo/10090.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10077.png', 'tomorrow_institut_bocajuni_2')">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_institut_bocajuni_2')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/instituto_bocajuniors.jpg" alt="Instituto vs Boca Juniors" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Instituto', 'Boca Juniors', 'https://images.fotmob.com/image_resources/logo/teamlogo/10090.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10077.png', 'today_institut_bocajuni_2')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">github.io</span>
@@ -1466,7 +1352,7 @@
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
         </tr>
-        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_fluminen_coritiba_3">
+        <tr data-league="Série A" data-day="today" data-is-live="true" data-is-soon="false" data-id="today_fluminen_coritiba_3">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
@@ -1486,8 +1372,8 @@
 
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_fluminen_coritiba_3')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/fluminense_coritiba.jpg" alt="Fluminense vs Coritiba" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Fluminense', 'Coritiba', 'https://images.fotmob.com/image_resources/logo/teamlogo/9863.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/9767.png', 'tomorrow_fluminen_coritiba_3')">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_fluminen_coritiba_3')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/fluminense_coritiba.jpg" alt="Fluminense vs Coritiba" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Fluminense', 'Coritiba', 'https://images.fotmob.com/image_resources/logo/teamlogo/9863.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/9767.png', 'today_fluminen_coritiba_3')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">github.io</span>
@@ -1500,10 +1386,10 @@
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">00:30</strong></td>
-            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="status-badge status-live"><span class="pulse-dot-red" style="background:#fff; box-shadow:0 0 6px #fff; width:6px; height:6px; margin-right:4px;"></span>LIVE 🔴 33'</span></td>
             <td><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">CazéTV</span></div></div></td>
         </tr>
-        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_palmeira_bahia_4">
+        <tr data-league="Série A" data-day="today" data-is-live="true" data-is-soon="false" data-id="today_palmeira_bahia_4">
             <td>
                 <span class="badge badge-brazil">Série A</span><br>
                 <small style="color:#94a3b8; font-weight:500;">Brazil</small>
@@ -1523,8 +1409,8 @@
 
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_palmeira_bahia_4')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/palmeiras_bahia.jpg" alt="Palmeiras vs Bahia" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Palmeiras', 'Bahia', 'https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/7877.png', 'tomorrow_palmeira_bahia_4')">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_palmeira_bahia_4')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/palmeiras_bahia.jpg" alt="Palmeiras vs Bahia" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Palmeiras', 'Bahia', 'https://images.fotmob.com/image_resources/logo/teamlogo/10283.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/7877.png', 'today_palmeira_bahia_4')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">github.io</span>
@@ -1537,10 +1423,10 @@
             </td>
             <td style="color:#cbd5e1; font-weight:500;">21:30 <small style="color:#64748b;">(GMT-3)</small></td>
             <td><strong style="color:#38bdf8; font-size:1.05em;">00:30</strong></td>
-            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><span class="status-badge status-live"><span class="pulse-dot-red" style="background:#fff; box-shadow:0 0 6px #fff; width:6px; height:6px; margin-right:4px;"></span>LIVE 🔴 33'</span></td>
             <td><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">CazéTV</span></div></div></td>
         </tr>
-        <tr data-league="Copa Sudamericana" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_libertad_leonesde_5">
+        <tr data-league="Copa Sudamericana" data-day="today" data-is-live="false" data-is-soon="false" data-id="today_libertad_leonesde_5">
             <td>
                 <span class="badge badge-sudamericana">Copa Sudamericana</span><br>
                 <small style="color:#94a3b8; font-weight:500;">South America</small>
@@ -1560,8 +1446,8 @@
 
                 <!-- Large Match Preview Banner -->
                 <div class="banner-preview-box">
-                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_libertad_leonesde_5')" title="Click to open full 16:9 match preview banner in modal">
-                        <img src="./banners/libertad_leonesdelnorte.jpg" alt="Libertad vs Leones del Norte" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Libertad', 'Leones del Norte', 'https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png', 'tomorrow_libertad_leonesde_5')">
+                    <div class="banner-image-container" onclick="openMatchBanner('today_libertad_leonesde_5')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/libertad_leonesdelnorte.jpg" alt="Libertad vs Leones del Norte" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Libertad', 'Leones del Norte', 'https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png', 'today_libertad_leonesde_5')">
                         <div class="banner-hover-overlay">
                             <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
                             <span class="banner-source-pill">github.io</span>
@@ -1577,12 +1463,237 @@
             <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
             <td><div style="display:flex; gap:14px; align-items:flex-start;"><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">Fox Sports</span> <span class="channel-tag tag-arg">Star+</span> <span class="channel-tag tag-arg">Disney+</span> <span class="channel-tag tag-arg">DSports</span> <span class="channel-tag tag-arg">TyC Sports</span></div></div><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">CazéTV</span> <span class="channel-tag tag-bra">Paramount+</span></div></div></div></td>
         </tr>
+                            <!-- Tomorrow Section Header -->
+                            <tr id="hdr-tomorrow"><td colspan="6" class="section-hdr tomorrow">📅 TOMORROW'S MATCHES — 10/10/2026 (<span id="hdr-tomorrow-count">6</span>)</td></tr>
+                            <tr id="empty-tomorrow-row" style="display:none;"><td colspan="6" style="text-align:center; color:#64748b; padding:18px; font-style:italic;">🚫 No matches match the selected league filters for tomorrow.</td></tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_unin_defensay_0">
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <div class="match-headline">
+                    <span class="team-item">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10096.png" alt="Unión" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                        <strong class="team-title">Unión</strong>
+                    </span>
+                    <span class="vs-glow">VS</span>
+                    <span class="team-item">
+                        <strong class="team-title">Defensa y Justicia</strong>
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/161730.png" alt="Defensa y Justicia" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                    </span>
+                </div>
+
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_unin_defensay_0')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/unin_defensayjusticia.jpg" alt="Unión vs Defensa y Justicia" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Unión', 'Defensa y Justicia', 'https://images.fotmob.com/image_resources/logo/teamlogo/10096.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/161730.png', 'tomorrow_unin_defensay_0')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">github.io</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="./banners/unin_defensayjusticia.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/unin_defensayjusticia.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">21:45 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">00:45</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
+        </tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_barracas_huracn_1">
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <div class="match-headline">
+                    <span class="team-item">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/213534.png" alt="Barracas Central" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                        <strong class="team-title">Barracas Central</strong>
+                    </span>
+                    <span class="vs-glow">VS</span>
+                    <span class="team-item">
+                        <strong class="team-title">Huracán</strong>
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10081.png" alt="Huracán" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                    </span>
+                </div>
+
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_barracas_huracn_1')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/barracascentral_huracn.jpg" alt="Barracas Central vs Huracán" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Barracas Central', 'Huracán', 'https://images.fotmob.com/image_resources/logo/teamlogo/213534.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10081.png', 'tomorrow_barracas_huracn_1')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">github.io</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="./banners/barracascentral_huracn.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/barracascentral_huracn.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">15:45 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">18:45</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
+        </tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_centralc_estudian_2">
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <div class="match-headline">
+                    <span class="team-item">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/213596.png" alt="Central Córdoba de Santiago" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                        <strong class="team-title">Central Córdoba de Santiago</strong>
+                    </span>
+                    <span class="vs-glow">VS</span>
+                    <span class="team-item">
+                        <strong class="team-title">Estudiantes</strong>
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10094.png" alt="Estudiantes" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                    </span>
+                </div>
+
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_centralc_estudian_2')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/centralcrdobadesantiago_estudiantes.jpg" alt="Central Córdoba de Santiago vs Estudiantes" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Central Córdoba de Santiago', 'Estudiantes', 'https://images.fotmob.com/image_resources/logo/teamlogo/213596.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10094.png', 'tomorrow_centralc_estudian_2')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">github.io</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="./banners/centralcrdobadesantiago_estudiantes.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/centralcrdobadesantiago_estudiantes.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">17:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">20:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
+        </tr>
+        <tr data-league="Liga Profesional Clausura" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_tigre_banfield_3">
+            <td>
+                <span class="badge badge-argentina">Liga Profesional Clausura</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Argentina</small>
+            </td>
+            <td>
+                <div class="match-headline">
+                    <span class="team-item">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/89396.png" alt="Tigre" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                        <strong class="team-title">Tigre</strong>
+                    </span>
+                    <span class="vs-glow">VS</span>
+                    <span class="team-item">
+                        <strong class="team-title">Banfield</strong>
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10087.png" alt="Banfield" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                    </span>
+                </div>
+
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_tigre_banfield_3')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/tigre_banfield.jpg" alt="Tigre vs Banfield" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Tigre', 'Banfield', 'https://images.fotmob.com/image_resources/logo/teamlogo/89396.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/10087.png', 'tomorrow_tigre_banfield_3')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">github.io</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="./banners/tigre_banfield.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/tigre_banfield.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">19:15 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">22:15</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">TNT Sports</span> <span class="channel-tag tag-arg">TyC Sports</span> <span class="channel-tag tag-arg">Disney+</span></div></div></td>
+        </tr>
+        <tr data-league="Série A" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_vascodag_remo_4">
+            <td>
+                <span class="badge badge-brazil">Série A</span><br>
+                <small style="color:#94a3b8; font-weight:500;">Brazil</small>
+            </td>
+            <td>
+                <div class="match-headline">
+                    <span class="team-item">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/10276.png" alt="Vasco da Gama" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                        <strong class="team-title">Vasco da Gama</strong>
+                    </span>
+                    <span class="vs-glow">VS</span>
+                    <span class="team-item">
+                        <strong class="team-title">Remo</strong>
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/1626.png" alt="Remo" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                    </span>
+                </div>
+
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_vascodag_remo_4')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/vascodagama_remo.jpg" alt="Vasco da Gama vs Remo" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Vasco da Gama', 'Remo', 'https://images.fotmob.com/image_resources/logo/teamlogo/10276.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/1626.png', 'tomorrow_vascodag_remo_4')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">github.io</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="./banners/vascodagama_remo.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/vascodagama_remo.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">18:00 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">21:00</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">CazéTV</span></div></div></td>
+        </tr>
+        <tr data-league="Copa Sudamericana" data-day="tomorrow" data-is-live="false" data-is-soon="false" data-id="tomorrow_guayaqui_emelec_5">
+            <td>
+                <span class="badge badge-sudamericana">Copa Sudamericana</span><br>
+                <small style="color:#94a3b8; font-weight:500;">South America</small>
+            </td>
+            <td>
+                <div class="match-headline">
+                    <span class="team-item">
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/194754.png" alt="Guayaquil City" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                        <strong class="team-title">Guayaquil City</strong>
+                    </span>
+                    <span class="vs-glow">VS</span>
+                    <span class="team-item">
+                        <strong class="team-title">Emelec</strong>
+                        <img src="https://images.fotmob.com/image_resources/logo/teamlogo/1850.png" alt="Emelec" class="team-crest-sm" loading="lazy" onerror="handleCrestError(this)">
+                    </span>
+                </div>
+
+                <!-- Large Match Preview Banner -->
+                <div class="banner-preview-box">
+                    <div class="banner-image-container" onclick="openMatchBanner('tomorrow_guayaqui_emelec_5')" title="Click to open full 16:9 match preview banner in modal">
+                        <img src="./banners/guayaquilcity_emelec.jpg" alt="Guayaquil City vs Emelec" class="match-banner-full-img" loading="eager" onerror="handleBannerError(this, 'Guayaquil City', 'Emelec', 'https://images.fotmob.com/image_resources/logo/teamlogo/194754.png', 'https://images.fotmob.com/image_resources/logo/teamlogo/1850.png', 'tomorrow_guayaqui_emelec_5')">
+                        <div class="banner-hover-overlay">
+                            <span class="banner-overlay-zoom">🔍 Zoom Banner</span>
+                            <span class="banner-source-pill">github.io</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions-subrow">
+                        <a href="./banners/guayaquilcity_emelec.jpg" target="_blank" rel="noopener noreferrer" class="direct-img-chip" title="Open direct banner image in new tab">🔗 Banner URL</a><button type="button" class="btn-copy-crest" onclick="copyDirectUrl('./banners/guayaquilcity_emelec.jpg', this, event)" title="Copy direct banner URL to clipboard">📋 Copy URL</button>
+                    </div>
+                </div>
+            </td>
+            <td style="color:#cbd5e1; font-weight:500;">18:30 <small style="color:#64748b;">(GMT-3)</small></td>
+            <td><strong style="color:#38bdf8; font-size:1.05em;">21:30</strong></td>
+            <td><span class="status-badge status-scheduled">SCHEDULED</span></td>
+            <td><div style="display:flex; gap:14px; align-items:flex-start;"><div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack"><span class="channel-tag tag-arg">ESPN Premium</span> <span class="channel-tag tag-arg">Fox Sports</span> <span class="channel-tag tag-arg">Star+</span> <span class="channel-tag tag-arg">Disney+</span> <span class="channel-tag tag-arg">DSports</span> <span class="channel-tag tag-arg">TyC Sports</span></div></div><div class="channels-col"><span class="country-tag-hdr">🇧🇷 BRA:</span><div class="channel-pill-stack"><span class="channel-tag tag-bra">Globo</span> <span class="channel-tag tag-bra">SporTV</span> <span class="channel-tag tag-bra">Premiere</span> <span class="channel-tag tag-bra">CazéTV</span> <span class="channel-tag tag-bra">Paramount+</span></div></div></div></td>
+        </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="footer">
-                    Last Updated: 2026-10-08 18:39:27 UTC • Fotmob & Sofascore Synced
+                    Last Updated: 2026-10-09 01:03:51 UTC • Fotmob & Sofascore Synced
                 </div>
             </main>
         </div>
@@ -1666,9 +1777,9 @@
     <!-- Toast Notification for Copy Feedback -->
     <div id="toast">Copied to clipboard!</div>
 
-                                                                                                                                                                                                                                                                                                                                                                    <!-- Hard Fallback: Injected by main.py -->
+                                                                                                                                                                                                                                                                                                                                                                        <!-- Hard Fallback: Injected by main.py -->
     <script id="embedded-initial-matches">
-        window.INITIAL_MATCHES = {"total_matches": 9, "last_updated": "2026-10-08T18:39:27Z", "today": [{"day": "today", "day_label": "Today", "match_date": "2026-10-08", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Cruzeiro", "away_team": "São Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9781.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "local_time": "21:30", "morocco_time": "00:30", "status": "LIVE 🔴 20'", "status_text": "LIVE 🔴 20'", "status_class": "status-live", "kickoff_utc": "2026-10-08T00:30:00Z", "banner_url": "./banners/cruzeiro_sopaulo.jpg", "banner_title": "Cruzeiro vs São Paulo", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-08T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": true, "live_minute": "20'", "score": null, "match_id": "today_cruzeiro_sopaulo_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-08", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Santos", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "local_time": "19:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-08T22:30:00Z", "banner_url": "./banners/santos_flamengo.jpg", "banner_title": "Santos vs Flamengo", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-08T22:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_santos_flamengo_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-08", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Athletico Paranaense", "away_team": "Atlético-MG", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "local_time": "20:00", "morocco_time": "23:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-08T23:00:00Z", "banner_url": "./banners/athleticoparanaense_atlticomg.jpg", "banner_title": "Athletico Paranaense vs Atlético-MG", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-08T23:00:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_athletic_atlticom_2"}], "tomorrow": [{"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Aldosivi", "away_team": "Sarmiento", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/202757.png", "local_time": "14:30", "morocco_time": "17:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T17:30:00Z", "banner_url": "./banners/aldosivi_sarmiento.jpg", "banner_title": "Aldosivi vs Sarmiento", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T17:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_aldosivi_sarmient_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Gimnasia LP", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10103.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "21:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T21:00:00Z", "banner_url": "./banners/gimnasialp_atlticotucumn.jpg", "banner_title": "Gimnasia LP vs Atlético Tucumán", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T21:00:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_gimnasia_atlticot_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "19:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T22:30:00Z", "banner_url": "./banners/instituto_bocajuniors.jpg", "banner_title": "Instituto vs Boca Juniors", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T22:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_institut_bocajuni_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Fluminense", "away_team": "Coritiba", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "local_time": "21:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/fluminense_coritiba.jpg", "banner_title": "Fluminense vs Coritiba", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_fluminen_coritiba_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Palmeiras", "away_team": "Bahia", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7877.png", "local_time": "21:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/palmeiras_bahia.jpg", "banner_title": "Palmeiras vs Bahia", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_palmeira_bahia_4"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Libertad", "away_team": "Leones del Norte", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png", "local_time": "15:00", "morocco_time": "18:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T18:00:00Z", "banner_url": "./banners/libertad_leonesdelnorte.jpg", "banner_title": "Libertad vs Leones del Norte", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "match_dt": "2026-10-09T18:00:00+00:00", "is_shared_league": true, "channels_arg": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"], "channels_bra": ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_libertad_leonesde_5"}], "matches": [{"day": "today", "day_label": "Today", "match_date": "2026-10-08", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Cruzeiro", "away_team": "São Paulo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9781.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png", "local_time": "21:30", "morocco_time": "00:30", "status": "LIVE 🔴 20'", "status_text": "LIVE 🔴 20'", "status_class": "status-live", "kickoff_utc": "2026-10-08T00:30:00Z", "banner_url": "./banners/cruzeiro_sopaulo.jpg", "banner_title": "Cruzeiro vs São Paulo", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-08T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": true, "live_minute": "20'", "score": null, "match_id": "today_cruzeiro_sopaulo_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-08", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Santos", "away_team": "Flamengo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8514.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png", "local_time": "19:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-08T22:30:00Z", "banner_url": "./banners/santos_flamengo.jpg", "banner_title": "Santos vs Flamengo", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-08T22:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_santos_flamengo_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-08", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Athletico Paranaense", "away_team": "Atlético-MG", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10273.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png", "local_time": "20:00", "morocco_time": "23:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-08T23:00:00Z", "banner_url": "./banners/athleticoparanaense_atlticomg.jpg", "banner_title": "Athletico Paranaense vs Atlético-MG", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-08T23:00:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_athletic_atlticom_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Aldosivi", "away_team": "Sarmiento", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/202757.png", "local_time": "14:30", "morocco_time": "17:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T17:30:00Z", "banner_url": "./banners/aldosivi_sarmiento.jpg", "banner_title": "Aldosivi vs Sarmiento", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T17:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_aldosivi_sarmient_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Gimnasia LP", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10103.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "21:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T21:00:00Z", "banner_url": "./banners/gimnasialp_atlticotucumn.jpg", "banner_title": "Gimnasia LP vs Atlético Tucumán", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T21:00:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_gimnasia_atlticot_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "19:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T22:30:00Z", "banner_url": "./banners/instituto_bocajuniors.jpg", "banner_title": "Instituto vs Boca Juniors", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T22:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_institut_bocajuni_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Fluminense", "away_team": "Coritiba", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "local_time": "21:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/fluminense_coritiba.jpg", "banner_title": "Fluminense vs Coritiba", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_fluminen_coritiba_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Palmeiras", "away_team": "Bahia", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7877.png", "local_time": "21:30", "morocco_time": "00:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/palmeiras_bahia.jpg", "banner_title": "Palmeiras vs Bahia", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_palmeira_bahia_4"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-09", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Libertad", "away_team": "Leones del Norte", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png", "local_time": "15:00", "morocco_time": "18:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T18:00:00Z", "banner_url": "./banners/libertad_leonesdelnorte.jpg", "banner_title": "Libertad vs Leones del Norte", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "match_dt": "2026-10-09T18:00:00+00:00", "is_shared_league": true, "channels_arg": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"], "channels_bra": ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_libertad_leonesde_5"}]};
+        window.INITIAL_MATCHES = {"total_matches": 12, "last_updated": "2026-10-09T01:03:51Z", "today": [{"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Aldosivi", "away_team": "Sarmiento", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/202757.png", "local_time": "14:30", "morocco_time": "17:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T17:30:00Z", "banner_url": "./banners/aldosivi_sarmiento.jpg", "banner_title": "Aldosivi vs Sarmiento", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T17:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_aldosivi_sarmient_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Gimnasia LP", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10103.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "21:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T21:00:00Z", "banner_url": "./banners/gimnasialp_atlticotucumn.jpg", "banner_title": "Gimnasia LP vs Atlético Tucumán", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T21:00:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_gimnasia_atlticot_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "19:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T22:30:00Z", "banner_url": "./banners/instituto_bocajuniors.jpg", "banner_title": "Instituto vs Boca Juniors", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T22:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_institut_bocajuni_2"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Fluminense", "away_team": "Coritiba", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "local_time": "21:30", "morocco_time": "00:30", "status": "LIVE 🔴 33'", "status_text": "LIVE 🔴 33'", "status_class": "status-live", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/fluminense_coritiba.jpg", "banner_title": "Fluminense vs Coritiba", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": true, "live_minute": "33'", "score": null, "match_id": "today_fluminen_coritiba_3"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Palmeiras", "away_team": "Bahia", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7877.png", "local_time": "21:30", "morocco_time": "00:30", "status": "LIVE 🔴 33'", "status_text": "LIVE 🔴 33'", "status_class": "status-live", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/palmeiras_bahia.jpg", "banner_title": "Palmeiras vs Bahia", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": true, "live_minute": "33'", "score": null, "match_id": "today_palmeira_bahia_4"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Libertad", "away_team": "Leones del Norte", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png", "local_time": "15:00", "morocco_time": "18:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T18:00:00Z", "banner_url": "./banners/libertad_leonesdelnorte.jpg", "banner_title": "Libertad vs Leones del Norte", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "match_dt": "2026-10-09T18:00:00+00:00", "is_shared_league": true, "channels_arg": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"], "channels_bra": ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_libertad_leonesde_5"}], "tomorrow": [{"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Unión", "away_team": "Defensa y Justicia", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "local_time": "21:45", "morocco_time": "00:45", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T00:45:00Z", "banner_url": "./banners/unin_defensayjusticia.jpg", "banner_title": "Unión vs Defensa y Justicia", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T00:45:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_unin_defensay_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Barracas Central", "away_team": "Huracán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213534.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10081.png", "local_time": "15:45", "morocco_time": "18:45", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T18:45:00Z", "banner_url": "./banners/barracascentral_huracn.jpg", "banner_title": "Barracas Central vs Huracán", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T18:45:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_barracas_huracn_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Central Córdoba de Santiago", "away_team": "Estudiantes", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "local_time": "17:00", "morocco_time": "20:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T20:00:00Z", "banner_url": "./banners/centralcrdobadesantiago_estudiantes.jpg", "banner_title": "Central Córdoba de Santiago vs Estudiantes", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T20:00:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_centralc_estudian_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Tigre", "away_team": "Banfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/89396.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10087.png", "local_time": "19:15", "morocco_time": "22:15", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T22:15:00Z", "banner_url": "./banners/tigre_banfield.jpg", "banner_title": "Tigre vs Banfield", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T22:15:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_tigre_banfield_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Vasco da Gama", "away_team": "Remo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1626.png", "local_time": "18:00", "morocco_time": "21:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T21:00:00Z", "banner_url": "./banners/vascodagama_remo.jpg", "banner_title": "Vasco da Gama vs Remo", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-10T21:00:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_vascodag_remo_4"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Guayaquil City", "away_team": "Emelec", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/194754.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1850.png", "local_time": "18:30", "morocco_time": "21:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T21:30:00Z", "banner_url": "./banners/guayaquilcity_emelec.jpg", "banner_title": "Guayaquil City vs Emelec", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "match_dt": "2026-10-10T21:30:00+00:00", "is_shared_league": true, "channels_arg": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"], "channels_bra": ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_guayaqui_emelec_5"}], "matches": [{"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Aldosivi", "away_team": "Sarmiento", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/202757.png", "local_time": "14:30", "morocco_time": "17:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T17:30:00Z", "banner_url": "./banners/aldosivi_sarmiento.jpg", "banner_title": "Aldosivi vs Sarmiento", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T17:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_aldosivi_sarmient_0"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Gimnasia LP", "away_team": "Atlético Tucumán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10103.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png", "local_time": "18:00", "morocco_time": "21:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T21:00:00Z", "banner_url": "./banners/gimnasialp_atlticotucumn.jpg", "banner_title": "Gimnasia LP vs Atlético Tucumán", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T21:00:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_gimnasia_atlticot_1"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Instituto", "away_team": "Boca Juniors", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10090.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png", "local_time": "19:30", "morocco_time": "22:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T22:30:00Z", "banner_url": "./banners/instituto_bocajuniors.jpg", "banner_title": "Instituto vs Boca Juniors", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-09T22:30:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_institut_bocajuni_2"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Fluminense", "away_team": "Coritiba", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9767.png", "local_time": "21:30", "morocco_time": "00:30", "status": "LIVE 🔴 33'", "status_text": "LIVE 🔴 33'", "status_class": "status-live", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/fluminense_coritiba.jpg", "banner_title": "Fluminense vs Coritiba", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": true, "live_minute": "33'", "score": null, "match_id": "today_fluminen_coritiba_3"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Palmeiras", "away_team": "Bahia", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7877.png", "local_time": "21:30", "morocco_time": "00:30", "status": "LIVE 🔴 33'", "status_text": "LIVE 🔴 33'", "status_class": "status-live", "kickoff_utc": "2026-10-09T00:30:00Z", "banner_url": "./banners/palmeiras_bahia.jpg", "banner_title": "Palmeiras vs Bahia", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-09T00:30:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": true, "live_minute": "33'", "score": null, "match_id": "today_palmeira_bahia_4"}, {"day": "today", "day_label": "Today", "match_date": "2026-10-09", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Libertad", "away_team": "Leones del Norte", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png", "local_time": "15:00", "morocco_time": "18:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-09T18:00:00Z", "banner_url": "./banners/libertad_leonesdelnorte.jpg", "banner_title": "Libertad vs Leones del Norte", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "match_dt": "2026-10-09T18:00:00+00:00", "is_shared_league": true, "channels_arg": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"], "channels_bra": ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "is_live": false, "live_minute": null, "score": null, "match_id": "today_libertad_leonesde_5"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Unión", "away_team": "Defensa y Justicia", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png", "local_time": "21:45", "morocco_time": "00:45", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T00:45:00Z", "banner_url": "./banners/unin_defensayjusticia.jpg", "banner_title": "Unión vs Defensa y Justicia", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T00:45:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_unin_defensay_0"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Barracas Central", "away_team": "Huracán", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213534.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10081.png", "local_time": "15:45", "morocco_time": "18:45", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T18:45:00Z", "banner_url": "./banners/barracascentral_huracn.jpg", "banner_title": "Barracas Central vs Huracán", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T18:45:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_barracas_huracn_1"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Central Córdoba de Santiago", "away_team": "Estudiantes", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213596.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png", "local_time": "17:00", "morocco_time": "20:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T20:00:00Z", "banner_url": "./banners/centralcrdobadesantiago_estudiantes.jpg", "banner_title": "Central Córdoba de Santiago vs Estudiantes", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T20:00:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_centralc_estudian_2"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Liga Profesional Clausura", "country": "Argentina", "badge_class": "badge-argentina", "home_team": "Tigre", "away_team": "Banfield", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/89396.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10087.png", "local_time": "19:15", "morocco_time": "22:15", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T22:15:00Z", "banner_url": "./banners/tigre_banfield.jpg", "banner_title": "Tigre vs Banfield", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "match_dt": "2026-10-10T22:15:00+00:00", "is_shared_league": false, "channels_arg": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "channels_bra": [], "channels": ["ESPN Premium", "TNT Sports", "TyC Sports", "Disney+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_tigre_banfield_3"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Série A", "country": "Brazil", "badge_class": "badge-brazil", "home_team": "Vasco da Gama", "away_team": "Remo", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1626.png", "local_time": "18:00", "morocco_time": "21:00", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T21:00:00Z", "banner_url": "./banners/vascodagama_remo.jpg", "banner_title": "Vasco da Gama vs Remo", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "match_dt": "2026-10-10T21:00:00+00:00", "is_shared_league": false, "channels_arg": [], "channels_bra": ["Premiere", "Globo", "SporTV", "CazéTV"], "channels": ["Premiere", "Globo", "SporTV", "CazéTV"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_vascodag_remo_4"}, {"day": "tomorrow", "day_label": "Tomorrow", "match_date": "2026-10-10", "league": "Copa Sudamericana", "country": "South America", "badge_class": "badge-sudamericana", "home_team": "Guayaquil City", "away_team": "Emelec", "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/194754.png", "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1850.png", "local_time": "18:30", "morocco_time": "21:30", "status": "SCHEDULED", "status_text": "SCHEDULED", "status_class": "status-scheduled", "kickoff_utc": "2026-10-10T21:30:00Z", "banner_url": "./banners/guayaquilcity_emelec.jpg", "banner_title": "Guayaquil City vs Emelec", "banner_source_site": "github.io", "has_scraped_banner": true, "all_unique_channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "match_dt": "2026-10-10T21:30:00+00:00", "is_shared_league": true, "channels_arg": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports"], "channels_bra": ["Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "channels": ["ESPN Premium", "Fox Sports", "Star+", "Disney+", "DSports", "TyC Sports", "Globo", "SporTV", "Premiere", "CazéTV", "Paramount+"], "is_live": false, "live_minute": null, "score": null, "match_id": "tomorrow_guayaqui_emelec_5"}]};
     </script>
 
     <script>
