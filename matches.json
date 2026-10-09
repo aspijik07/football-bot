@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/202757.png",
             "local_time": "14:30",
             "morocco_time": "17:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 40'",
+            "status_text": "LIVE 🔴 40'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-09T17:30:00Z",
             "banner_url": "./banners/aldosivi_sarmiento.jpg",
             "banner_title": "Aldosivi vs Sarmiento",
@@ -42,8 +42,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "40'",
             "score": null
         },
         {
@@ -243,9 +243,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png",
             "local_time": "15:00",
             "morocco_time": "18:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 10'",
+            "status_text": "LIVE 🔴 10'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-09T18:00:00Z",
             "banner_url": "./banners/libertad_leonesdelnorte.jpg",
             "banner_title": "Libertad vs Leones del Norte",
@@ -294,8 +294,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "10'",
             "score": null
         }
     ],
