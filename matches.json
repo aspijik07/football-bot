@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png",
             "local_time": "21:45",
             "morocco_time": "00:45",
-            "status": "SOON (8m)",
-            "status_text": "SOON (8m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-10T00:45:00Z",
             "banner_url": "./banners/unin_defensayjusticia.jpg",
             "banner_title": "Unión vs Defensa y Justicia",
@@ -43,7 +43,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
