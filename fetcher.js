@@ -182,6 +182,157 @@ export function getCategorizedChannels(leagueName, countryName, existingArg = nu
   };
 }
 
+export const XUI_PANEL_CHANNELS = {
+  // ARGENTINA (ARG)
+  'espn premium': { id: 41, name: 'ARG: ESPN PREMIUM', display: 'CH 41' },
+  'tnt sports': { id: 42, name: 'ARG: TNT SPORTS', display: 'CH 42' },
+  'tnt sports argentina': { id: 42, name: 'ARG: TNT SPORTS', display: 'CH 42' },
+  'tnt sport': { id: 42, name: 'ARG: TNT SPORTS', display: 'CH 42' },
+  'tyc sports': { id: 43, name: 'ARG: TYC SPORTS', display: 'CH 43' },
+  'tyc sports play': { id: 43, name: 'ARG: TYC SPORTS', display: 'CH 43' },
+  'espn 1': { id: 44, name: 'ARG: ESPN 1', display: 'CH 44' },
+  'espn argentina': { id: 44, name: 'ARG: ESPN 1', display: 'CH 44' },
+  'directv sports 1': { id: 45, name: 'ARG: DIRECTV SPORTS 1', display: 'CH 45' },
+  'directv sports': { id: 45, name: 'ARG: DIRECTV SPORTS 1', display: 'CH 45' },
+  'dsports 1': { id: 45, name: 'ARG: DIRECTV SPORTS 1', display: 'CH 45' },
+  'dsports': { id: 45, name: 'ARG: DIRECTV SPORTS 1', display: 'CH 45' },
+  'directv sports 2': { id: 101, name: 'ARG: DIRECTV SPORTS 2', display: 'CH 101' },
+  'dsports 2': { id: 101, name: 'ARG: DIRECTV SPORTS 2', display: 'CH 101' },
+  'fox sports 1': { id: 102, name: 'ARG: FOX SPORTS 1', display: 'CH 102' },
+  'fox sports': { id: 102, name: 'ARG: FOX SPORTS 1', display: 'CH 102' },
+  'fox sports argentina': { id: 102, name: 'ARG: FOX SPORTS 1', display: 'CH 102' },
+  'fox sports 2': { id: 103, name: 'ARG: FOX SPORTS 2', display: 'CH 103' },
+  'espn 2': { id: 107, name: 'ARG: ESPN 2', display: 'CH 107' },
+  'espn 3': { id: 108, name: 'ARG: ESPN 3', display: 'CH 108' },
+  'espn 4': { id: 109, name: 'ARG: ESPN 4', display: 'CH 109' },
+
+  // BRAZIL (BR)
+  'premiere 1': { id: 11, name: 'BR: Premiere 1', display: 'CH 11' },
+  'premiere': { id: 11, name: 'BR: Premiere 1', display: 'CH 11' },
+  'premiere 2': { id: 12, name: 'BR: PREMIERE 2', display: 'CH 12' },
+  'premiere 3': { id: 13, name: 'BR: PREMIERE 3', display: 'CH 13' },
+  'premiere 4': { id: 14, name: 'BR: PREMIERE 4', display: 'CH 14' },
+  'premiere 5': { id: 15, name: 'BR: PREMIERE 5', display: 'CH 15' },
+  'premiere 6': { id: 16, name: 'BR: PREMIERE 6', display: 'CH 16' },
+  'premiere 7': { id: 17, name: 'BR: PREMIERE 7', display: 'CH 17' },
+  'sportv': { id: 18, name: 'BR: SPORTV', display: 'CH 18' },
+  'sportv 1': { id: 18, name: 'BR: SPORTV', display: 'CH 18' },
+  'sportv 2': { id: 19, name: 'BR: SPORTV 2', display: 'CH 19' },
+  'sportv 3': { id: 20, name: 'BR: SPORTV 3', display: 'CH 20' },
+  'espn brazil': { id: 21, name: 'BR: ESPN', display: 'CH 21' },
+  'espn brasil': { id: 21, name: 'BR: ESPN', display: 'CH 21' },
+  'espn 2 br': { id: 22, name: 'BR: ESPN 2', display: 'CH 22' },
+  'espn 4 br': { id: 23, name: 'BR: ESPN 4', display: 'CH 23' },
+  'tnt hd': { id: 24, name: 'BR: TNT HD', display: 'CH 24' },
+  'tnt brazil': { id: 24, name: 'BR: TNT HD', display: 'CH 24' },
+  'tnt brasil': { id: 24, name: 'BR: TNT HD', display: 'CH 24' },
+  'amazon prime 1': { id: 34, name: 'BR: AMAZON PRIME 1', display: 'CH 34' },
+  'amazon prime': { id: 34, name: 'BR: AMAZON PRIME 1', display: 'CH 34' },
+  'prime video': { id: 34, name: 'BR: AMAZON PRIME 1', display: 'CH 34' },
+  'amazon prime 2': { id: 35, name: 'BR: AMAZON PRIME 2', display: 'CH 35' },
+
+  // ARABIC BEIN SPORTS (AR)
+  'bein sports 1': { id: 1, name: 'AR: BEIN SPORTS 1', display: 'CH 1' },
+  'bein sports 2': { id: 2, name: 'AR: BEIN SPORTS 2', display: 'CH 2' },
+  'bein sports 3': { id: 3, name: 'AR: BEIN SPORTS 3', display: 'CH 3' },
+  'bein sports 4': { id: 4, name: 'AR: BEIN SPORTS 4', display: 'CH 4' },
+  'bein sports 5': { id: 5, name: 'AR: BEIN SPORTS 5', display: 'CH 5' },
+  'bein sports 6': { id: 6, name: 'AR: BEIN SPORTS 6', display: 'CH 6' },
+  'alwan sport': { id: 7, name: 'AR: ALWAN SPORT', display: 'CH 7' },
+  'thmanyah 1': { id: 8, name: 'THMANYAH 1', display: 'CH 8' },
+  'thmanyah 2': { id: 9, name: 'THMANYAH 2', display: 'CH 9' },
+  'thmanyah 3': { id: 10, name: 'THMANYAH 3', display: 'CH 10' },
+
+  // PORTUGAL / DAZN (PT)
+  'sport tv 1': { id: 25, name: 'PT: SPORT TV 1', display: 'CH 25' },
+  'sport tv 2': { id: 26, name: 'PT: SPORT TV 2', display: 'CH 26' },
+  'sport tv 3': { id: 27, name: 'PT: SPORT TV 3', display: 'CH 27' },
+  'sport tv 4': { id: 28, name: 'PT: SPORT TV 4', display: 'CH 28' },
+  'sport tv 5': { id: 29, name: 'PT: SPORT TV 5', display: 'CH 29' },
+  'canal 11': { id: 30, name: 'PT: CANAL 11', display: 'CH 30' },
+  'dazn 1': { id: 31, name: 'PT: DAZN 1', display: 'CH 31' },
+  'dazn 2': { id: 32, name: 'PT: DAZN 2', display: 'CH 32' },
+  'dazn 3': { id: 33, name: 'PT: DAZN 3', display: 'CH 33' },
+
+  // YES SPORT
+  'yes sport 1': { id: 36, name: 'YES SPORT 1', display: 'CH 36' },
+  'yes sport 2': { id: 37, name: 'YES SPORT 2', display: 'CH 37' },
+  'yes sport 3': { id: 38, name: 'YES SPORT 3', display: 'CH 38' },
+  'yes sport 4': { id: 39, name: 'YES SPORT 4', display: 'CH 39' }
+};
+
+export function getPanelChannelInfo(channelName, countryCode = '') {
+  if (!channelName) return null;
+  const raw = String(channelName).trim();
+  const norm = raw.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  const cLower = String(countryCode).toLowerCase();
+  const isBra = cLower.includes('bra');
+  const isArg = cLower.includes('arg');
+
+  if (XUI_PANEL_CHANNELS[norm]) {
+    return XUI_PANEL_CHANNELS[norm];
+  }
+
+  // Regex & alias heuristics
+  if (norm.includes('tnt sports') || (norm.includes('tnt') && isArg)) {
+    return XUI_PANEL_CHANNELS['tnt sports'];
+  }
+  if ((norm.includes('tnt') && isBra) || norm.includes('tnt hd')) {
+    return XUI_PANEL_CHANNELS['tnt hd'];
+  }
+
+  if (norm.includes('espn premium')) return XUI_PANEL_CHANNELS['espn premium'];
+  if (norm.includes('tyc')) return XUI_PANEL_CHANNELS['tyc sports'];
+  if (norm.includes('fox sports 2')) return XUI_PANEL_CHANNELS['fox sports 2'];
+  if (norm.includes('fox sports')) return XUI_PANEL_CHANNELS['fox sports 1'];
+  if (norm.includes('directv 2') || norm.includes('dsports 2')) return XUI_PANEL_CHANNELS['directv sports 2'];
+  if (norm.includes('directv') || norm.includes('dsports')) return XUI_PANEL_CHANNELS['directv sports 1'];
+
+  if (norm.includes('espn 4')) return isBra ? XUI_PANEL_CHANNELS['espn 4 br'] : XUI_PANEL_CHANNELS['espn 4'];
+  if (norm.includes('espn 3')) return XUI_PANEL_CHANNELS['espn 3'];
+  if (norm.includes('espn 2')) return isBra ? XUI_PANEL_CHANNELS['espn 2 br'] : XUI_PANEL_CHANNELS['espn 2'];
+  if (norm.includes('espn 1') || (norm.includes('espn') && isArg && !norm.includes('premium'))) return XUI_PANEL_CHANNELS['espn 1'];
+  if (norm.includes('espn') && isBra) return XUI_PANEL_CHANNELS['espn brazil'];
+
+  if (norm.includes('premiere 7')) return XUI_PANEL_CHANNELS['premiere 7'];
+  if (norm.includes('premiere 6')) return XUI_PANEL_CHANNELS['premiere 6'];
+  if (norm.includes('premiere 5')) return XUI_PANEL_CHANNELS['premiere 5'];
+  if (norm.includes('premiere 4')) return XUI_PANEL_CHANNELS['premiere 4'];
+  if (norm.includes('premiere 3')) return XUI_PANEL_CHANNELS['premiere 3'];
+  if (norm.includes('premiere 2')) return XUI_PANEL_CHANNELS['premiere 2'];
+  if (norm.includes('premiere')) return XUI_PANEL_CHANNELS['premiere 1'];
+
+  if (norm.includes('sportv 3')) return XUI_PANEL_CHANNELS['sportv 3'];
+  if (norm.includes('sportv 2')) return XUI_PANEL_CHANNELS['sportv 2'];
+  if (norm.includes('sportv')) return XUI_PANEL_CHANNELS['sportv'];
+
+  if (norm.includes('prime 2')) return XUI_PANEL_CHANNELS['amazon prime 2'];
+  if (norm.includes('prime') || norm.includes('amazon')) return XUI_PANEL_CHANNELS['amazon prime 1'];
+
+  for (let i = 1; i <= 6; i++) {
+    if (norm.includes('bein') && norm.includes(String(i))) return XUI_PANEL_CHANNELS[`bein sports ${i}`];
+  }
+  for (let i = 1; i <= 5; i++) {
+    if (norm.includes('sport tv') && norm.includes(String(i))) return XUI_PANEL_CHANNELS[`sport tv ${i}`];
+  }
+  for (let i = 1; i <= 3; i++) {
+    if (norm.includes('dazn') && norm.includes(String(i))) return XUI_PANEL_CHANNELS[`dazn ${i}`];
+  }
+  if (norm.includes('canal 11')) return XUI_PANEL_CHANNELS['canal 11'];
+
+  return null;
+}
+
+export function formatChannelPill(chanName, countryCode = '') {
+  const info = getPanelChannelInfo(chanName, countryCode);
+  const tagCls = (countryCode === 'arg') ? 'tag-arg' : ((countryCode === 'bra') ? 'tag-bra' : '');
+  if (info) {
+    const badge = `<span class="ch-panel-badge" title="Restream Channel #${info.id}: ${info.name}">${info.display}</span>`;
+    return `<span class="channel-tag ${tagCls}">${badge}${chanName}</span>`;
+  }
+  return `<span class="channel-tag ${tagCls}">${chanName}</span>`;
+}
+
 export function renderChannelsHtml(m) {
   const isShared = (m.is_shared_league !== undefined) ? Boolean(m.is_shared_league) : isSharedTournament(m.league, m.country);
   let channelsArg = Array.isArray(m.channels_arg) ? m.channels_arg : [];
@@ -193,8 +344,8 @@ export function renderChannelsHtml(m) {
     channelsBra = cat.channels_bra;
   }
 
-  const argSpans = channelsArg.map(c => `<span class="channel-tag tag-arg">${c}</span>`).join(' ');
-  const braSpans = channelsBra.map(c => `<span class="channel-tag tag-bra">${c}</span>`).join(' ');
+  const argSpans = channelsArg.map(c => formatChannelPill(c, 'arg')).join(' ');
+  const braSpans = channelsBra.map(c => formatChannelPill(c, 'bra')).join(' ');
 
   if (isShared) {
     const leftCol = `<div class="channels-col"><span class="country-tag-hdr">🇦🇷 ARG:</span><div class="channel-pill-stack">${argSpans || '<span class="channel-tag">TBD</span>'}</div></div>`;

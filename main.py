@@ -1462,6 +1462,204 @@ def filter_and_split_matches_by_date(
     return clean_today, clean_tomorrow
 
 
+# ==============================================================================
+# XUI RESTREAM PANEL CHANNELS MAPPING
+# Channels extracted directly from user's XUI IPTV Panel (HALFA2025)
+# ==============================================================================
+XUI_PANEL_CHANNELS = {
+    # ARGENTINA (ARG)
+    "espn premium": {"id": 41, "name": "ARG: ESPN PREMIUM", "display": "CH 41"},
+    "tnt sports": {"id": 42, "name": "ARG: TNT SPORTS", "display": "CH 42"},
+    "tnt sports argentina": {"id": 42, "name": "ARG: TNT SPORTS", "display": "CH 42"},
+    "tnt sport": {"id": 42, "name": "ARG: TNT SPORTS", "display": "CH 42"},
+    "tyc sports": {"id": 43, "name": "ARG: TYC SPORTS", "display": "CH 43"},
+    "tyc sports play": {"id": 43, "name": "ARG: TYC SPORTS", "display": "CH 43"},
+    "espn 1": {"id": 44, "name": "ARG: ESPN 1", "display": "CH 44"},
+    "espn argentina": {"id": 44, "name": "ARG: ESPN 1", "display": "CH 44"},
+    "directv sports 1": {"id": 45, "name": "ARG: DIRECTV SPORTS 1", "display": "CH 45"},
+    "directv sports": {"id": 45, "name": "ARG: DIRECTV SPORTS 1", "display": "CH 45"},
+    "dsports 1": {"id": 45, "name": "ARG: DIRECTV SPORTS 1", "display": "CH 45"},
+    "dsports": {"id": 45, "name": "ARG: DIRECTV SPORTS 1", "display": "CH 45"},
+    "directv sports 2": {"id": 101, "name": "ARG: DIRECTV SPORTS 2", "display": "CH 101"},
+    "dsports 2": {"id": 101, "name": "ARG: DIRECTV SPORTS 2", "display": "CH 101"},
+    "fox sports 1": {"id": 102, "name": "ARG: FOX SPORTS 1", "display": "CH 102"},
+    "fox sports": {"id": 102, "name": "ARG: FOX SPORTS 1", "display": "CH 102"},
+    "fox sports argentina": {"id": 102, "name": "ARG: FOX SPORTS 1", "display": "CH 102"},
+    "fox sports 2": {"id": 103, "name": "ARG: FOX SPORTS 2", "display": "CH 103"},
+    "espn 2": {"id": 107, "name": "ARG: ESPN 2", "display": "CH 107"},
+    "espn 3": {"id": 108, "name": "ARG: ESPN 3", "display": "CH 108"},
+    "espn 4": {"id": 109, "name": "ARG: ESPN 4", "display": "CH 109"},
+
+    # BRAZIL (BR)
+    "premiere 1": {"id": 11, "name": "BR: Premiere 1", "display": "CH 11"},
+    "premiere": {"id": 11, "name": "BR: Premiere 1", "display": "CH 11"},
+    "premiere 2": {"id": 12, "name": "BR: PREMIERE 2", "display": "CH 12"},
+    "premiere 3": {"id": 13, "name": "BR: PREMIERE 3", "display": "CH 13"},
+    "premiere 4": {"id": 14, "name": "BR: PREMIERE 4", "display": "CH 14"},
+    "premiere 5": {"id": 15, "name": "BR: PREMIERE 5", "display": "CH 15"},
+    "premiere 6": {"id": 16, "name": "BR: PREMIERE 6", "display": "CH 16"},
+    "premiere 7": {"id": 17, "name": "BR: PREMIERE 7", "display": "CH 17"},
+    "sportv": {"id": 18, "name": "BR: SPORTV", "display": "CH 18"},
+    "sportv 1": {"id": 18, "name": "BR: SPORTV", "display": "CH 18"},
+    "sportv 2": {"id": 19, "name": "BR: SPORTV 2", "display": "CH 19"},
+    "sportv 3": {"id": 20, "name": "BR: SPORTV 3", "display": "CH 20"},
+    "espn brazil": {"id": 21, "name": "BR: ESPN", "display": "CH 21"},
+    "espn brasil": {"id": 21, "name": "BR: ESPN", "display": "CH 21"},
+    "espn 2 br": {"id": 22, "name": "BR: ESPN 2", "display": "CH 22"},
+    "espn 4 br": {"id": 23, "name": "BR: ESPN 4", "display": "CH 23"},
+    "tnt hd": {"id": 24, "name": "BR: TNT HD", "display": "CH 24"},
+    "tnt brazil": {"id": 24, "name": "BR: TNT HD", "display": "CH 24"},
+    "tnt brasil": {"id": 24, "name": "BR: TNT HD", "display": "CH 24"},
+    "amazon prime 1": {"id": 34, "name": "BR: AMAZON PRIME 1", "display": "CH 34"},
+    "amazon prime": {"id": 34, "name": "BR: AMAZON PRIME 1", "display": "CH 34"},
+    "prime video": {"id": 34, "name": "BR: AMAZON PRIME 1", "display": "CH 34"},
+    "amazon prime 2": {"id": 35, "name": "BR: AMAZON PRIME 2", "display": "CH 35"},
+
+    # ARABIC BEIN SPORTS (AR)
+    "bein sports 1": {"id": 1, "name": "AR: BEIN SPORTS 1", "display": "CH 1"},
+    "bein sports 2": {"id": 2, "name": "AR: BEIN SPORTS 2", "display": "CH 2"},
+    "bein sports 3": {"id": 3, "name": "AR: BEIN SPORTS 3", "display": "CH 3"},
+    "bein sports 4": {"id": 4, "name": "AR: BEIN SPORTS 4", "display": "CH 4"},
+    "bein sports 5": {"id": 5, "name": "AR: BEIN SPORTS 5", "display": "CH 5"},
+    "bein sports 6": {"id": 6, "name": "AR: BEIN SPORTS 6", "display": "CH 6"},
+    "alwan sport": {"id": 7, "name": "AR: ALWAN SPORT", "display": "CH 7"},
+    "thmanyah 1": {"id": 8, "name": "THMANYAH 1", "display": "CH 8"},
+    "thmanyah 2": {"id": 9, "name": "THMANYAH 2", "display": "CH 9"},
+    "thmanyah 3": {"id": 10, "name": "THMANYAH 3", "display": "CH 10"},
+
+    # PORTUGAL / DAZN (PT)
+    "sport tv 1": {"id": 25, "name": "PT: SPORT TV 1", "display": "CH 25"},
+    "sport tv 2": {"id": 26, "name": "PT: SPORT TV 2", "display": "CH 26"},
+    "sport tv 3": {"id": 27, "name": "PT: SPORT TV 3", "display": "CH 27"},
+    "sport tv 4": {"id": 28, "name": "PT: SPORT TV 4", "display": "CH 28"},
+    "sport tv 5": {"id": 29, "name": "PT: SPORT TV 5", "display": "CH 29"},
+    "canal 11": {"id": 30, "name": "PT: CANAL 11", "display": "CH 30"},
+    "dazn 1": {"id": 31, "name": "PT: DAZN 1", "display": "CH 31"},
+    "dazn 2": {"id": 32, "name": "PT: DAZN 2", "display": "CH 32"},
+    "dazn 3": {"id": 33, "name": "PT: DAZN 3", "display": "CH 33"},
+
+    # YES SPORT
+    "yes sport 1": {"id": 36, "name": "YES SPORT 1", "display": "CH 36"},
+    "yes sport 2": {"id": 37, "name": "YES SPORT 2", "display": "CH 37"},
+    "yes sport 3": {"id": 38, "name": "YES SPORT 3", "display": "CH 38"},
+    "yes sport 4": {"id": 39, "name": "YES SPORT 4", "display": "CH 39"},
+}
+
+
+def get_panel_channel_info(channel_name: str, country_code: str = "") -> Optional[Dict[str, Any]]:
+    """Resolves channel name to exact XUI Panel stream ID and display badge."""
+    if not channel_name:
+        return None
+    raw = str(channel_name).strip()
+    norm = re.sub(r"[^a-z0-9 ]", "", raw.lower()).strip()
+    c_lower = str(country_code).lower()
+    is_bra = c_lower in ["bra", "brazil", "brasil"]
+    is_arg = c_lower in ["arg", "argentina"]
+
+    # 1. Exact match in lookup
+    if norm in XUI_PANEL_CHANNELS:
+        return XUI_PANEL_CHANNELS[norm]
+
+    # 2. Targeted regex matching
+    # TNT Sports (Argentina) vs TNT HD (Brazil)
+    if "tnt sports" in norm or ("tnt" in norm and is_arg):
+        return XUI_PANEL_CHANNELS["tnt sports"]
+    if ("tnt" in norm and is_bra) or "tnt hd" in norm:
+        return XUI_PANEL_CHANNELS["tnt hd"]
+
+    # ESPN Premium
+    if "espn premium" in norm:
+        return XUI_PANEL_CHANNELS["espn premium"]
+
+    # TyC Sports
+    if "tyc" in norm:
+        return XUI_PANEL_CHANNELS["tyc sports"]
+
+    # Fox Sports
+    if "fox sports 2" in norm:
+        return XUI_PANEL_CHANNELS["fox sports 2"]
+    if "fox sports" in norm:
+        return XUI_PANEL_CHANNELS["fox sports 1"]
+
+    # Directv Sports / DSports
+    if "directv 2" in norm or "dsports 2" in norm or "directv sports 2" in norm:
+        return XUI_PANEL_CHANNELS["directv sports 2"]
+    if "directv" in norm or "dsports" in norm:
+        return XUI_PANEL_CHANNELS["directv sports 1"]
+
+    # ESPN numbered
+    if "espn 4" in norm:
+        return XUI_PANEL_CHANNELS["espn 4 br"] if is_bra else XUI_PANEL_CHANNELS["espn 4"]
+    if "espn 3" in norm:
+        return XUI_PANEL_CHANNELS["espn 3"]
+    if "espn 2" in norm:
+        return XUI_PANEL_CHANNELS["espn 2 br"] if is_bra else XUI_PANEL_CHANNELS["espn 2"]
+    if "espn 1" in norm or ("espn" in norm and is_arg and "premium" not in norm):
+        return XUI_PANEL_CHANNELS["espn 1"]
+    if "espn" in norm and is_bra:
+        return XUI_PANEL_CHANNELS["espn brazil"]
+
+    # Premiere (Brazil)
+    if "premiere 7" in norm:
+        return XUI_PANEL_CHANNELS["premiere 7"]
+    if "premiere 6" in norm:
+        return XUI_PANEL_CHANNELS["premiere 6"]
+    if "premiere 5" in norm:
+        return XUI_PANEL_CHANNELS["premiere 5"]
+    if "premiere 4" in norm:
+        return XUI_PANEL_CHANNELS["premiere 4"]
+    if "premiere 3" in norm:
+        return XUI_PANEL_CHANNELS["premiere 3"]
+    if "premiere 2" in norm:
+        return XUI_PANEL_CHANNELS["premiere 2"]
+    if "premiere" in norm:
+        return XUI_PANEL_CHANNELS["premiere 1"]
+
+    # SporTV (Brazil)
+    if "sportv 3" in norm:
+        return XUI_PANEL_CHANNELS["sportv 3"]
+    if "sportv 2" in norm:
+        return XUI_PANEL_CHANNELS["sportv 2"]
+    if "sportv" in norm:
+        return XUI_PANEL_CHANNELS["sportv"]
+
+    # Amazon Prime
+    if "prime 2" in norm:
+        return XUI_PANEL_CHANNELS["amazon prime 2"]
+    if "prime" in norm or "amazon" in norm:
+        return XUI_PANEL_CHANNELS["amazon prime 1"]
+
+    # beIN Sports
+    for b_idx in range(1, 7):
+        if "bein" in norm and str(b_idx) in norm:
+            return XUI_PANEL_CHANNELS[f"bein sports {b_idx}"]
+
+    # Sport TV PT
+    for s_idx in range(1, 6):
+        if "sport tv" in norm and str(s_idx) in norm:
+            return XUI_PANEL_CHANNELS[f"sport tv {s_idx}"]
+
+    # DAZN PT
+    for d_idx in range(1, 4):
+        if "dazn" in norm and str(d_idx) in norm:
+            return XUI_PANEL_CHANNELS[f"dazn {d_idx}"]
+
+    if "canal 11" in norm:
+        return XUI_PANEL_CHANNELS["canal 11"]
+
+    return None
+
+
+def format_channel_pill(chan_name: str, country_code: str) -> str:
+    """Formats a single channel name into an HTML pill with its XUI Stream Channel ID badge."""
+    p_info = get_panel_channel_info(chan_name, country_code)
+    tag_cls = "tag-arg" if country_code.lower() in ["arg", "argentina"] else ("tag-bra" if country_code.lower() in ["bra", "brazil"] else "")
+    if p_info:
+        badge = f'<span class="ch-panel-badge" title="Restream Channel #{p_info["id"]}: {p_info["name"]}">{p_info["display"]}</span>'
+        return f'<span class="channel-tag {tag_cls}">{badge}{chan_name}</span>'
+    return f'<span class="channel-tag {tag_cls}">{chan_name}</span>'
+
+
 def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
     """
     Scrapes live TV broadcast channels & fixtures directly from livesoccertv.com
@@ -1475,7 +1673,10 @@ def scrape_livesoccertv_fixtures_and_channels() -> List[Dict[str, Any]]:
         "Accept-Language": "es-ES,es;q=0.9,en-US;q=0.8,pt-BR;q=0.7",
     }
 
+    now_utc, tomorrow_utc, today_str, tomorrow_str = get_current_utc_dates()
     urls = [
+        f"https://www.livesoccertv.com/schedules/{today_str}/",
+        f"https://www.livesoccertv.com/schedules/{tomorrow_str}/",
         "https://www.livesoccertv.com/schedules/",
         "https://www.livesoccertv.com/competitions/argentina/primera-division/",
         "https://www.livesoccertv.com/competitions/argentina/copa-argentina/",
@@ -3070,8 +3271,8 @@ def render_match_row_html(m: Dict[str, Any], idx: int, day_tag: str) -> str:
     if shared is None:
         shared = is_shared_league(league, country)
 
-    arg_tags = " ".join(f'<span class="channel-tag tag-arg">{c}</span>' for c in channels_arg)
-    bra_tags = " ".join(f'<span class="channel-tag tag-bra">{c}</span>' for c in channels_bra)
+    arg_tags = " ".join(format_channel_pill(c, "arg") for c in channels_arg)
+    bra_tags = " ".join(format_channel_pill(c, "bra") for c in channels_bra)
 
     arg_content = arg_tags if arg_tags else '<span class="channel-tag">TBD</span>'
     bra_content = bra_tags if bra_tags else '<span class="channel-tag">TBD</span>'
