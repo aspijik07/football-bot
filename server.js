@@ -48,11 +48,98 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // API: Get audit logs (Activity Logs)
+  if (reqPath === '/api/logs' && req.method === 'GET') {
+    const logsFile = path.join(__dirname, 'activity_logs.json');
+    let logs = [];
+    if (fs.existsSync(logsFile)) {
+      try {
+        logs = JSON.parse(fs.readFileSync(logsFile, 'utf8'));
+      } catch (e) {
+        logs = [];
+      }
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ success: true, logs }));
+    return;
+  }
+
+  // API: Record audit log entry
+  if (reqPath === '/api/logs' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+        const clientIp = String(rawIp).split(',')[0].trim().replace(/^::ffff:/, '');
+        const logEntry = {
+          id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          timestamp: new Date().toISOString(),
+          user: payload.user || 'ysf',
+          ip: clientIp,
+          action: payload.action || 'UPDATE_ACTION',
+          details: payload.details || 'Operation executed on dashboard'
+        };
+
+        const logsFile = path.join(__dirname, 'activity_logs.json');
+        let logs = [];
+        if (fs.existsSync(logsFile)) {
+          try { logs = JSON.parse(fs.readFileSync(logsFile, 'utf8')); } catch (e) { logs = []; }
+        }
+        logs.unshift(logEntry);
+        if (logs.length > 200) logs = logs.slice(0, 200);
+        fs.writeFileSync(logsFile, JSON.stringify(logs, null, 2), 'utf8');
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: true, entry: logEntry }));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // API: Get Client IP & Info
+  if (reqPath === '/api/my-ip') {
+    const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const clientIp = String(rawIp).split(',')[0].trim().replace(/^::ffff:/, '');
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ ip: clientIp, user: 'ysf' }));
+    return;
+  }
+
   // API: Refresh Matches from Live Providers
   if (reqPath === '/api/refresh' || reqPath === '/api/update') {
     try {
       console.log('Refreshing live football matches data...');
       const matches = await fetchAllMatches();
+
+      // Log update action
+      try {
+        const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+        const clientIp = String(rawIp).split(',')[0].trim().replace(/^::ffff:/, '');
+        const logEntry = {
+          id: 'log_' + Date.now(),
+          timestamp: new Date().toISOString(),
+          user: 'ysf',
+          ip: clientIp,
+          action: 'START_UPDATE',
+          details: `Fetched live match data (${matches.length} fixtures synced)`
+        };
+        const logsFile = path.join(__dirname, 'activity_logs.json');
+        let logs = [];
+        if (fs.existsSync(logsFile)) {
+          try { logs = JSON.parse(fs.readFileSync(logsFile, 'utf8')); } catch (e) { logs = []; }
+        }
+        logs.unshift(logEntry);
+        if (logs.length > 200) logs = logs.slice(0, 200);
+        fs.writeFileSync(logsFile, JSON.stringify(logs, null, 2), 'utf8');
+      } catch (logErr) {
+        console.warn('Logging error:', logErr);
+      }
+
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({
         success: true,
