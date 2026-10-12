@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10078.png",
             "local_time": "21:30",
             "morocco_time": "00:30",
-            "status": "SOON (10m)",
-            "status_text": "SOON (10m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-12T00:30:00Z",
             "banner_url": "./banners/talleres_independiente.jpg",
             "banner_title": "Talleres vs Independiente",
@@ -43,7 +43,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
