@@ -59,9 +59,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10079.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-12T19:00:00Z",
             "banner_url": "./banners/lans_vlezsarsfield.jpg",
             "banner_title": "Lanús vs Vélez Sarsfield",
@@ -89,7 +89,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -105,9 +105,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
             "local_time": "18:30",
             "morocco_time": "21:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "SOON (24m)",
+            "status_text": "SOON (24m)",
+            "status_class": "status-soon",
             "kickoff_utc": "2026-10-12T21:30:00Z",
             "banner_url": "./banners/gimnasiamendoza_newellsoldboys.jpg",
             "banner_title": "Gimnasia Mendoza vs Newell's Old Boys",
@@ -151,9 +151,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8517.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-12T19:00:00Z",
             "banner_url": "./banners/coritiba_botafogo.jpg",
             "banner_title": "Coritiba vs Botafogo",
@@ -181,7 +181,7 @@
                 "CazéTV"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
