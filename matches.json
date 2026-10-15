@@ -81,9 +81,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/597641.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 52'",
+            "status_text": "LIVE 🔴 52'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-15T20:00:00Z",
             "banner_url": "./banners/corinthians_colocolo.jpg",
             "banner_title": "Corinthians vs Colo Colo",
@@ -132,8 +132,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "52'",
             "score": null
         },
         {
@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/2251491.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 52'",
+            "status_text": "LIVE 🔴 52'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-15T20:00:00Z",
             "banner_url": "./banners/independientedelvalle_belgrano.jpg",
             "banner_title": "Independiente del Valle vs Belgrano",
@@ -200,8 +200,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "52'",
             "score": null
         },
         {
