@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1812473.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 43'",
+            "status_text": "LIVE 🔴 43'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-16T20:00:00Z",
             "banner_url": "./banners/clubbolivar_olimpia.jpg",
             "banner_title": "Club Bolivar vs Olimpia",
@@ -268,8 +268,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "43'",
             "score": null
         },
         {
@@ -285,9 +285,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1812476.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 43'",
+            "status_text": "LIVE 🔴 43'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-16T20:00:00Z",
             "banner_url": "./banners/deportivocali_libertad.jpg",
             "banner_title": "Deportivo Cali vs Libertad",
@@ -336,8 +336,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "43'",
             "score": null
         },
         {
