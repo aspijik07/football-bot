@@ -195,9 +195,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10083.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SOON (38m)",
-            "status_text": "SOON (38m)",
-            "status_class": "status-soon",
+            "status": "LIVE 🔴 90+'",
+            "status_text": "LIVE 🔴 90+'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-18T21:00:00Z",
             "banner_url": "./banners/estudiantes_sanlorenzo.jpg",
             "banner_title": "Estudiantes vs San Lorenzo",
@@ -224,8 +224,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "90+'",
             "score": null
         },
         {
@@ -241,9 +241,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161728.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SOON (38m)",
-            "status_text": "SOON (38m)",
-            "status_class": "status-soon",
+            "status": "LIVE 🔴 90+'",
+            "status_text": "LIVE 🔴 90+'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-18T21:00:00Z",
             "banner_url": "./banners/estudiantesderocuarto_aldosivi.jpg",
             "banner_title": "Estudiantes de Río Cuarto vs Aldosivi",
@@ -270,8 +270,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "90+'",
             "score": null
         },
         {
@@ -287,9 +287,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png",
             "local_time": "20:15",
             "morocco_time": "23:15",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "SOON (20m)",
+            "status_text": "SOON (20m)",
+            "status_class": "status-soon",
             "kickoff_utc": "2026-10-18T23:15:00Z",
             "banner_url": "./banners/belgrano_riverplate.jpg",
             "banner_title": "Belgrano vs River Plate",
@@ -471,9 +471,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9770.png",
             "local_time": "18:30",
             "morocco_time": "21:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 69'",
+            "status_text": "LIVE 🔴 69'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-18T21:30:00Z",
             "banner_url": "./banners/bahia_flamengo.jpg",
             "banner_title": "Bahia vs Flamengo",
@@ -500,8 +500,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "69'",
             "score": null
         },
         {
@@ -517,9 +517,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png",
             "local_time": "19:30",
             "morocco_time": "22:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 24'",
+            "status_text": "LIVE 🔴 24'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-18T22:30:00Z",
             "banner_url": "./banners/remo_rbbragantino.jpg",
             "banner_title": "Remo vs RB Bragantino",
@@ -546,8 +546,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "24'",
             "score": null
         },
         {
