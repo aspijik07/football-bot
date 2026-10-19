@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/2251494.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 27'",
+            "status_text": "LIVE 🔴 27'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-19T20:00:00Z",
             "banner_url": "./banners/cruzeiro_clubbolivar.jpg",
             "banner_title": "Cruzeiro vs Club Bolivar",
@@ -200,8 +200,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "27'",
             "score": null
         },
         {
@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1812474.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 27'",
+            "status_text": "LIVE 🔴 27'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-19T20:00:00Z",
             "banner_url": "./banners/deportivocali_nacional.jpg",
             "banner_title": "Deportivo Cali vs Nacional",
@@ -268,8 +268,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "27'",
             "score": null
         },
         {
