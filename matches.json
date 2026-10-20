@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10096.png",
             "local_time": "21:15",
             "morocco_time": "00:15",
-            "status": "SOON (5m)",
-            "status_text": "SOON (5m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-20T00:15:00Z",
             "banner_url": "./banners/deportivoriestra_unin.jpg",
             "banner_title": "Deportivo Riestra vs Unión",
@@ -179,7 +179,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         }
     ],
