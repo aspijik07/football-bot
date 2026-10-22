@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1817231.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 66'",
+            "status_text": "LIVE 🔴 66'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-22T20:00:00Z",
             "banner_url": "./banners/universidaddechile_deportivocali.jpg",
             "banner_title": "Universidad de Chile vs Deportivo Cali",
@@ -268,8 +268,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "66'",
             "score": null
         },
         {
@@ -285,9 +285,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1812474.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 66'",
+            "status_text": "LIVE 🔴 66'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-22T20:00:00Z",
             "banner_url": "./banners/libertad_nacional.jpg",
             "banner_title": "Libertad vs Nacional",
@@ -336,8 +336,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "66'",
             "score": null
         }
     ],
