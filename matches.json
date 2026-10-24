@@ -287,9 +287,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
             "local_time": "19:15",
             "morocco_time": "22:15",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 45'",
+            "status_text": "LIVE 🔴 45'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-24T22:15:00Z",
             "banner_url": "./banners/sanlorenzo_newellsoldboys.jpg",
             "banner_title": "San Lorenzo vs Newell's Old Boys",
@@ -316,8 +316,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "45'",
             "score": null
         },
         {
@@ -471,9 +471,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9808.png",
             "local_time": "18:30",
             "morocco_time": "21:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 75'",
+            "status_text": "LIVE 🔴 75'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-24T21:30:00Z",
             "banner_url": "./banners/vascodagama_corinthians.jpg",
             "banner_title": "Vasco da Gama vs Corinthians",
@@ -500,8 +500,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "75'",
             "score": null
         },
         {
@@ -517,9 +517,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/109705.png",
             "local_time": "18:30",
             "morocco_time": "21:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 75'",
+            "status_text": "LIVE 🔴 75'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-24T21:30:00Z",
             "banner_url": "./banners/palmeiras_rbbragantino.jpg",
             "banner_title": "Palmeiras vs RB Bragantino",
@@ -546,8 +546,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "75'",
             "score": null
         },
         {
@@ -563,9 +563,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png",
             "local_time": "19:30",
             "morocco_time": "22:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 30'",
+            "status_text": "LIVE 🔴 30'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-24T22:30:00Z",
             "banner_url": "./banners/chapecoense_fluminense.jpg",
             "banner_title": "Chapecoense vs Fluminense",
@@ -592,8 +592,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "30'",
             "score": null
         }
     ],
