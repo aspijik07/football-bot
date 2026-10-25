@@ -81,9 +81,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1812473.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 37'",
+            "status_text": "LIVE 🔴 37'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-25T20:00:00Z",
             "banner_url": "./banners/deportivocali_olimpia.jpg",
             "banner_title": "Deportivo Cali vs Olimpia",
@@ -132,8 +132,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "37'",
             "score": null
         },
         {
@@ -195,9 +195,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10092.png",
             "local_time": "14:45",
             "morocco_time": "17:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-25T17:45:00Z",
             "banner_url": "./banners/aldosivi_belgrano.jpg",
             "banner_title": "Aldosivi vs Belgrano",
@@ -225,7 +225,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -241,9 +241,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10077.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 37'",
+            "status_text": "LIVE 🔴 37'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-25T20:00:00Z",
             "banner_url": "./banners/independiente_bocajuniors.jpg",
             "banner_title": "Independiente vs Boca Juniors",
@@ -270,8 +270,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "37'",
             "score": null
         },
         {
@@ -379,9 +379,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1345405.png",
             "local_time": "13:30",
             "morocco_time": "16:30",
-            "status": "SOON (40m)",
-            "status_text": "SOON (40m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-25T16:30:00Z",
             "banner_url": "./banners/leonesdelnorte_libertad.jpg",
             "banner_title": "Leones del Norte vs Libertad",
@@ -431,7 +431,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -447,9 +447,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/194754.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 82'",
+            "status_text": "LIVE 🔴 82'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-25T19:00:00Z",
             "banner_url": "./banners/emelec_guayaquilcity.jpg",
             "banner_title": "Emelec vs Guayaquil City",
@@ -498,8 +498,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "82'",
             "score": null
         }
     ],
