@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1817227.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 59'",
+            "status_text": "LIVE 🔴 59'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-31T20:00:00Z",
             "banner_url": "./banners/olimpia_santafe.jpg",
             "banner_title": "Olimpia vs Santa Fe",
@@ -64,8 +64,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "59'",
             "score": null
         },
         {
@@ -173,9 +173,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10101.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 59'",
+            "status_text": "LIVE 🔴 59'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-10-31T20:00:00Z",
             "banner_url": "./banners/deportivoriestra_talleres.jpg",
             "banner_title": "Deportivo Riestra vs Talleres",
@@ -202,8 +202,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "59'",
             "score": null
         },
         {
@@ -265,9 +265,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7733.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-31T19:00:00Z",
             "banner_url": "./banners/coritiba_vitria.jpg",
             "banner_title": "Coritiba vs Vitória",
@@ -295,7 +295,7 @@
                 "CazéTV"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -311,9 +311,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1370528.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-10-31T19:00:00Z",
             "banner_url": "./banners/emelec_leonesdelnorte.jpg",
             "banner_title": "Emelec vs Leones del Norte",
@@ -363,7 +363,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         }
     ],
