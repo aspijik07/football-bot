@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10276.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 26'",
+            "status_text": "LIVE 🔴 26'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-01T19:00:00Z",
             "banner_url": "./banners/palmeiras_vascodagama.jpg",
             "banner_title": "Palmeiras vs Vasco da Gama",
@@ -42,8 +42,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "26'",
             "score": null
         },
         {
@@ -219,9 +219,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png",
             "local_time": "15:00",
             "morocco_time": "18:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 71'",
+            "status_text": "LIVE 🔴 71'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-01T18:00:00Z",
             "banner_url": "./banners/bocajuniors_riverplate.jpg",
             "banner_title": "Boca Juniors vs River Plate",
@@ -248,8 +248,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "71'",
             "score": null
         },
         {
