@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10076.png",
             "local_time": "15:00",
             "morocco_time": "18:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 88'",
+            "status_text": "LIVE 🔴 88'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-05T18:00:00Z",
             "banner_url": "./banners/aldosivi_riverplate.jpg",
             "banner_title": "Aldosivi vs River Plate",
@@ -42,8 +42,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "88'",
             "score": null
         },
         {
