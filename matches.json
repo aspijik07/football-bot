@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10080.png",
             "local_time": "15:00",
             "morocco_time": "18:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 51'",
+            "status_text": "LIVE 🔴 51'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-06T18:00:00Z",
             "banner_url": "./banners/barracascentral_racingclub.jpg",
             "banner_title": "Barracas Central vs Racing Club",
@@ -42,8 +42,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "51'",
             "score": null
         },
         {
