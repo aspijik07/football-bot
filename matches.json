@@ -59,9 +59,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161727.png",
             "local_time": "22:00",
             "morocco_time": "01:00",
-            "status": "SOON (15m)",
-            "status_text": "SOON (15m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-07T01:00:00Z",
             "banner_url": "./banners/banfield_atlticotucumn.jpg",
             "banner_title": "Banfield vs Atlético Tucumán",
@@ -89,7 +89,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -105,9 +105,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/202757.png",
             "local_time": "22:00",
             "morocco_time": "01:00",
-            "status": "SOON (15m)",
-            "status_text": "SOON (15m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-07T01:00:00Z",
             "banner_url": "./banners/tigre_sarmiento.jpg",
             "banner_title": "Tigre vs Sarmiento",
@@ -135,7 +135,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
