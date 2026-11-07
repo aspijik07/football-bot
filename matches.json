@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 37'",
+            "status_text": "LIVE 🔴 37'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-07T21:00:00Z",
             "banner_url": "./banners/atlticomg_grmio.jpg",
             "banner_title": "Atlético-MG vs Grêmio",
@@ -42,8 +42,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "37'",
             "score": null
         },
         {
@@ -151,9 +151,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png",
             "local_time": "15:00",
             "morocco_time": "18:00",
-            "status": "SOON (22m)",
-            "status_text": "SOON (22m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-07T18:00:00Z",
             "banner_url": "./banners/gimnasiamendoza_independienterivadavia.jpg",
             "banner_title": "Gimnasia Mendoza vs Independiente Rivadavia",
@@ -181,7 +181,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -197,9 +197,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10094.png",
             "local_time": "15:00",
             "morocco_time": "18:00",
-            "status": "SOON (22m)",
-            "status_text": "SOON (22m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-07T18:00:00Z",
             "banner_url": "./banners/talleres_estudiantes.jpg",
             "banner_title": "Talleres vs Estudiantes",
@@ -227,7 +227,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -243,9 +243,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161730.png",
             "local_time": "17:30",
             "morocco_time": "20:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 52'",
+            "status_text": "LIVE 🔴 52'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-07T20:30:00Z",
             "banner_url": "./banners/bocajuniors_defensayjusticia.jpg",
             "banner_title": "Boca Juniors vs Defensa y Justicia",
@@ -272,8 +272,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "52'",
             "score": null
         },
         {
@@ -289,9 +289,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10081.png",
             "local_time": "17:30",
             "morocco_time": "20:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 52'",
+            "status_text": "LIVE 🔴 52'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-07T20:30:00Z",
             "banner_url": "./banners/argentinosjuniors_huracn.jpg",
             "banner_title": "Argentinos Juniors vs Huracán",
@@ -318,8 +318,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "52'",
             "score": null
         },
         {
@@ -335,9 +335,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/213591.png",
             "local_time": "17:30",
             "morocco_time": "20:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 52'",
+            "status_text": "LIVE 🔴 52'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-07T20:30:00Z",
             "banner_url": "./banners/rosariocentral_estudiantesderocuarto.jpg",
             "banner_title": "Rosario Central vs Estudiantes de Río Cuarto",
@@ -364,8 +364,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "52'",
             "score": null
         },
         {
@@ -381,9 +381,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1850.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-07T19:00:00Z",
             "banner_url": "./banners/libertad_emelec.jpg",
             "banner_title": "Libertad vs Emelec",
@@ -433,7 +433,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -449,9 +449,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/194754.png",
             "local_time": "18:30",
             "morocco_time": "21:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 7'",
+            "status_text": "LIVE 🔴 7'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-07T21:30:00Z",
             "banner_url": "./banners/leonesdelnorte_guayaquilcity.jpg",
             "banner_title": "Leones del Norte vs Guayaquil City",
@@ -500,8 +500,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "7'",
             "score": null
         }
     ],
