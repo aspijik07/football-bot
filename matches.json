@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8263.png",
             "local_time": "14:00",
             "morocco_time": "17:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 27'",
+            "status_text": "LIVE 🔴 27'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-12T17:00:00Z",
             "banner_url": "./banners/turkiye_belgium.jpg",
             "banner_title": "Turkiye vs Belgium",
@@ -64,8 +64,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "27'",
             "score": null
         },
         {
@@ -285,9 +285,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5793.png",
             "local_time": "14:00",
             "morocco_time": "17:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 27'",
+            "status_text": "LIVE 🔴 27'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-12T17:00:00Z",
             "banner_url": "./banners/armenia_cyprus.jpg",
             "banner_title": "Armenia vs Cyprus",
@@ -336,8 +336,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "27'",
             "score": null
         },
         {
