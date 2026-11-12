@@ -81,9 +81,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6723.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:45:00Z",
             "banner_url": "./banners/italy_france.jpg",
             "banner_title": "Italy vs France",
@@ -133,7 +133,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6720.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:45:00Z",
             "banner_url": "./banners/czechia_spain.jpg",
             "banner_title": "Czechia vs Spain",
@@ -201,7 +201,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10155.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:45:00Z",
             "banner_url": "./banners/england_croatia.jpg",
             "banner_title": "England vs Croatia",
@@ -269,7 +269,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -353,9 +353,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5795.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:45:00Z",
             "banner_url": "./banners/montenegro_latvia.jpg",
             "banner_title": "Montenegro vs Latvia",
@@ -405,7 +405,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -421,9 +421,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7871.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:45:00Z",
             "banner_url": "./banners/albania_finland.jpg",
             "banner_title": "Albania vs Finland",
@@ -473,7 +473,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -489,9 +489,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10057.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:45:00Z",
             "banner_url": "./banners/sanmarino_belarus.jpg",
             "banner_title": "San Marino vs Belarus",
@@ -541,7 +541,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -557,9 +557,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6222.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:00:00Z",
             "banner_url": "./banners/caymanislands_guyana.jpg",
             "banner_title": "Cayman Islands vs Guyana",
@@ -609,7 +609,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -625,9 +625,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5757.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:00:00Z",
             "banner_url": "./banners/barbados_guadeloupe.jpg",
             "banner_title": "Barbados vs Guadeloupe",
@@ -677,7 +677,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -693,9 +693,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5857.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T20:00:00Z",
             "banner_url": "./banners/bonaire_cuba.jpg",
             "banner_title": "Bonaire vs Cuba",
@@ -745,7 +745,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -761,9 +761,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5859.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-12T19:00:00Z",
             "banner_url": "./banners/aruba_martinique.jpg",
             "banner_title": "Aruba vs Martinique",
@@ -813,7 +813,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -829,9 +829,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7724.png",
             "local_time": "20:00",
             "morocco_time": "23:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 22'",
+            "status_text": "LIVE 🔴 22'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-12T23:00:00Z",
             "banner_url": "./banners/antiguaandbarbuda_trinidadandtobago.jpg",
             "banner_title": "Antigua and Barbuda vs Trinidad and Tobago",
@@ -880,8 +880,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "22'",
             "score": null
         },
         {
@@ -897,9 +897,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png",
             "local_time": "20:00",
             "morocco_time": "23:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 22'",
+            "status_text": "LIVE 🔴 22'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-12T23:00:00Z",
             "banner_url": "./banners/estudiantes_independienterivadavia.jpg",
             "banner_title": "Estudiantes vs Independiente Rivadavia",
@@ -926,8 +926,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "22'",
             "score": null
         }
     ],
@@ -1829,9 +1829,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5922.png",
             "local_time": "21:00",
             "morocco_time": "00:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "SOON (37m)",
+            "status_text": "SOON (37m)",
+            "status_class": "status-soon",
             "kickoff_utc": "2026-11-13T00:00:00Z",
             "banner_url": "./banners/curacao_panama.jpg",
             "banner_title": "Curacao vs Panama",
