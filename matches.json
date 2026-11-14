@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5790.png",
             "local_time": "14:00",
             "morocco_time": "17:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-14T17:00:00Z",
             "banner_url": "./banners/norway_wales.jpg",
             "banner_title": "Norway vs Wales",
@@ -65,7 +65,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -81,9 +81,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8238.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 3'",
+            "status_text": "LIVE 🔴 3'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-14T19:45:00Z",
             "banner_url": "./banners/portugal_denmark.jpg",
             "banner_title": "Portugal vs Denmark",
@@ -132,8 +132,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "3'",
             "score": null
         },
         {
@@ -149,9 +149,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8567.png",
             "local_time": "11:00",
             "morocco_time": "14:00",
-            "status": "SOON (45m)",
-            "status_text": "SOON (45m)",
-            "status_class": "status-soon",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-14T14:00:00Z",
             "banner_url": "./banners/kosovo_israel.jpg",
             "banner_title": "Kosovo vs Israel",
@@ -201,7 +201,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -217,9 +217,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/5791.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 3'",
+            "status_text": "LIVE 🔴 3'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-14T19:45:00Z",
             "banner_url": "./banners/austria_ireland.jpg",
             "banner_title": "Austria vs Ireland",
@@ -268,8 +268,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "3'",
             "score": null
         },
         {
@@ -285,9 +285,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8565.png",
             "local_time": "14:00",
             "morocco_time": "17:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-14T17:00:00Z",
             "banner_url": "./banners/georgia_hungary.jpg",
             "banner_title": "Georgia vs Hungary",
@@ -337,7 +337,7 @@
                 "Paramount+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -353,9 +353,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/6718.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 3'",
+            "status_text": "LIVE 🔴 3'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-14T19:45:00Z",
             "banner_url": "./banners/northernireland_ukraine.jpg",
             "banner_title": "Northern Ireland vs Ukraine",
@@ -404,8 +404,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "3'",
             "score": null
         },
         {
@@ -421,9 +421,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/8568.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 3'",
+            "status_text": "LIVE 🔴 3'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-14T19:45:00Z",
             "banner_url": "./banners/romania_poland.jpg",
             "banner_title": "Romania vs Poland",
@@ -472,8 +472,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "3'",
             "score": null
         },
         {
@@ -489,9 +489,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10106.png",
             "local_time": "16:45",
             "morocco_time": "19:45",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 3'",
+            "status_text": "LIVE 🔴 3'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-14T19:45:00Z",
             "banner_url": "./banners/sweden_bosniaandherzegovina.jpg",
             "banner_title": "Sweden vs Bosnia and Herzegovina",
@@ -540,8 +540,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "3'",
             "score": null
         },
         {
@@ -557,9 +557,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/835267.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 HT",
+            "status_text": "LIVE 🔴 HT",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-14T19:00:00Z",
             "banner_url": "./banners/sintmaarten_frenchguiana.jpg",
             "banner_title": "Sint Maarten vs French Guiana",
@@ -608,8 +608,8 @@
                 "CazéTV",
                 "Paramount+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "HT",
             "score": null
         },
         {
