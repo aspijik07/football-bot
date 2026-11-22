@@ -13,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/568727.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 14'",
+            "status_text": "LIVE 🔴 14'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-22T19:00:00Z",
             "banner_url": "./banners/rosariocentral_gimnasiamendoza.jpg",
             "banner_title": "Rosario Central vs Gimnasia Mendoza",
@@ -42,8 +42,8 @@
                 "TyC Sports",
                 "Disney+"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "14'",
             "score": null
         },
         {
@@ -151,9 +151,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/1626.png",
             "local_time": "16:00",
             "morocco_time": "19:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 14'",
+            "status_text": "LIVE 🔴 14'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-22T19:00:00Z",
             "banner_url": "./banners/athleticoparanaense_remo.jpg",
             "banner_title": "Athletico Paranaense vs Remo",
@@ -180,8 +180,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "14'",
             "score": null
         },
         {
