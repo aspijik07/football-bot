@@ -59,9 +59,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10201.png",
             "local_time": "17:00",
             "morocco_time": "20:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-23T20:00:00Z",
             "banner_url": "./banners/gimnasialp_newellsoldboys.jpg",
             "banner_title": "Gimnasia LP vs Newell's Old Boys",
@@ -89,7 +89,7 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
@@ -105,9 +105,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/7733.png",
             "local_time": "19:30",
             "morocco_time": "22:30",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 61'",
+            "status_text": "LIVE 🔴 61'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-23T22:30:00Z",
             "banner_url": "./banners/internacional_vitria.jpg",
             "banner_title": "Internacional vs Vitória",
@@ -134,8 +134,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "61'",
             "score": null
         },
         {
@@ -151,9 +151,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10277.png",
             "local_time": "20:00",
             "morocco_time": "23:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 HT",
+            "status_text": "LIVE 🔴 HT",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-23T23:00:00Z",
             "banner_url": "./banners/botafogo_sopaulo.jpg",
             "banner_title": "Botafogo vs São Paulo",
@@ -180,8 +180,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "HT",
             "score": null
         }
     ],
@@ -199,9 +199,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9769.png",
             "local_time": "21:00",
             "morocco_time": "00:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "SOON (13m)",
+            "status_text": "SOON (13m)",
+            "status_class": "status-soon",
             "kickoff_utc": "2026-11-24T00:00:00Z",
             "banner_url": "./banners/santos_grmio.jpg",
             "banner_title": "Santos vs Grêmio",
