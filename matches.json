@@ -59,9 +59,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10283.png",
             "local_time": "18:00",
             "morocco_time": "21:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "LIVE 🔴 53'",
+            "status_text": "LIVE 🔴 53'",
+            "status_class": "status-live",
             "kickoff_utc": "2026-11-24T21:00:00Z",
             "banner_url": "./banners/chapecoense_palmeiras.jpg",
             "banner_title": "Chapecoense vs Palmeiras",
@@ -88,8 +88,8 @@
                 "SporTV",
                 "CazéTV"
             ],
-            "is_live": false,
-            "live_minute": null,
+            "is_live": true,
+            "live_minute": "53'",
             "score": null
         }
     ],
