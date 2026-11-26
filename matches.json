@@ -3,54 +3,6 @@
         {
             "day": "today",
             "day_label": "Today",
-            "match_date": "2026-11-25",
-            "league": "Série A",
-            "country": "Brazil",
-            "badge_class": "badge-brazil",
-            "home_team": "Atlético-MG",
-            "away_team": "Corinthians",
-            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/10272.png",
-            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9808.png",
-            "local_time": "20:00",
-            "morocco_time": "23:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
-            "kickoff_utc": "2026-11-25T23:00:00Z",
-            "banner_url": "./banners/atlticomg_corinthians.jpg",
-            "banner_title": "Atlético-MG vs Corinthians",
-            "banner_source_site": "github.io",
-            "has_scraped_banner": true,
-            "all_unique_channels": [
-                "Premiere",
-                "Globo",
-                "SporTV",
-                "CazéTV"
-            ],
-            "match_dt": "2026-11-25T23:00:00+00:00",
-            "is_shared_league": false,
-            "channels_arg": [],
-            "channels_bra": [
-                "Premiere",
-                "Globo",
-                "SporTV",
-                "CazéTV"
-            ],
-            "channels": [
-                "Premiere",
-                "Globo",
-                "SporTV",
-                "CazéTV"
-            ],
-            "is_live": false,
-            "live_minute": null,
-            "score": null
-        }
-    ],
-    "tomorrow": [
-        {
-            "day": "tomorrow",
-            "day_label": "Tomorrow",
             "match_date": "2026-11-26",
             "league": "Liga Profesional Clausura",
             "country": "Argentina",
@@ -61,9 +13,9 @@
             "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/161729.png",
             "local_time": "21:00",
             "morocco_time": "00:00",
-            "status": "SCHEDULED",
-            "status_text": "SCHEDULED",
-            "status_class": "status-scheduled",
+            "status": "FINISHED",
+            "status_text": "FINISHED",
+            "status_class": "status-finished",
             "kickoff_utc": "2026-11-26T00:00:00Z",
             "banner_url": "./banners/bocajuniors_independienterivadavia.jpg",
             "banner_title": "Boca Juniors vs Independiente Rivadavia",
@@ -91,12 +43,12 @@
                 "Disney+"
             ],
             "is_live": false,
-            "live_minute": null,
+            "live_minute": "FT",
             "score": null
         },
         {
-            "day": "tomorrow",
-            "day_label": "Tomorrow",
+            "day": "today",
+            "day_label": "Today",
             "match_date": "2026-11-26",
             "league": "Série A",
             "country": "Brazil",
@@ -122,6 +74,54 @@
                 "CazéTV"
             ],
             "match_dt": "2026-11-26T23:00:00+00:00",
+            "is_shared_league": false,
+            "channels_arg": [],
+            "channels_bra": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
+            "channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
+            "is_live": false,
+            "live_minute": null,
+            "score": null
+        }
+    ],
+    "tomorrow": [
+        {
+            "day": "tomorrow",
+            "day_label": "Tomorrow",
+            "match_date": "2026-11-27",
+            "league": "Série A",
+            "country": "Brazil",
+            "badge_class": "badge-brazil",
+            "home_team": "Fluminense",
+            "away_team": "Cruzeiro",
+            "home_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9863.png",
+            "away_logo": "https://images.fotmob.com/image_resources/logo/teamlogo/9781.png",
+            "local_time": "20:00",
+            "morocco_time": "23:00",
+            "status": "SCHEDULED",
+            "status_text": "SCHEDULED",
+            "status_class": "status-scheduled",
+            "kickoff_utc": "2026-11-27T23:00:00Z",
+            "banner_url": "./banners/fluminense_cruzeiro.jpg",
+            "banner_title": "Fluminense vs Cruzeiro",
+            "banner_source_site": "github.io",
+            "has_scraped_banner": true,
+            "all_unique_channels": [
+                "Premiere",
+                "Globo",
+                "SporTV",
+                "CazéTV"
+            ],
+            "match_dt": "2026-11-27T23:00:00+00:00",
             "is_shared_league": false,
             "channels_arg": [],
             "channels_bra": [
